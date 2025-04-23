@@ -1,0 +1,32 @@
+name: "🔧 Refactor"
+description: "코드 리팩토링 (제목은 '[Refactor] 중복 코드 제거' 형태로 입력해 주세요)"
+labels: ["refactor"]
+body:
+  - type: textarea
+    attributes:
+      label: 📄 설명
+      description: |
+        리팩토링할 기능에 대한 설명을 작성해 주세요.
+        예: 인증 로직에 중복된 예외 처리 코드가 반복되어 이를 함수로 추출
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: ✅ 리팩토링 내용
+      description: |
+        리팩토링할 내용을 체크박스 형태로 작성해주세요.
+        예:
+        - [ ] 중복 예외 처리 로직 함수로 추출
+        - [ ] 테스트 코드 수정
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 💡 참고 자료
+      description: |
+        참고 자료가 있다면 작성해 주세요.
+        예:
+        - 기존 코드 위치 링크
+        - 리팩토링 관련 문서
+        - 리팩토링 원칙(Boy Scout Rule 등)
+        참고 자료가 없는 경우 `_No response_`로 작성해 주세요.
