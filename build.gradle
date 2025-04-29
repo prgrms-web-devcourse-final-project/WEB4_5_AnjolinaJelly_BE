@@ -1,8 +1,19 @@
+import org.hidetake.gradle.swagger.generator.GenerateSwaggerUI
+
+buildscript {
+	ext {
+		restdocsApiSpecVersion = '0.18.2'
+	}
+}
+
 plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.4.5'
 	id 'io.spring.dependency-management' version '1.1.7'
 	id "jacoco"
+
+	id 'com.epages.restdocs-api-spec' version "${restdocsApiSpecVersion}"
+	id 'org.hidetake.swagger.generator' version '2.18.2'
 }
 
 jacoco {
@@ -36,12 +47,20 @@ dependencies {
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	annotationProcessor 'org.projectlombok:lombok'
 
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	testRuntimeOnly 'com.h2database:h2'
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.restdocs:spring-restdocs-restassured'
+	testImplementation "com.epages:restdocs-api-spec-restassured:${restdocsApiSpecVersion}"
+	testImplementation "com.epages:restdocs-api-spec-mockmvc:${restdocsApiSpecVersion}"
+	testImplementation "org.springframework.restdocs:spring-restdocs-mockmvc"
+	testImplementation 'io.rest-assured:rest-assured'
+
+	swaggerUI 'org.webjars:swagger-ui:4.11.1'
 }
 
-tasks.named('test') {
+test {
 	useJUnitPlatform()
 	finalizedBy 'jacocoTestReport'
 }
@@ -58,6 +77,8 @@ jacocoTestReport {
 				files(classDirectories.files.collect {
 					fileTree(dir: it, excludes: [
 							'**/*Application*',
+							'**/*Response*',
+							'**/*Request*',
 					])
 				})
 		)
@@ -85,7 +106,53 @@ jacocoTestCoverageVerification {
 
 			excludes = [
 					'*.*Application',
+					'*.*Response',
+					'*.*Request',
 			]
 		}
 	}
+}
+
+openapi3 {
+	servers = [
+			{
+				url = "http://localhost:8080"
+			}
+	]
+	title = "찌릿 API Docs"
+	description = "찌릿 API 명세서"
+	version = "1.0.0"
+	format = "yaml"
+}
+
+swaggerSources {
+	jjirit {
+		setInputFile(file("build/api-spec/openapi3.yaml"))
+	}
+}
+
+tasks.withType(GenerateSwaggerUI) {
+	dependsOn 'openapi3'
+}
+
+generateSwaggerUIJjirit {
+	doLast {
+		copy {
+			from outputDir.toPath()
+			into "src/main/resources/static/docs/"
+		}
+	}
+}
+
+test {
+	useJUnitPlatform()
+	finalizedBy 'jacocoTestReport'
+}
+
+build {
+	dependsOn generateSwaggerUIJjirit
+}
+
+bootJar {
+	dependsOn generateSwaggerUIJjirit
 }
