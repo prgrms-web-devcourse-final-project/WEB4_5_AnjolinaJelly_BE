@@ -1,24 +1,46 @@
+# application.yml
+
 spring:
+  profiles:
+    active: dev
+    include: secret
+
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${URL}
-    username: ${USER}
-    password: ${PASSWORD}
 
-  logging:
-    level:
-      org:
-        hibernate:
-          SQL: debug
+  jpa:
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQLDialect
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
 
   decorator:
     datasource:
       p6spy:
         enable-logging: true
 
-  jpa:
-    database: mysql
-    database-platform: org.hibernate.dialect.MySQL8Dialect
-    generate-ddl: true
-    hibernate:
-      ddl-auto: update
+  mail:
+    host: smtp.naver.com
+    port: 465
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.ssl.enable: true
+      mail.smtp.ssl.trust: smtp.naver.com
+
+custom:
+  site:
+    domain: localhost
+    back-url: http://localhost:8080
+    front-url: http://localhost:3000
+  file:
+    upload-dir: uploads/
+  upload:
+    max-image-size: 5MB
+    max-file-size: 20MB
+
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: debug

@@ -1,0 +1,38 @@
+# 시작 명령어
+# docker-compose -f docker-compose.dev.yaml up -d
+
+# 종료 명령어 [볼륨 및 네트워크]
+# docker-compose -f docker-compose.dev.yaml down -v
+
+services:
+  mysql:
+    image: mysql:latest
+    container_name: zzirit_mysql_dev
+    ports:
+      - "3406:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: zzirit-dev
+    volumes:
+      - zzirit_mysql_data:/var/lib/mysql
+    networks:
+      - dev_network
+
+  redis:
+    image: redis:latest
+    container_name: zzirit_redis_dev
+    ports:
+      - "6479:6379"
+    volumes:
+      - zzirit_redis_data:/data
+    command: redis-server --appendonly no
+    networks:
+      - dev_network
+
+networks:
+  dev_network:
+    driver: bridge
+
+volumes:
+  zzirit_mysql_data:
+  zzirit_redis_data:
