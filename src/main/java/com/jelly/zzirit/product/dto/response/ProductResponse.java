@@ -1,4 +1,4 @@
-package com.jelly.jjirit.product.dto.response;
+package com.jelly.zzirit.product.dto.response;
 
 public record ProductResponse (
 	Long id,

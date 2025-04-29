@@ -1,4 +1,4 @@
-package com.jelly.jjirit.product.controller;
+package com.jelly.zzirit.product.controller;
 
 import static com.epages.restdocs.apispec.RestAssuredRestDocumentationWrapper.document;
 import static com.epages.restdocs.apispec.RestAssuredRestDocumentationWrapper.resourceDetails;
