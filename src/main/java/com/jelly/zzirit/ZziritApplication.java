@@ -1,13 +1,13 @@
-package com.jelly.jjirit;
+package com.jelly.zzirit;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class JjiritApplication {
+public class ZziritApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(JjiritApplication.class, args);
+		SpringApplication.run(ZziritApplication.class, args);
 	}
 
 }
