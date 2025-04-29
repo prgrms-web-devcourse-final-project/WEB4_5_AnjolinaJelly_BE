@@ -1,9 +1,12 @@
 spring:
+  config:
+    import: application-secret.yml
+
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${URL}
-    username: ${USER}
-    password: ${PASSWORD}
+    url: ${db.url}
+    username: ${db.username}
+    password: ${db.password}
 
   logging:
     level:
