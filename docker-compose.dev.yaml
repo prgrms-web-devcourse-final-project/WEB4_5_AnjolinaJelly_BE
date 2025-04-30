@@ -1,0 +1,64 @@
+# 시작 명령어
+# docker-compose -f docker-compose.dev.yaml up -d
+
+# 종료 명령어 [볼륨 및 네트워크]
+# docker-compose -f docker-compose.dev.yaml down -v
+
+services:
+  mysql:
+    image: mysql:latest
+    container_name: zzirit_mysql_dev
+    ports:
+      - "3406:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_DEV_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DEV_DB}
+    volumes:
+      - zzirit_mysql_data:/var/lib/mysql
+    networks:
+      - dev_network
+
+  mysql-test:
+    image: mysql:latest
+    container_name: zzirit_mysql_test
+    ports:
+      - "3506:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_TEST_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_TEST_DB}
+    volumes:
+      - zzirit_mysql_test_data:/var/lib/mysql
+    networks:
+      - dev_network
+
+  redis:
+    image: redis:latest
+    container_name: zzirit_redis_dev
+    ports:
+      - "${REDIS_PORT_DEV}:6379"
+    volumes:
+      - zzirit_redis_data:/data
+    command: redis-server --appendonly no
+    networks:
+      - dev_network
+
+  redis-test:
+    image: redis:latest
+    container_name: zzirit_redis_test
+    ports:
+      - "${REDIS_PORT_TEST}:6379"
+    volumes:
+      - zzirit_redis_test_data:/data
+    command: redis-server --appendonly no
+    networks:
+      - dev_network
+
+networks:
+  dev_network:
+    driver: bridge
+
+volumes:
+  zzirit_mysql_data:
+  zzirit_mysql_test_data:
+  zzirit_redis_data:
+  zzirit_redis_test_data:

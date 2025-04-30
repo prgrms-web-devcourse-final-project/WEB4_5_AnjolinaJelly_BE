@@ -9,5 +9,4 @@ public class ZziritApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(ZziritApplication.class, args);
 	}
-
 }

@@ -13,7 +13,7 @@ plugins {
 	id "jacoco"
 
 	id 'com.epages.restdocs-api-spec' version "${restdocsApiSpecVersion}"
-	id 'org.hidetake.swagger.generator' version '2.18.2'
+	id 'org.hidetake.swagger.generator' version '2.18.2' // openapi3.yaml 읽어서 Swagger-UI HTML 생성
 }
 
 jacoco {
@@ -40,12 +40,28 @@ repositories {
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+	// JWT (JSON Web Token)
+	implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
+	implementation 'io.jsonwebtoken:jjwt-impl:0.12.3'
+	implementation 'io.jsonwebtoken:jjwt-jackson:0.12.3'
+
+	// Tika (MIME 타입 탐지 등)
+	implementation("org.apache.tika:tika-core:3.0.0")
+
+	// Email && Retry && Validation
+	implementation 'org.springframework.retry:spring-retry'
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	annotationProcessor 'org.projectlombok:lombok'
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
 
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	testRuntimeOnly 'com.h2database:h2'
@@ -123,7 +139,7 @@ openapi3 {
 	description = "찌릿 API 명세서"
 	version = "1.0.0"
 	format = "yaml"
-}
+} // 독스 스니펫 읽어서 openapi3.yaml 생성
 
 swaggerSources {
 	jjirit {
@@ -142,7 +158,7 @@ generateSwaggerUIJjirit {
 			into "src/main/resources/static/docs/"
 		}
 	}
-}
+} // src/main/resources/static/docs/로 복사
 
 test {
 	useJUnitPlatform()

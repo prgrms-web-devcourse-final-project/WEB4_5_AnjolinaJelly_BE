@@ -1,0 +1,73 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3506/zzirit-test?useSSL=false&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
+    username: root
+    password: 1234
+
+  mail:
+    host: localhost
+    port: 1025
+    username: dummy
+    password: dummy
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+
+  data:
+    redis:
+      host: localhost
+      port: 6579
+
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        format_sql: true
+  sql:
+    init:
+      mode: never
+
+  jwt:
+    secret: testtesttesttesttesttesttesttesttesttesttesttesttesttesttest
+
+oauth2:
+  naver:
+    client-id: test-naver-client-id
+    client-secret: test-naver-client-secret
+    redirect-uri: http://localhost:8080/login/oauth2/code/naver
+
+  google:
+    client-id: test-google-client-id
+    client-secret: test-google-client-secret
+    redirect-uri: http://localhost:8080/login/oauth2/code/google
+
+  kakao:
+    client-id: test-kakao-client-id
+    client-secret: test-kakao-client-secret
+    redirect-uri: http://localhost:8080/login/oauth2/code/kakao
+
+custom:
+  site:
+    domain: localhost
+    back-url: http://localhost:8080
+    front-url: http://localhost:3000
+  file:
+    upload-dir: uploads/
+  upload:
+    max-image-size: 5MB
+    max-file-size: 20MB
+
+email:
+  fake-sending: true
+
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: debug
