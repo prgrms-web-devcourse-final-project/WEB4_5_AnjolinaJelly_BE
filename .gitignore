@@ -40,3 +40,4 @@ out/
 
 ### custom ###
 src/main/resources/application-secret.yml
+.env
