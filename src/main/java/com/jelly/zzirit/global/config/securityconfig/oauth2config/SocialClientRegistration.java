@@ -33,9 +33,6 @@ public class SocialClientRegistration {
 	@Value("${oauth2.kakao.client-id}")
 	private String kakaoClientId;
 
-	@Value("${oauth2.kakao.client-secret}")
-	private String kakaoClientSecret;
-
 	@Value("${oauth2.kakao.redirect-uri}")
 	private String kakaoRedirectUri;
 
@@ -72,7 +69,6 @@ public class SocialClientRegistration {
 	public ClientRegistration kakaoClientRegistration() {
 		return ClientRegistration.withRegistrationId("kakao")
 			.clientId(kakaoClientId)
-			.clientSecret(kakaoClientSecret)
 			.redirectUri(kakaoRedirectUri)
 			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
 			.scope("profile_nickname", "account_email")
