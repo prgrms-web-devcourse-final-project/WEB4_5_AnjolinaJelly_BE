@@ -2,8 +2,8 @@ package com.jelly.zzirit.domain.member.mapper;
 
 import org.springframework.stereotype.Component;
 
-import com.jelly.zzirit.domain.member.dto.req.SignupDTO;
-import com.jelly.zzirit.domain.member.dto.req.SocialSignupDTO;
+import com.jelly.zzirit.domain.member.dto.request.SignupDTO;
+import com.jelly.zzirit.domain.member.dto.request.SocialSignupDTO;
 import com.jelly.zzirit.domain.member.entity.Member;
 import com.jelly.zzirit.domain.member.entity.OAuthMember;
 import com.jelly.zzirit.domain.member.entity.authenum.ProviderInfo;

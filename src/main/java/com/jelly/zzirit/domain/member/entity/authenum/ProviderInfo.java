@@ -7,11 +7,13 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
 @Getter
+@RequiredArgsConstructor
 public enum ProviderInfo {
 	NAVER("response", "id", "email"),
-	GOOGLE(null, "sub", "email");
+	GOOGLE(null, "sub", "email"),
+	KAKAO(null, "id", "kakao_account.email");
+
 
 	private final String attributeKey; // 응답 형식의 맨 상위 필드
 	private final String providerCode; // 각 소셜은 판별하는 판별 코드

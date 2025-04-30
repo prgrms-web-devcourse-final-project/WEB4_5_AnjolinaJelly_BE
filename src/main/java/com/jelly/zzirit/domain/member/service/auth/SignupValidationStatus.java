@@ -1,6 +1,6 @@
 package com.jelly.zzirit.domain.member.service.auth;
 
-import com.jelly.zzirit.domain.member.dto.req.SignupDTO;
+import com.jelly.zzirit.domain.member.dto.request.SignupDTO;
 import com.jelly.zzirit.domain.member.repository.MemberRepository;
 import com.jelly.zzirit.domain.member.util.PasswordManager;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;

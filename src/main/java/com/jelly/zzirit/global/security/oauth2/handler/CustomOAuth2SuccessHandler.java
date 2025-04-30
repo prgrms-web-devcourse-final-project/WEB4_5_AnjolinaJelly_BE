@@ -32,7 +32,7 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
 			if (role == Role.ROLE_GUEST) {
 				response.sendRedirect(AppConfig.getSiteFrontUrl() + "/social-signup");
 				return;
-			}
+			} // 추가 정보를 받는 경우
 			tokenService.generateTokensAndSetCookies(response, userId, role);
 			response.sendRedirect(AppConfig.getSiteFrontUrl()  + "/");
 		}

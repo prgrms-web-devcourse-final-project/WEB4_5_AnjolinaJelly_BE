@@ -8,7 +8,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.jelly.zzirit.domain.member.dto.req.SocialSignupDTO;
+import com.jelly.zzirit.domain.member.dto.request.SocialSignupDTO;
 import com.jelly.zzirit.domain.member.entity.Member;
 import com.jelly.zzirit.global.security.model.MemberPrincipal;
 import com.jelly.zzirit.global.security.oauth2.service.token.OAuthTempTokenService;

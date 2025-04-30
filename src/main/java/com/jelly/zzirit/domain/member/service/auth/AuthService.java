@@ -4,7 +4,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.jelly.zzirit.domain.member.dto.req.SignupDTO;
+import com.jelly.zzirit.domain.member.dto.request.SignupDTO;
 import com.jelly.zzirit.domain.member.entity.Member;
 import com.jelly.zzirit.domain.member.mapper.MemberMapper;
 import com.jelly.zzirit.domain.member.repository.MemberRepository;

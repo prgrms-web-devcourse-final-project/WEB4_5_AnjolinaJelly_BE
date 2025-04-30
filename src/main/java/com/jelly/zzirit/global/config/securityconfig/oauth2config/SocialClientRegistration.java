@@ -30,6 +30,15 @@ public class SocialClientRegistration {
 	@Value("${oauth2.google.redirect-uri}")
 	private String googleRedirectUri;
 
+	@Value("${oauth2.kakao.client-id}")
+	private String kakaoClientId;
+
+	@Value("${oauth2.kakao.client-secret}")
+	private String kakaoClientSecret;
+
+	@Value("${oauth2.kakao.redirect-uri}")
+	private String kakaoRedirectUri;
+
 	public ClientRegistration naverClientRegistration() {
 		return ClientRegistration.withRegistrationId("naver")
 			.clientId(naverClientId)
@@ -50,13 +59,27 @@ public class SocialClientRegistration {
 			.clientSecret(googleClientSecret)
 			.redirectUri(googleRedirectUri)
 			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-			.scope("email")
+			.scope("email", "profile")
 			.authorizationUri("https://accounts.google.com/o/oauth2/v2/auth")
 			.tokenUri("https://www.googleapis.com/oauth2/v4/token")
 			.jwkSetUri("https://www.googleapis.com/oauth2/v3/certs")
 			.issuerUri("https://accounts.google.com")
 			.userInfoUri("https://www.googleapis.com/oauth2/v3/userinfo")
 			.userNameAttributeName(IdTokenClaimNames.SUB)
+			.build();
+	}
+
+	public ClientRegistration kakaoClientRegistration() {
+		return ClientRegistration.withRegistrationId("kakao")
+			.clientId(kakaoClientId)
+			.clientSecret(kakaoClientSecret)
+			.redirectUri(kakaoRedirectUri)
+			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+			.scope("profile_nickname", "account_email")
+			.authorizationUri("https://kauth.kakao.com/oauth/authorize")
+			.tokenUri("https://kauth.kakao.com/oauth/token")
+			.userInfoUri("https://kapi.kakao.com/v2/user/me")
+			.userNameAttributeName("id")
 			.build();
 	}
 }

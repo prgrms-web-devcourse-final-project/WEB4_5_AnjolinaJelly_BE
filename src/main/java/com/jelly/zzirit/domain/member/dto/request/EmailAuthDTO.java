@@ -1,4 +1,4 @@
-package com.jelly.zzirit.domain.member.dto.req;
+package com.jelly.zzirit.domain.member.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;

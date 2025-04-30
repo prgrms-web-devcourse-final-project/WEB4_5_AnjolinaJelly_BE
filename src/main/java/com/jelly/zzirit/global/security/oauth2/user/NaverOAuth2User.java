@@ -10,4 +10,10 @@ public class NaverOAuth2User extends OAuth2UserInfo {
 	public NaverOAuth2User(Map<String, Object> attributes) {
 		super((Map<String, Object>) attributes.get("response"), ProviderInfo.NAVER);
 	}
+
+	@Override
+	public String getEmail() {
+		Object email = attributes.get("email");
+		return email != null ? email.toString() : null;
+	}
 }

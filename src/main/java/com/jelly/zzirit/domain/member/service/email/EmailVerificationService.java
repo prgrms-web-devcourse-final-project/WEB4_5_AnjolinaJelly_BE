@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 public class EmailVerificationService {
 
 	private final RedisService redisService;
+
 	private static final String REDIS_KEY_PREFIX = "emailAuth:";
 	private static final long CODE_EXPIRE_SEC = 600;
 	private static final long REQUEST_LOCK_SEC = 10;

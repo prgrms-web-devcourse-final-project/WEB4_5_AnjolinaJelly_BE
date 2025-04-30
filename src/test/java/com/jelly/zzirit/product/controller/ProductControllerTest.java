@@ -9,11 +9,17 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWit
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
-import com.jelly.jjirit.global.support.RestDocsSupport;
+import com.jelly.zzirit.global.support.RestDocsSupport;
 
-
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureRestDocs
+@ActiveProfiles("test")
 class ProductControllerTest extends RestDocsSupport {
+
 
 	@Test
 	void 상품_조회_API_문서() {

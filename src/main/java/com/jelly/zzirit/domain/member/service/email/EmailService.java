@@ -3,6 +3,7 @@ package com.jelly.zzirit.domain.member.service.email;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.mail.MailProperties;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -25,9 +26,10 @@ public class EmailService {
 
 	private final JavaMailSender javaMailSender;
 	private final EmailVerificationService emailVerificationService;
+	private final MailProperties mailProperties;
 
-	@Value("${spring.mail.username}")
-	private String emailFrom;
+	@Value("${email.fake-sending:false}")
+	private boolean fakeSending;
 
 	public void sendEmailVerificationCode(String email) {
 		validateEmailRequest(email);
@@ -45,14 +47,16 @@ public class EmailService {
 	}
 
 	@Async("mailExecutor")
-	@Retryable(
-		noRetryFor = {IllegalArgumentException.class},
-		backoff = @Backoff(delay = 1000, multiplier = 2)
-	)
+	@Retryable(noRetryFor = {IllegalArgumentException.class}, backoff = @Backoff(delay = 1000, multiplier = 2))
 	public void emailSendCode(String toEmail, String verificationCode) {
+		if (fakeSending) {
+			log.info("[FAKE EMAIL] 인증 코드 {}가 {}로 전송된 것으로 간주합니다.", verificationCode, toEmail);
+			return;
+		}
+
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setTo(toEmail);
-		message.setFrom(emailFrom);
+		message.setFrom(mailProperties.getUsername());
 		message.setSubject("찌릿 이메일 인증 코드");
 		message.setText("인증 코드는 " + verificationCode + " 입니다.");
 		javaMailSender.send(message);

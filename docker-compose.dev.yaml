@@ -11,10 +11,23 @@ services:
     ports:
       - "3406:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: 1234
-      MYSQL_DATABASE: zzirit-dev
+      MYSQL_ROOT_PASSWORD: ${MYSQL_DEV_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DEV_DB}
     volumes:
       - zzirit_mysql_data:/var/lib/mysql
+    networks:
+      - dev_network
+
+  mysql-test:
+    image: mysql:latest
+    container_name: zzirit_mysql_test
+    ports:
+      - "3506:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_TEST_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_TEST_DB}
+    volumes:
+      - zzirit_mysql_test_data:/var/lib/mysql
     networks:
       - dev_network
 
@@ -22,9 +35,20 @@ services:
     image: redis:latest
     container_name: zzirit_redis_dev
     ports:
-      - "6479:6379"
+      - "${REDIS_PORT_DEV}:6379"
     volumes:
       - zzirit_redis_data:/data
+    command: redis-server --appendonly no
+    networks:
+      - dev_network
+
+  redis-test:
+    image: redis:latest
+    container_name: zzirit_redis_test
+    ports:
+      - "${REDIS_PORT_TEST}:6379"
+    volumes:
+      - zzirit_redis_test_data:/data
     command: redis-server --appendonly no
     networks:
       - dev_network
@@ -35,4 +59,6 @@ networks:
 
 volumes:
   zzirit_mysql_data:
+  zzirit_mysql_test_data:
   zzirit_redis_data:
+  zzirit_redis_test_data:

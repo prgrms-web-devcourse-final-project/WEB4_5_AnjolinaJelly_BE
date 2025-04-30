@@ -36,6 +36,7 @@ public enum BaseResponseStatus {
 	// OAuth 관련
 	OAUTH_USER_NOT_FOUND(false,2201, "소셜 로그인 사용자 정보를 찾을 수 없습니다.", 404),
 	OAUTH_REDIRECT_FAILED(false,2202, "소셜 로그인 후 리다이렉트에 실패했습니다.", 500),
+	OAUTH_EMAIL_NOT_FOUND(false, 2203, "이메일 정보를 가져올 수 없습니다.", 400),
 
 	// 회원 관련
 	INVALID_PASSWORD(false,2301, "비밀번호가 일치하지 않습니다", 400),

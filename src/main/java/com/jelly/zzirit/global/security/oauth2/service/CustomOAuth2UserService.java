@@ -11,13 +11,17 @@ import org.springframework.stereotype.Service;
 import com.jelly.zzirit.domain.member.entity.Member;
 import com.jelly.zzirit.domain.member.entity.authenum.ProviderInfo;
 import com.jelly.zzirit.domain.member.repository.MemberRepository;
+import com.jelly.zzirit.global.dto.BaseResponseStatus;
+import com.jelly.zzirit.global.exception.custom.InvalidAuthenticationException;
 import com.jelly.zzirit.global.security.oauth2.info.OAuth2UserInfo;
 import com.jelly.zzirit.global.security.oauth2.info.OAuth2UserInfoFactory;
 import com.jelly.zzirit.global.security.oauth2.service.login.OAuthUserLoginService;
 import com.jelly.zzirit.global.security.oauth2.service.signup.OAuthSignupRedirectService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
@@ -30,7 +34,13 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
 		OAuth2User oAuth2User = super.loadUser(userRequest);
 		ProviderInfo provider = ProviderInfo.from(userRequest.getClientRegistration().getRegistrationId());
+
+		log.info("[{}] OAuth2 Attributes: {}", provider.name(), oAuth2User.getAttributes());
 		OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(provider, oAuth2User.getAttributes());
+
+		if (oAuth2UserInfo.getEmail() == null) {
+			throw new InvalidAuthenticationException(BaseResponseStatus.OAUTH_EMAIL_NOT_FOUND);
+		}
 
 		Optional<Member> userOpt = memberRepository.findByMemberEmail(oAuth2UserInfo.getEmail());
 		if (userOpt.isPresent()) {

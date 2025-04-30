@@ -5,10 +5,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.jelly.zzirit.domain.member.dto.req.EmailAuthDTO;
-import com.jelly.zzirit.domain.member.dto.req.EmailAuthVerificationDTO;
-import com.jelly.zzirit.domain.member.dto.req.SignupDTO;
-import com.jelly.zzirit.domain.member.dto.req.SocialSignupDTO;
+import com.jelly.zzirit.domain.member.dto.request.EmailAuthDTO;
+import com.jelly.zzirit.domain.member.dto.request.EmailAuthVerificationDTO;
+import com.jelly.zzirit.domain.member.dto.request.SignupDTO;
+import com.jelly.zzirit.domain.member.dto.request.SocialSignupDTO;
 import com.jelly.zzirit.domain.member.service.auth.AuthService;
 import com.jelly.zzirit.domain.member.service.email.EmailService;
 import com.jelly.zzirit.global.dto.BaseResponse;
@@ -50,8 +50,9 @@ public class AuthController {
 	} // 회원가입의 경우 두 가지로 나뉩니다. 해당 컨트롤러는 자체 회원가입 입니다
 
 	@PostMapping("/social-signup")
-	public BaseResponse<Empty> completeSignup(HttpServletRequest request, HttpServletResponse response, @RequestBody @Valid SocialSignupDTO socialSignupDto) {
+	public BaseResponse<Empty> completeSignup(HttpServletRequest request, HttpServletResponse response,
+		@RequestBody @Valid SocialSignupDTO socialSignupDto) {
 		firstOAuthSignUpService.finalizeSocialSignup(request, response, socialSignupDto);
 		return BaseResponse.success();
-	} // 회원가입의 경우 두 가지로 나뉩니다. 해당 컨트롤러는 소셜 간편 회원가입 입니다
+	} // 회원가입의 경우 두 가지로 나뉩니다. 해당 컨트롤러는 기존 회원이 아닌 경우의 소셜 자체 회원가입 입니다
 }

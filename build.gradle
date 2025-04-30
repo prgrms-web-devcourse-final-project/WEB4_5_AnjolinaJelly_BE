@@ -13,7 +13,7 @@ plugins {
 	id "jacoco"
 
 	id 'com.epages.restdocs-api-spec' version "${restdocsApiSpecVersion}"
-	id 'org.hidetake.swagger.generator' version '2.18.2'
+	id 'org.hidetake.swagger.generator' version '2.18.2' // openapi3.yaml 읽어서 Swagger-UI HTML 생성
 }
 
 jacoco {
@@ -139,7 +139,7 @@ openapi3 {
 	description = "찌릿 API 명세서"
 	version = "1.0.0"
 	format = "yaml"
-}
+} // 독스 스니펫 읽어서 openapi3.yaml 생성
 
 swaggerSources {
 	jjirit {
@@ -158,7 +158,7 @@ generateSwaggerUIJjirit {
 			into "src/main/resources/static/docs/"
 		}
 	}
-}
+} // src/main/resources/static/docs/로 복사
 
 test {
 	useJUnitPlatform()

@@ -6,7 +6,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.jelly.zzirit.domain.member.dto.req.SocialSignupDTO;
+import com.jelly.zzirit.domain.member.dto.request.SocialSignupDTO;
 import com.jelly.zzirit.domain.member.entity.Member;
 import com.jelly.zzirit.domain.member.entity.OAuthMember;
 import com.jelly.zzirit.domain.member.entity.authenum.ProviderInfo;
@@ -33,16 +33,14 @@ public class OAuthSignupService {
 	@Transactional
 	public Member processSignup(SocialSignupDTO socialSignupDto, Map<String, String> tokenData) {
 		String encodedPassword = passwordEncoder.encode(socialSignupDto.getMemberPassword());
-		validateUserInput(encodedPassword);
-		Member member = createUserEntity(socialSignupDto, tokenData, encodedPassword);
-		saveOAuthUser(member, tokenData);
-		return member;
-	}
 
-	private void validateUserInput(String encodedPassword) {
 		if (!passwordManager.isInvalid(encodedPassword)) {
 			throw new InvalidUserException(BaseResponseStatus.USER_PASSWORD_NOT_VALID);
 		}
+
+		Member member = createUserEntity(socialSignupDto, tokenData, encodedPassword);
+		saveOAuthUser(member, tokenData);
+		return member;
 	}
 
 	private Member createUserEntity(SocialSignupDTO socialSignupDto, Map<String, String> tokenData, String encodedPassword) {

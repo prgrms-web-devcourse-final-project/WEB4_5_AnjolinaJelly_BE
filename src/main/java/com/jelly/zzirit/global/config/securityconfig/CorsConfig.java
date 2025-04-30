@@ -3,6 +3,7 @@ package com.jelly.zzirit.global.config.securityconfig;
 import java.util.Collections;
 import java.util.List;
 
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -16,7 +17,7 @@ public class CorsConfig implements CorsConfigurationSource {
 	private final List<String> allowedMethods = List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS");
 
 	@Override
-	public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+	public CorsConfiguration getCorsConfiguration(@NonNull HttpServletRequest request) {
 		CorsConfiguration config = new CorsConfiguration();
 		config.setAllowedOriginPatterns(Collections.singletonList(AppConfig.getSiteFrontUrl()));
 		config.setAllowedMethods(allowedMethods);

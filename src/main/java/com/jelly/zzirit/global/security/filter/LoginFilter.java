@@ -43,8 +43,11 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 	}
 
 	@Override
-	public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse res) throws
-		AuthenticationException {
+	public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse res) throws AuthenticationException {
+		if (!req.getServletPath().equals("/api/auth/basic/login")) {
+			return null;
+		}
+
 		try {
 			Map<String, String> credentials = objectMapper.readValue(req.getInputStream(), new TypeReference<>() {});
 			String userEmail = credentials.get("username");

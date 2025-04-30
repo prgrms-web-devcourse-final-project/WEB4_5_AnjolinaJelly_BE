@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
+import com.jelly.zzirit.global.exception.custom.InvalidAuthenticationException;
 import com.jelly.zzirit.global.exception.custom.InvalidCustomException;
 import com.jelly.zzirit.global.exception.custom.InvalidTokenException;
 
@@ -14,8 +15,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
-@Component
 @Slf4j
+@Component
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
 	private final HandlerExceptionResolver resolver;
 
@@ -28,6 +29,8 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
 		Exception exception = (Exception) request.getAttribute("exception");
 
 		if (exception instanceof InvalidTokenException customEx) {
+			resolver.resolveException(request, response, null, new InvalidCustomException(customEx.getStatus()));
+		} else if (exception instanceof InvalidAuthenticationException customEx) {
 			resolver.resolveException(request, response, null, new InvalidCustomException(customEx.getStatus()));
 		} else {
 			resolver.resolveException(request, response, null, new InvalidCustomException(BaseResponseStatus.UNAUTHORIZED));

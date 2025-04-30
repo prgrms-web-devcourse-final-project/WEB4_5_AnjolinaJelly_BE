@@ -1,4 +1,4 @@
-package com.jelly.jjirit.global.support;
+package com.jelly.zzirit.global.support;
 
 import static io.restassured.RestAssured.*;
 import static org.springframework.restdocs.restassured.RestAssuredRestDocumentation.*;

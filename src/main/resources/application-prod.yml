@@ -1,0 +1,11 @@
+# application-prod.yml
+
+oauth2:
+  naver:
+    redirect-uri: https://api.zzirit.shop/login/oauth2/code/naver
+
+  google:
+    redirect-uri: https://api.zzirit.shop/login/oauth2/code/google
+
+  kakao:
+    redirect-uri: https://api.zzirit.shop/login/oauth2/code/kakao

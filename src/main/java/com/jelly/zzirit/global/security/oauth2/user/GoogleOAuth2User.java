@@ -9,4 +9,10 @@ public class GoogleOAuth2User extends OAuth2UserInfo {
 	public GoogleOAuth2User(Map<String, Object> attributes) {
 		super(attributes, ProviderInfo.GOOGLE);
 	}
+
+	@Override
+	public String getEmail() {
+		Object email = attributes.get("email");
+		return email != null ? email.toString() : null;
+	}
 }
