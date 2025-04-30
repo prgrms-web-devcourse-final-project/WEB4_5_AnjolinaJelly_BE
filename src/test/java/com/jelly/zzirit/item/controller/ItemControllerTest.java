@@ -1,12 +1,9 @@
-package com.jelly.zzirit.product.controller;
+package com.jelly.zzirit.item.controller;
 
-import static com.epages.restdocs.apispec.RestAssuredRestDocumentationWrapper.document;
-import static com.epages.restdocs.apispec.RestAssuredRestDocumentationWrapper.resourceDetails;
-import static com.epages.restdocs.apispec.Schema.schema;
-
+import static com.epages.restdocs.apispec.RestAssuredRestDocumentationWrapper.*;
+import static com.epages.restdocs.apispec.Schema.*;
 import static org.springframework.restdocs.payload.JsonFieldType.*;
-import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
-import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
@@ -18,8 +15,7 @@ import com.jelly.zzirit.global.support.RestDocsSupport;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureRestDocs
 @ActiveProfiles("test")
-class ProductControllerTest extends RestDocsSupport {
-
+class ItemControllerTest extends RestDocsSupport {
 
 	@Test
 	void 상품_조회_API_문서() {
@@ -28,7 +24,7 @@ class ProductControllerTest extends RestDocsSupport {
 				resourceDetails()
 					.summary("상품 전체 조회")
 					.description("상품 목록을 조회합니다.")
-					.responseSchema(schema("ProductResponse")),
+					.responseSchema(schema("ItemResponse")),
 				responseFields(
 					fieldWithPath("[].id").description("상품 ID").type(NUMBER),
 					fieldWithPath("[].name").description("상품 이름").type(STRING),
@@ -38,7 +34,7 @@ class ProductControllerTest extends RestDocsSupport {
 				)
 			))
 			.when()
-			.get("/products")
+			.get("/items")
 			.then()
 			.statusCode(200);
 	}
