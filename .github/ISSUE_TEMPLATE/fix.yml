@@ -1,5 +1,6 @@
 name: "🐞 Fix"
 description: "버그 수정 (제목은 '[Fix] 로그인 에러 발생' 형태로 입력해 주세요)"
+title: "[Fix] "
 labels: ["fix"]
 body:
   - type: textarea
