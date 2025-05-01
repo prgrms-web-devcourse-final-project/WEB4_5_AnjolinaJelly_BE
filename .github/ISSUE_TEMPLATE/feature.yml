@@ -1,5 +1,6 @@
 name: "✨ Feature"
 description: "새로운 기능 추가 (제목은 '[Feat] 소셜 로그인 추가' 형태로 입력해 주세요)"
+title: "[Feat] "
 labels: ["feature"]
 body:
   - type: textarea
