@@ -35,7 +35,7 @@ custom:
   site:
     domain: localhost
     back-url: http://localhost:8080
-    front-url: http://localhost:3000
+    front-url: http://localhost:5173
   file:
     upload-dir: uploads/
   upload:
