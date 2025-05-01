@@ -37,6 +37,7 @@ custom:
     back-url: http://localhost:8080
     front-url: http://localhost:3000
     allowed-origins: http://localhost:3000,https://www.app4.qwas.shop,https://login.aleph.kr
+
   file:
     upload-dir: uploads/
   upload:
