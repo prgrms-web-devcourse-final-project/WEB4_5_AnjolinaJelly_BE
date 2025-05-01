@@ -21,12 +21,15 @@ spring:
         enable-logging: true
 
   mail:
-    host: smtp.naver.com
-    port: 465
+    host: smtp.gmail.com
+    port: 587
     properties:
-      mail.smtp.auth: true
-      mail.smtp.ssl.enable: true
-      mail.smtp.ssl.trust: smtp.naver.com
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
 
 custom:
   site:
