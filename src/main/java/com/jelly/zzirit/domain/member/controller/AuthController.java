@@ -11,8 +11,6 @@ import com.jelly.zzirit.domain.member.dto.request.SignupDTO;
 import com.jelly.zzirit.domain.member.dto.request.SocialSignupDTO;
 import com.jelly.zzirit.domain.member.service.auth.AuthService;
 import com.jelly.zzirit.domain.member.service.email.EmailService;
-import com.jelly.zzirit.global.dto.BaseResponse;
-import com.jelly.zzirit.global.dto.Empty;
 import com.jelly.zzirit.global.security.oauth2.service.signup.FirstOAuthSignUpService;
 
 import io.swagger.v3.oas.annotations.Operation;
