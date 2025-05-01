@@ -13,3 +13,7 @@ issue_template:
     description: "기능 변경 없이 코드 개선이 필요할 때 사용하세요."
     labels: ["refactor"]
     file: refactor.yml
+  - name: "✏️ Docs"
+    description: "문서화 작업이 필요할 때 사용하세요."
+    labels: ["docs"]
+    file: docs.yml
