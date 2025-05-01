@@ -1,5 +1,7 @@
 package com.jelly.zzirit.global.dto;
 
+import org.springframework.http.HttpStatus;
+
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import lombok.AllArgsConstructor;
@@ -14,7 +16,7 @@ public class BaseResponse<T> {
 
 	private final int code;
 
-	private final int httpStatus;
+	private final HttpStatus httpStatus;
 
 	private final String message;
 

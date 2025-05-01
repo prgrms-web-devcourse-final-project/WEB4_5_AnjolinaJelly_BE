@@ -34,7 +34,6 @@ public class CustomOAuth2FailureHandler extends SimpleUrlAuthenticationFailureHa
 		BaseResponseStatus responseStatus = (status != null) ? status : BaseResponseStatus.UNAUTHORIZED;
 
 		if (!response.isCommitted()) {
-			response.setStatus(responseStatus.getHttpStatus());
 			response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 			response.setCharacterEncoding(StandardCharsets.UTF_8.name());
 			objectMapper.writeValue(response.getWriter(), BaseResponse.error(responseStatus, responseStatus.getMessage()));
