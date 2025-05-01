@@ -8,6 +8,8 @@ import org.springframework.retry.annotation.EnableRetry;
 
 import lombok.Getter;
 
+import java.util.List;
+
 @EnableRetry
 @Configuration
 public class AppConfig {
@@ -32,6 +34,14 @@ public class AppConfig {
 
 	@Getter
 	private static String siteDomain;
+
+	@Getter
+	private static List<String> allowedOrigins;
+
+	@Value("${custom.site.allowed-origins}")
+	public void setAllowedOrigins(List<String> allowedOrigins) {
+		AppConfig.allowedOrigins = allowedOrigins;
+	}
 
 	@Value("${custom.site.back-url}")
 	public void setSiteBackUrl(String siteBackUrl) {
