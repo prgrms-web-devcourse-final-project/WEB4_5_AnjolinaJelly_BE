@@ -49,7 +49,6 @@ oauth2:
 
   kakao:
     client-id: test-kakao-client-id
-    client-secret: test-kakao-client-secret
     redirect-uri: http://localhost:8080/login/oauth2/code/kakao
 
 custom:

@@ -52,20 +52,6 @@ services:
     command: redis-server --appendonly no
     networks:
       - dev_network
-  
-  nginx-proxy-manager:
-    image: jc21/nginx-proxy-manager:latest
-    container_name: nginx-proxy-manager
-    restart: unless-stopped
-    ports:
-      - "81:81"      # NPM 관리 UI
-      - "80:80"      # 일반 HTTP
-      - "443:443"    # HTTPS
-    volumes:
-      - ./npm-data:/data
-      - ./npm-letsencrypt:/etc/letsencrypt
-    networks:
-      - dev_network
 
 networks:
   dev_network:

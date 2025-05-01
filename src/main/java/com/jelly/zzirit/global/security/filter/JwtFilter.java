@@ -39,11 +39,16 @@ public class JwtFilter extends OncePerRequestFilter {
 		if (requestURI.startsWith("/api/auth") ||
 			requestURI.startsWith("/api/info/temp-check") ||
 			requestURI.startsWith("/oauth2/authorization") ||
-			requestURI.startsWith("/login/oauth2/code")
+			requestURI.startsWith("/login/oauth2/code") ||
+			requestURI.startsWith("/docs") ||
+			requestURI.startsWith("/swagger-ui") ||
+			requestURI.startsWith("/v3/api-docs") ||
+			requestURI.equals("/favicon.ico")
 		) {
 			filterChain.doFilter(request, response);
 			return;
 		}
+
 
 		String accessToken = CookieUtil.getCookieValue(request, AuthConst.TOKEN_TYPE_ACCESS);
 
