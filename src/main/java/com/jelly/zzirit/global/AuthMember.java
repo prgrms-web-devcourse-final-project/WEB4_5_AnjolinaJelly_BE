@@ -30,7 +30,7 @@ public class AuthMember {
 			.build();
 	}
 
-	public static Long getMemberId() {
-		return getAuthUser().getId();
+	public static Role getMemberRole() {
+		return getAuthUser().getRole();
 	}
 }
