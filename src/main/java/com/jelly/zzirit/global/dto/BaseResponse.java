@@ -2,6 +2,7 @@ package com.jelly.zzirit.global.dto;
 
 import org.springframework.http.HttpStatus;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import lombok.AllArgsConstructor;
@@ -16,7 +17,8 @@ public class BaseResponse<T> {
 
 	private final int code;
 
-	private final HttpStatus httpStatus;
+	@JsonProperty("httpStatus")
+	private final int httpStatusCode;
 
 	private final String message;
 
@@ -45,8 +47,9 @@ public class BaseResponse<T> {
 	private BaseResponse(BaseResponseStatus status, T result) {
 		this.success = status.isSuccess();
 		this.code = status.getCode();
-		this.httpStatus = status.getHttpStatus();
+		this.httpStatusCode = status.getHttpStatusCode(); // ✅ 수정됨
 		this.message = status.getMessage();
 		this.result = result;
 	}
+
 }
