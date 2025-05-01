@@ -65,7 +65,11 @@ public enum BaseResponseStatus {
 	REFRESH_TOKEN_NULL(false,40020, "리프레시 토큰이 없습니다.", HttpStatus.UNAUTHORIZED),
 	REFRESH_TOKEN_EXPIRED(false,40021, "리프레시 토큰이 만료되었습니다.", HttpStatus.UNAUTHORIZED),
 	REFRESH_TOKEN_INVALID(false,40022, "유효하지 않은 리프레시 토큰입니다.", HttpStatus.UNAUTHORIZED),
-	REFRESH_TOKEN_NOT_FOUND(false,40023, "저장된 리프레시 토큰이 없습니다.", HttpStatus.UNAUTHORIZED);
+	REFRESH_TOKEN_NOT_FOUND(false,40023, "저장된 리프레시 토큰이 없습니다.", HttpStatus.UNAUTHORIZED),
+
+	// ResponseWrapper 관련 예외
+	NOT_SUPPORTED(false, 50001, "지원하지 않는 형식입니다.", INTERNAL_SERVER_ERROR)
+	;
 
 
 	private final boolean isSuccess;
