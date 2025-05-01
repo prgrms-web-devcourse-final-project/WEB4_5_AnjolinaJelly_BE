@@ -90,6 +90,7 @@ public class SecurityConfig {
 					"/v3/api-docs/**",
 					"/favicon.ico"
 				).permitAll()
+				.requestMatchers("/api/cart/**").permitAll()
 				.anyRequest().authenticated()
 			);
 

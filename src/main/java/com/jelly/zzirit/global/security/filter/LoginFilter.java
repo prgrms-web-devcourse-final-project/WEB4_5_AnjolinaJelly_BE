@@ -89,7 +89,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
 		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 		response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-		response.setStatus(errorResponse.getHttpStatus().value());
+		response.setStatus(errorResponse.getHttpStatusCode());
 		objectMapper.writeValue(response.getWriter(), errorResponse);
 	}
+
 }

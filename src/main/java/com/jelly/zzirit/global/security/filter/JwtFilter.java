@@ -41,6 +41,7 @@ public class JwtFilter extends OncePerRequestFilter {
 			requestURI.startsWith("/oauth2/authorization") ||
 			requestURI.startsWith("/login/oauth2/code") ||
 			requestURI.startsWith("/docs") ||
+			requestURI.startsWith("/api/cart/") ||
 			requestURI.startsWith("/swagger-ui") ||
 			requestURI.startsWith("/v3/api-docs") ||
 			requestURI.equals("/favicon.ico")

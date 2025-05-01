@@ -36,7 +36,7 @@ public class CustomOAuth2FailureHandler extends SimpleUrlAuthenticationFailureHa
 		if (!response.isCommitted()) {
 			response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 			response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-			response.setStatus(responseStatus.getHttpStatus().value());
+			response.setStatus(responseStatus.getHttpStatusCode());
 			objectMapper.writeValue(response.getWriter(), BaseResponse.error(responseStatus, responseStatus.getMessage()));
 		}
 	}

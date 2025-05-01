@@ -1,12 +1,15 @@
 package com.jelly.zzirit.global.support;
 
-import com.epages.restdocs.apispec.RestAssuredRestDocumentationWrapper;
-import io.restassured.filter.Filter;
-import org.springframework.restdocs.payload.FieldDescriptor;
-import org.springframework.restdocs.request.ParameterDescriptor;
-
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
+
+import org.springframework.restdocs.payload.FieldDescriptor;
+import org.springframework.restdocs.request.ParameterDescriptor;
+import org.springframework.restdocs.snippet.Snippet;
+
+import com.epages.restdocs.apispec.RestAssuredRestDocumentationWrapper;
+
+import io.restassured.filter.Filter;
 
 public class OpenApiDocumentationFilter {
 
@@ -37,4 +40,14 @@ public class OpenApiDocumentationFilter {
 			responseFields(responseFields)
 		);
 	}
+
+	public static Filter ofWithResponseFields(String identifier, FieldDescriptor[] responseFields) {
+		return RestAssuredRestDocumentationWrapper.document(
+			identifier,
+			new Snippet[] {
+				responseFields(responseFields)
+			}
+		);
+	}
+
 }

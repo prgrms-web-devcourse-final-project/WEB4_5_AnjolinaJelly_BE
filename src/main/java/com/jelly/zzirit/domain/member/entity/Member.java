@@ -45,9 +45,6 @@ public class Member extends BaseTime {
 	@Column(name = "member_address_detail")
 	private String memberAddressDetail;
 
-	@Column(name = "deleted_at")
-	private LocalDateTime deletedAt;
-
 	public void encodePassword(BCryptPasswordEncoder passwordEncoder) {
 		this.password = passwordEncoder.encode(this.password);
 	}
