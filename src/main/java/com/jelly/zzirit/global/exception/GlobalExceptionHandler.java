@@ -22,6 +22,7 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(InvalidCustomException.class)
 	public BaseResponse<Empty> handleGlobalException(InvalidCustomException e, HttpServletResponse response) {
+		response.setStatus(e.getStatus().getHttpStatus().value());
 		return BaseResponse.error(e.getStatus());
 	}
 
