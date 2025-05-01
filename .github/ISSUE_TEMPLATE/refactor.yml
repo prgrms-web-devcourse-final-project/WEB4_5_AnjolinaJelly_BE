@@ -1,5 +1,6 @@
 name: "🔧 Refactor"
 description: "코드 리팩토링 (제목은 '[Refactor] 중복 코드 제거' 형태로 입력해 주세요)"
+title: "[Refactor] "
 labels: ["refactor"]
 body:
   - type: textarea
