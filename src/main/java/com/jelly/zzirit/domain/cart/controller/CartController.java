@@ -20,11 +20,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Tag(name = "cart", description = "장바구니 API")
+@Slf4j
 @RestController
 @RequestMapping("/api/cart")
 @RequiredArgsConstructor
-@Slf4j
+@Tag(name = "장바구니 API", description = "장바구니와 관련된 API를 설명합니다.")
 public class CartController {
 
 	@Operation(

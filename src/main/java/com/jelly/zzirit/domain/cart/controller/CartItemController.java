@@ -28,7 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequestMapping("/api/cart/items")
 @RequiredArgsConstructor
-@Tag(name = "cart", description = "장바구니 API")
+@Tag(name = "장바구니 API", description = "장바구니와 관련된 API를 설명합니다.")
 public class CartItemController {
 
 	@Operation(
