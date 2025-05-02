@@ -36,7 +36,7 @@ public class PaymentController {
 
 	@Operation(
 		summary = "결제 요청",
-		description = "주문 정보를 기반으로 Toss 결제 URL을 생성합니다."
+		description = "주문 정보를 기반으로 Toss 결제 URL 을 생성합니다."
 	)
 	@PostMapping
 	public BaseResponse<String> requestPayment(@RequestBody @Valid PaymentRequestDto requestDto) {
@@ -46,7 +46,7 @@ public class PaymentController {
 
 	@Operation(
 		summary = "결제 성공 콜백",
-		description = "결제 성공 시 Toss에서 호출하는 콜백입니다. 주문을 확정 처리합니다."
+		description = "결제 성공 시 Toss 에서 호출하는 콜백입니다. 주문을 확정 처리합니다."
 	)
 	@GetMapping("/toss/success")
 	public BaseResponse<Empty> confirmPayment(
@@ -61,7 +61,7 @@ public class PaymentController {
 
 	@Operation(
 		summary = "결제 실패 콜백",
-		description = "결제 실패 또는 사용자 취소 시 Toss에서 호출하는 콜백입니다."
+		description = "결제 실패 또는 사용자 취소 시 Toss 에서 호출하는 콜백입니다."
 	)
 	@GetMapping("/toss/fail")
 	public BaseResponse<String> failPayment(
