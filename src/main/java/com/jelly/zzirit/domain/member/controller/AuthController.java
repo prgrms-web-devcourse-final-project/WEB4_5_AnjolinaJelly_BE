@@ -43,7 +43,7 @@ public class AuthController {
 
 	@Operation(summary = "이메일 인증 코드 검증")
 	@PostMapping("/verify-email")
-	public BaseResponse<Empty>  verifyEmailCode(@RequestBody @Valid EmailAuthVerificationDTO emailAuthVerificationDto) {
+	public BaseResponse<Empty> verifyEmailCode(@RequestBody @Valid EmailAuthVerificationDTO emailAuthVerificationDto) {
 		emailService.verifyEmailCode(emailAuthVerificationDto.getEmail(), emailAuthVerificationDto.getCode());
 		return BaseResponse.success();
 	}
