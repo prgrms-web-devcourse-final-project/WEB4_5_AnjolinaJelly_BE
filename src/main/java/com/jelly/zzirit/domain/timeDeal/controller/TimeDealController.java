@@ -20,11 +20,13 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping
+@Tag(name = "타임딜 API", description = "타임딜 관련 API를 설명합니다.")
 public class TimeDealController {
 	@Operation(
 		summary = "타임딜 등록",
