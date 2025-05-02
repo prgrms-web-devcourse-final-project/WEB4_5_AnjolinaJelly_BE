@@ -10,6 +10,7 @@ import com.jelly.zzirit.global.exception.custom.InvalidUserException;
 import com.jelly.zzirit.global.security.util.AuthConst;
 import com.jelly.zzirit.global.security.util.CookieUtil;
 import com.jelly.zzirit.global.security.util.JwtUtil;
+import com.jelly.zzirit.global.security.util.RedisRefreshTokenUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,20 +24,22 @@ public class OAuthTempTokenService {
 
 	private final JwtUtil jwtUtil;
 	private final TempTokenService tempTokenService;
-
+	private final RedisRefreshTokenUtil redisRefreshTokenUtil;
 
 	public Map<String, String> extractTokenData(HttpServletRequest request) {
 		String tempToken = CookieUtil.getCookieValue(request, AuthConst.TOKEN_TYPE_TEMP);
 		if (tempToken == null || tempToken.isEmpty()) {
 			throw new InvalidUserException(BaseResponseStatus.USER_TEMP_SESSION_EXPIRED);
 		}
-
 		return tempTokenService.validateTempSignupToken(tempToken);
 	}
 
 	public void generateAndSetTokens(HttpServletResponse response, Member member) {
 		String accessToken = createAccessToken(member);
 		String refreshToken = createRefreshToken(member);
+
+		redisRefreshTokenUtil.deleteRefreshToken(member.getId());
+		redisRefreshTokenUtil.addRefreshToken(member.getId(), refreshToken, AuthConst.REFRESH_EXPIRATION);
 
 		response.addCookie(CookieUtil.createCookie(AuthConst.TOKEN_TYPE_ACCESS, accessToken, AuthConst.COOKIE_ACCESS_EXPIRATION));
 		response.addCookie(CookieUtil.createCookie(AuthConst.TOKEN_TYPE_REFRESH, refreshToken, AuthConst.COOKIE_REFRESH_EXPIRATION));

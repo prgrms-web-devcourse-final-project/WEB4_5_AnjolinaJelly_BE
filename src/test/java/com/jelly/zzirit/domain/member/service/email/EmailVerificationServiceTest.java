@@ -1,8 +1,6 @@
 package com.jelly.zzirit.domain.member.service.email;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -10,9 +8,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.test.context.ActiveProfiles;
 
 import com.jelly.zzirit.global.redis.RedisService;
 
+@ActiveProfiles("test")
 class EmailVerificationServiceTest {
 
 	@Mock

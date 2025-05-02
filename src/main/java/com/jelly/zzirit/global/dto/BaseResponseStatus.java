@@ -1,7 +1,5 @@
 package com.jelly.zzirit.global.dto;
 
-import static org.springframework.http.HttpStatus.*;
-
 import org.springframework.http.HttpStatus;
 
 import lombok.Getter;

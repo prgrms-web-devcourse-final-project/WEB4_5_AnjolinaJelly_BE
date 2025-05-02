@@ -11,9 +11,11 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.boot.autoconfigure.mail.MailProperties;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.test.context.ActiveProfiles;
 
 import com.jelly.zzirit.global.exception.custom.InvalidUserException;
 
+@ActiveProfiles("test")
 class EmailServiceTest {
 
 	@Mock
