@@ -1,0 +1,47 @@
+package com.jelly.zzirit.domain.item.controller;
+
+import java.util.List;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.jelly.zzirit.domain.item.dto.ItemResponse;
+import com.jelly.zzirit.domain.item.dto.SimpleItemResponse;
+import com.jelly.zzirit.domain.item.entity.TimeDealStatus;
+import com.jelly.zzirit.global.dto.BaseResponse;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@RestController
+@RequestMapping("/api/items")
+@Tag(name = "상품 API", description = "상품과 관련된 API를 설명합니다.")
+public class ItemController {
+
+	@GetMapping("/search")
+	@Operation(summary = "상품 조회 및 검색", description = "상품을 조회하고 검색합니다.")
+	public BaseResponse<List<SimpleItemResponse>> search(
+		@RequestParam(required = false) List<String> type,
+		@RequestParam(required = false) List<String> brands,
+		@RequestParam(required = false) String keyword,
+		@RequestParam(defaultValue = "priceAsc") String sort
+	) {
+		return BaseResponse.success(
+			List.of(
+				new SimpleItemResponse(1L, "에이수스 노트북", "노트북", "에이수스", 10000000, TimeDealStatus.NONE),
+				new SimpleItemResponse(2L, "삼성 노트북", "노트북", "삼성", 10000, TimeDealStatus.TIME_DEAL)
+			)
+		);
+	}
+
+	@GetMapping("/{item-id}")
+	@Operation(summary = "상품 상세 조회", description = "상품을 상세 조회 합니다.")
+	public BaseResponse<ItemResponse> getById(@PathVariable(name = "item-id") Long itemId) {
+		return BaseResponse.success(
+			new ItemResponse(1L, "에이수스 노트북", "노트북", "에이수스", 10, 10000000, TimeDealStatus.NONE, null)
+		);
+	}
+}
