@@ -122,6 +122,49 @@ class CartControllerTest extends RestDocsSupport {
 	}
 
 	@Test
+	void 장바구니_추가_실패_잘못된_요청_문서() {
+		Long userId = 1L;
+		Role role = Role.ROLE_USER;
+		String accessToken = jwtUtil.createJwt("access", userId, role, 3600);
+
+		String invalidRequestBody = """
+		{
+			"itemId": 9,
+			"quantity": 0,
+			"timeDeal": true
+		}
+		""";
+
+		this.spec
+			.header("Authorization", "Bearer " + accessToken)
+			.contentType("application/json")
+			.body(invalidRequestBody)
+			.filter(OpenApiDocumentationFilter.of(
+				"cart-post-add-item-invalid",
+				new FieldDescriptor[] {
+					fieldWithPath("itemId").description("상품 ID"),
+					fieldWithPath("quantity").description("0 이하 수량"),
+					fieldWithPath("timeDeal").description("타임딜 여부")
+						.attributes(
+						key("title").value("CartItemAddRequest"),
+						key("tags").value("cart")
+					)
+				},
+				new FieldDescriptor[] {
+					fieldWithPath("success").description("false"),
+					fieldWithPath("code").description("에러 코드"),
+					fieldWithPath("httpStatus").description("HTTP 상태"),
+					fieldWithPath("message").description("에러 메시지"),
+					fieldWithPath("result").description("에러 객체 (비어있음)").optional()
+				}
+			))
+			.when()
+			.post("/api/cart/items")
+			.then()
+			.statusCode(400);
+	}
+
+	@Test
 	void 장바구니_상품삭제_API_문서() {
 		Long userId = 1L;
 		Role role = Role.ROLE_USER;
