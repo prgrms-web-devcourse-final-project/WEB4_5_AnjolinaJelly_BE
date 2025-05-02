@@ -38,9 +38,13 @@ out/
 ### VS Code ###
 .vscode/
 
+###  Swagger & REST Docs generated files ###
+/build/api-spec/
+/build/generated-snippets/
+/build/swagger-ui-zzirit/
+/build/resources/main/static/docs/
+/src/main/resources/static/docs/
+
 ### custom ###
 src/main/resources/application-secret.yml
 .env
-log.out # ec2 인스턴스에서 스프링 백그라운드 실행 로그
-npm-data/ # Nginx Proxy Manager 관련 디렉터리
-npm-letsencrypt/ # Nginx Proxy Manager 관련 디렉터리

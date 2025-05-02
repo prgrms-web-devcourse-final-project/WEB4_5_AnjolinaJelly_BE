@@ -78,7 +78,6 @@ dependencies {
 
 test {
 	useJUnitPlatform()
-	finalizedBy 'openapi3'
 	finalizedBy 'jacocoTestReport'
 }
 
@@ -113,7 +112,7 @@ jacocoTestReport {
 //			limit {
 //				counter = 'LINE'
 //				value = 'COVEREDRATIO'
-//				minimum = 0.9
+//				minimum = 0.1
 //			}
 //			limit {
 //				counter = 'LINE'
@@ -143,7 +142,7 @@ openapi3 {
 } // 독스 스니펫 읽어서 openapi3.yaml 생성
 
 swaggerSources {
-	jjirit {
+	zzirit {
 		setInputFile(file("build/api-spec/openapi3.yaml"))
 	}
 }
@@ -152,11 +151,15 @@ tasks.withType(GenerateSwaggerUI) {
 	dependsOn 'openapi3'
 }
 
-generateSwaggerUIJjirit {
+generateSwaggerUIZzirit {
 	doLast {
 		copy {
 			from outputDir.toPath()
 			into "src/main/resources/static/docs/"
+		}
+		copy {
+			from("build/api-spec/openapi3.yaml")
+			into("src/main/resources/static/docs")
 		}
 	}
 } // src/main/resources/static/docs/로 복사
@@ -167,9 +170,9 @@ test {
 }
 
 build {
-	dependsOn generateSwaggerUIJjirit
+	dependsOn generateSwaggerUIZzirit
 }
 
 bootJar {
-	dependsOn generateSwaggerUIJjirit
+	dependsOn generateSwaggerUIZzirit
 }
