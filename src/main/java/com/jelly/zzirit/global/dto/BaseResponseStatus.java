@@ -43,6 +43,15 @@ public enum BaseResponseStatus {
 	// 회원 관련
 	INVALID_PASSWORD(false, 2301, "비밀번호가 일치하지 않습니다", HttpStatus.BAD_REQUEST),
 
+	// 주문 관련
+	TOSS_PAYMENT_REQUEST_FAILED(false, 3000, "토스 결제 요청에 실패했습니다.", HttpStatus.BAD_GATEWAY),
+	ITEM_NOT_FOUND(false, 3001, "해당 상품이 존재하지 않습니다.", HttpStatus.BAD_REQUEST),
+	OUT_OF_STOCK(false, 3002, "상품 재고가 부족합니다.", HttpStatus.BAD_REQUEST),
+	ORDER_CACHE_NOT_FOUND(false, 3003, "주문 캐시가 존재하지 않습니다.", HttpStatus.BAD_REQUEST),
+	PRICE_MANIPULATION_DETECTED(false, 3004, "결제 금액이 위조되었습니다.", HttpStatus.BAD_REQUEST),
+	STOCK_CONFIRMATION_FAILED(false, 3005, "재고 확정에 실패했습니다.", HttpStatus.BAD_REQUEST),
+	ORDER_PROCESSING_FAILED_AFTER_PAYMENT(false, 3006, "결제는 되었지만 주문 처리에 실패했습니다. 자동 환불되었습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+
 	// 실패
 	VALIDATION_FAILED(false, 40000, "입력 값이 유효하지 않습니다", HttpStatus.BAD_REQUEST),
 	AUTH_REQUEST_BODY_INVALID(false, 40001, "잘못된 요청 본문입니다.", HttpStatus.BAD_REQUEST),

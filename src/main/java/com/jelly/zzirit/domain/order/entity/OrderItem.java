@@ -38,4 +38,14 @@ public class OrderItem extends BaseTime {
 	private int quantity;
 
 	private BigDecimal price;
+
+	public static OrderItem of(Order order, Item item, TimeDealItem timeDealItem, int quantity, BigDecimal price) {
+		return OrderItem.builder()
+			.order(order)
+			.item(item)
+			.timeDealItem(timeDealItem)
+			.quantity(quantity)
+			.price(price)
+			.build();
+	}
 }

@@ -82,6 +82,7 @@ public class SecurityConfig {
 		http
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
+				.requestMatchers(HttpMethod.POST, "/api/info/**").permitAll()
 				.requestMatchers(HttpMethod.GET, "/api/info/temp-check").permitAll()
 				.requestMatchers("/oauth2/authorization/**", "/login/oauth2/code/**").permitAll()
 				.requestMatchers(

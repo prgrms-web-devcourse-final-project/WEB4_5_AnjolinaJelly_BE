@@ -11,6 +11,8 @@ import com.jelly.zzirit.domain.member.dto.request.SignupDTO;
 import com.jelly.zzirit.domain.member.dto.request.SocialSignupDTO;
 import com.jelly.zzirit.domain.member.service.auth.AuthService;
 import com.jelly.zzirit.domain.member.service.email.EmailService;
+import com.jelly.zzirit.global.dto.BaseResponse;
+import com.jelly.zzirit.global.dto.Empty;
 import com.jelly.zzirit.global.security.oauth2.service.signup.FirstOAuthSignUpService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,7 +38,7 @@ public class AuthController {
 	} // 이메일 인증 코드 전송
 
 	@PostMapping("/verify-email")
-	public BaseResponse<Empty> verifyEmailCode(@RequestBody @Valid EmailAuthVerificationDTO emailAuthVerificationDto) {
+	public BaseResponse<Empty>  verifyEmailCode(@RequestBody @Valid EmailAuthVerificationDTO emailAuthVerificationDto) {
 		emailService.verifyEmailCode(emailAuthVerificationDto.getEmail(), emailAuthVerificationDto.getCode());
 		return BaseResponse.success();
 	} // 이메일 인증 코드 검증

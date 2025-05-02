@@ -51,4 +51,14 @@ public class Order extends BaseTime {
 		String date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 		return String.format("ORD%s-%06d", date, sequence);
 	}
+
+	public static Order of(Member member, String orderNumber, BigDecimal totalPrice, String shippingRequest) {
+		return Order.builder()
+			.member(member)
+			.orderNumber(orderNumber)
+			.totalPrice(totalPrice)
+			.status(OrderStatus.PAID)
+			.shippingRequest(shippingRequest)
+			.build();
+	}
 }

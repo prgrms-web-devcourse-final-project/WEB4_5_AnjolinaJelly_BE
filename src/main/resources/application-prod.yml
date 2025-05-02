@@ -1,5 +1,17 @@
 # application-prod.yml
 
+toss:
+  payments:
+    success-url: https://api.zzirit.shop/payments/success
+    fail-url: https://api.zzirit.shop/payments/fail
+
+custom:
+  site:
+    domain: zzirit.shop
+    back-url: https://api.zzirit.shop
+    front-url: https://zzirit.shop
+    allowed-origins: https://zzirit.shop,https://www.zzirit.shop
+
 oauth2:
   naver:
     redirect-uri: https://api.zzirit.shop/login/oauth2/code/naver
