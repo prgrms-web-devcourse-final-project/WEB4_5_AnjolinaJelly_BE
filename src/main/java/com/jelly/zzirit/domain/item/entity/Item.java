@@ -19,8 +19,8 @@ import lombok.NoArgsConstructor;
 public class Item extends BaseTime {
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "item_type_id", nullable = false)
-	private ItemType itemType;
+	@JoinColumn(name = "type_id", nullable = false)
+	private Type type;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "brand_id", nullable = false)
