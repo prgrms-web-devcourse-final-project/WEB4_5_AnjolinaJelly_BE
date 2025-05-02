@@ -57,4 +57,10 @@ public class OrderController {
         return BaseResponse.success(orders);
     }
 
+    @DeleteMapping("/{order-id}")
+    @Operation(summary = "주문 취소 API", description = "orderId에 해당되는 주문을 취소합니다.")
+    public BaseResponse<Empty> cancelOrder(@PathVariable(name = "order-id") Long orderId) {
+        return BaseResponse.success();
+    }
+
 }
