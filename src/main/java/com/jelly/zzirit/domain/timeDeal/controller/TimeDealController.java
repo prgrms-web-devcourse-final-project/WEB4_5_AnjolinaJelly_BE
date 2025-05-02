@@ -262,3 +262,4 @@ public class TimeDealController {
 		return BaseResponse.success(content);
 	}
 }
+
