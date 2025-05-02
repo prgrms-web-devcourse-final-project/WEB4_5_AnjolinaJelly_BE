@@ -28,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 public class TimeDealController {
 	@Operation(
 		summary = "타임딜 등록",
+		tags = {"time-deal-controller"},
 		description = "타임딜 정보와 아이템 리스트를 등록합니다.",
 		requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
 			required = true,
@@ -94,6 +95,7 @@ public class TimeDealController {
 	@PostMapping("/api/admin/time-deal/modal")
 	@Operation(
 		summary = "타임딜 생성 모달 상품 조회",
+		tags = {"time-deal-controller"},
 		requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
 			required = true,
 			content = @Content(
@@ -134,6 +136,7 @@ public class TimeDealController {
 	@GetMapping("/api/time-deal/now")
 	@Operation(
 		summary = "현재 진행 중인 타임딜",
+		tags = {"time-deal-controller"},
 		responses = {
 			@ApiResponse(
 				responseCode = "200",
@@ -203,6 +206,7 @@ public class TimeDealController {
 	@GetMapping("/api/time-deal/search")
 	@Operation(
 		summary = "(관리자 페이지)타임딜 목록 조회",
+		tags = {"time-deal-controller"},
 		responses = {
 			@ApiResponse(
 				responseCode = "200",
