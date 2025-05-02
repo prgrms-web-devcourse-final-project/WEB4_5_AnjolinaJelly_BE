@@ -10,7 +10,7 @@ import com.jelly.zzirit.domain.item.dto.TypeResponse;
 import com.jelly.zzirit.global.dto.BaseResponse;
 
 @RestController
-@RequestMapping("/types")
+@RequestMapping("/api/types")
 public class TypeController {
 
 	@GetMapping

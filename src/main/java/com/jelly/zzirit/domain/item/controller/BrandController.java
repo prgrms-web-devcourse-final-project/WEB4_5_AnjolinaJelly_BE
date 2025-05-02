@@ -13,7 +13,7 @@ import com.jelly.zzirit.global.dto.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 
 @RestController
-@RequestMapping("/brands")
+@RequestMapping("/api/brands")
 public class BrandController {
 
 	@GetMapping("/{type-id}")
