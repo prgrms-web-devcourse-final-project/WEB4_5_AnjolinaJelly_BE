@@ -11,6 +11,8 @@ import com.jelly.zzirit.domain.member.dto.request.SignupDTO;
 import com.jelly.zzirit.domain.member.dto.request.SocialSignupDTO;
 import com.jelly.zzirit.domain.member.service.auth.AuthService;
 import com.jelly.zzirit.domain.member.service.email.EmailService;
+import com.jelly.zzirit.global.dto.BaseResponse;
+import com.jelly.zzirit.global.dto.Empty;
 import com.jelly.zzirit.global.security.oauth2.service.signup.FirstOAuthSignUpService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -41,7 +43,7 @@ public class AuthController {
 
 	@Operation(summary = "이메일 인증 코드 검증")
 	@PostMapping("/verify-email")
-	public BaseResponse<Empty> verifyEmailCode(@RequestBody @Valid EmailAuthVerificationDTO emailAuthVerificationDto) {
+	public BaseResponse<Empty>  verifyEmailCode(@RequestBody @Valid EmailAuthVerificationDTO emailAuthVerificationDto) {
 		emailService.verifyEmailCode(emailAuthVerificationDto.getEmail(), emailAuthVerificationDto.getCode());
 		return BaseResponse.success();
 	}
