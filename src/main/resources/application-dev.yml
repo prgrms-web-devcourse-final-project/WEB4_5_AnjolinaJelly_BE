@@ -1,8 +1,6 @@
 # application-dev.yml
 
 spring:
-  config:
-    import: optional:application-secret.yml
 
   datasource:
     url: jdbc:mysql://localhost:3406/zzirit-dev?useSSL=false&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
@@ -11,6 +9,20 @@ spring:
     redis:
       host: localhost
       port: 6479
+
+toss:
+  payments:
+    success-url: http://localhost:8080/payments/success
+    fail-url: http://localhost:8080/payments/fail
+
+custom:
+  file:
+    upload-dir: uploads/
+  site:
+    domain: localhost
+    back-url: http://localhost:8080
+    front-url: http://localhost:3000
+    allowed-origins: http://localhost:3000
 
 oauth2:
   naver:

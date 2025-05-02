@@ -19,8 +19,7 @@ public class CorsConfig implements CorsConfigurationSource {
 	@Override
 	public CorsConfiguration getCorsConfiguration(@NonNull HttpServletRequest request) {
 		CorsConfiguration config = new CorsConfiguration();
-//		config.setAllowedOriginPatterns(Collections.singletonList(AppConfig.getSiteFrontUrl()));
-		config.setAllowedOriginPatterns(AppConfig.getAllowedOrigins()); // 여러 origin 허용
+		config.setAllowedOriginPatterns(AppConfig.getAllowedOrigins());
 		config.setAllowedMethods(allowedMethods);
 		config.setAllowCredentials(true);
 		config.setAllowedHeaders(Collections.singletonList("*"));

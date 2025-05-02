@@ -13,6 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.test.context.ActiveProfiles;
 
 import com.jelly.zzirit.domain.member.dto.request.SignupDTO;
 import com.jelly.zzirit.domain.member.entity.Member;
@@ -22,6 +23,7 @@ import com.jelly.zzirit.domain.member.util.PasswordManager;
 import com.jelly.zzirit.global.exception.custom.InvalidUserException;
 import com.jelly.zzirit.global.redis.RedisService;
 
+@ActiveProfiles("test")
 class AuthServiceTest {
 
 	@Mock

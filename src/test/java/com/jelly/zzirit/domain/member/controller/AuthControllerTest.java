@@ -31,6 +31,13 @@ class AuthControllerTest extends RestDocsSupport {
 				"auth-send-email-code",
 				new FieldDescriptor[]{
 					fieldWithPath("email").description("사용자 이메일")
+				},
+				new FieldDescriptor[]{
+					fieldWithPath("success").description("요청 성공 여부"),
+					fieldWithPath("code").description("응답 코드"),
+					fieldWithPath("httpStatus").description("HTTP 상태"),
+					fieldWithPath("message").description("응답 메시지"),
+					fieldWithPath("result").description("결과 데이터 (빈 객체 가능)")
 				}
 			))
 			.body(asJsonString(request))
@@ -54,6 +61,13 @@ class AuthControllerTest extends RestDocsSupport {
 				new FieldDescriptor[]{
 					fieldWithPath("email").description("사용자 이메일"),
 					fieldWithPath("code").description("인증 코드")
+				},
+				new FieldDescriptor[]{
+					fieldWithPath("success").description("요청 성공 여부"),
+					fieldWithPath("code").description("응답 코드"),
+					fieldWithPath("httpStatus").description("HTTP 상태"),
+					fieldWithPath("message").description("응답 메시지"),
+					fieldWithPath("result").description("결과 데이터 (빈 객체 가능)")
 				}
 			))
 			.body(asJsonString(request))
@@ -79,6 +93,13 @@ class AuthControllerTest extends RestDocsSupport {
 					fieldWithPath("memberPassword").description("회원 비밀번호"),
 					fieldWithPath("memberAddress").description("회원 기본 주소").optional(),
 					fieldWithPath("memberAddressDetail").description("회원 상세 주소").optional()
+				},
+				new FieldDescriptor[]{
+					fieldWithPath("success").description("요청 성공 여부"),
+					fieldWithPath("code").description("응답 코드"),
+					fieldWithPath("httpStatus").description("HTTP 상태"),
+					fieldWithPath("message").description("응답 메시지"),
+					fieldWithPath("result").description("결과 데이터 (빈 객체 가능)")
 				}
 			))
 			.body(asJsonString(request))

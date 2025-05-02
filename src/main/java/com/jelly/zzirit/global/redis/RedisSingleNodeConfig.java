@@ -10,6 +10,7 @@ import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSeriali
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jelly.zzirit.domain.order.dto.request.RedisOrderData;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +32,18 @@ public class RedisSingleNodeConfig {
 		RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
 		redisTemplate.setKeySerializer(new StringRedisSerializer());
 		redisTemplate.setValueSerializer(new StringRedisSerializer());
+		redisTemplate.setConnectionFactory(redisConnectionFactory);
+		return redisTemplate;
+	}
+
+	@Bean
+	public RedisTemplate<String, RedisOrderData> orderDataRedisTemplate(
+		RedisConnectionFactory redisConnectionFactory,
+		ObjectMapper redisObjectMapper
+	) {
+		RedisTemplate<String, RedisOrderData> redisTemplate = new RedisTemplate<>();
+		redisTemplate.setKeySerializer(new StringRedisSerializer());
+		redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer(redisObjectMapper));
 		redisTemplate.setConnectionFactory(redisConnectionFactory);
 		return redisTemplate;
 	}

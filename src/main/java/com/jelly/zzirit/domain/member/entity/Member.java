@@ -1,7 +1,5 @@
 package com.jelly.zzirit.domain.member.entity;
 
-import java.time.LocalDateTime;
-
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.jelly.zzirit.domain.member.entity.authenum.Role;

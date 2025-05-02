@@ -10,12 +10,16 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
+@SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class Item extends BaseTime {
 
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -30,8 +34,6 @@ public class Item extends BaseTime {
 
 	@Column(name = "image_url")
 	private String imageUrl;
-
-	private int stockQuantity;
 
 	private BigDecimal price;
 }

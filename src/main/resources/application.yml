@@ -32,14 +32,6 @@ spring:
             required: true
 
 custom:
-  site:
-    domain: localhost
-    back-url: http://localhost:8080
-    front-url: http://localhost:3000
-    allowed-origins: http://localhost:3000,https://www.app4.qwas.shop,https://login.aleph.kr
-
-  file:
-    upload-dir: uploads/
   upload:
     max-image-size: 5MB
     max-file-size: 20MB
