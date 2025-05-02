@@ -29,42 +29,42 @@ public class PostPaymentProcessor {
 
 	public void process(String orderId, RedisOrderData cached) {
 		// 금액 위조 검증
-		BigDecimal expectedAmount = cached.items().stream()
-			.map(RedisOrderData.ItemData::price)
+		BigDecimal expectedAmount = cached.getItems().stream()
+			.map(RedisOrderData.ItemData::getPrice)
 			.reduce(BigDecimal.ZERO, BigDecimal::add);
 
-		if (expectedAmount.compareTo(cached.totalAmount()) != 0) {
+		if (expectedAmount.compareTo(cached.getTotalAmount()) != 0) {
 			throw new InvalidOrderException(BaseResponseStatus.PRICE_MANIPULATION_DETECTED);
 		}
 
 		// 주문 생성 및 저장
 		Order order = Order.of(
-			cached.member(),
+			cached.getMember(),
 			orderId,
-			cached.totalAmount(),
-			cached.shippingRequest()
+			cached.getTotalAmount(),
+			cached.getShippingRequest()
 		);
 		orderRepository.save(order);
 
 		// 주문 아이템 생성 + 재고 확정
-		for (RedisOrderData.ItemData item : cached.items()) {
-			Item itemEntity = findItem(item.itemId());
-			TimeDealItem timeDealItemEntity = (item.timeDealItemId() != null)
-				? findTimeDealItem(item.timeDealItemId())
+		for (RedisOrderData.ItemData item : cached.getItems()) {
+			Item itemEntity = findItem(item.getItemId());
+			TimeDealItem timeDealItemEntity = (item.getTimeDealItemId() != null)
+				? findTimeDealItem(item.getTimeDealItemId())
 				: null;
 
 			OrderItem orderItem = OrderItem.of(
 				order,
 				itemEntity,
 				timeDealItemEntity,
-				item.quantity(),
-				item.price()
+				item.getQuantity(),
+				item.getPrice()
 			);
 			orderItemRepository.save(orderItem);
 
 			int updated = (timeDealItemEntity != null)
-				? timeDealStockRepository.confirmStock(timeDealItemEntity.getId(), item.quantity())
-				: itemStockRepository.confirmStock(itemEntity.getId(), item.quantity());
+				? timeDealStockRepository.confirmStock(timeDealItemEntity.getId(), item.getQuantity())
+				: itemStockRepository.confirmStock(itemEntity.getId(), item.getQuantity());
 
 			if (updated == 0) {
 				throw new InvalidOrderException(BaseResponseStatus.STOCK_CONFIRMATION_FAILED);

@@ -6,6 +6,8 @@ toss:
     fail-url: https://api.zzirit.shop/payments/fail
 
 custom:
+  file:
+    upload-dir: uploads/
   site:
     domain: zzirit.shop
     back-url: https://api.zzirit.shop

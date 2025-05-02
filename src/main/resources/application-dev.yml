@@ -16,6 +16,8 @@ toss:
     fail-url: http://localhost:8080/payments/fail
 
 custom:
+  file:
+    upload-dir: uploads/
   site:
     domain: localhost
     back-url: http://localhost:8080

@@ -12,10 +12,8 @@ import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
-@SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class ItemType extends BaseTime {
+public class Type extends BaseTime {
 
 	@Column(nullable = false, length = 100)
 	private String name;

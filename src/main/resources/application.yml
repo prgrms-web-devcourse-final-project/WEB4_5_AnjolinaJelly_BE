@@ -31,10 +31,10 @@ spring:
             enable: true
             required: true
 
-toss:
-  payments:
-    success-url: http://localhost:8080/payments/success
-    fail-url: http://localhost:8080/payments/fail
+custom:
+  upload:
+    max-image-size: 5MB
+    max-file-size: 20MB
 
 logging:
   level:

@@ -5,18 +5,31 @@ import java.util.List;
 
 import com.jelly.zzirit.domain.member.entity.Member;
 
-public record RedisOrderData(
-	Member member,
-	BigDecimal totalAmount,
-	String shippingRequest,
-	String shippingAddressDetail,
-	List<ItemData> items
-) {
-	public record ItemData(
-		Long itemId,
-		Long timeDealItemId,
-		int quantity,
-		String itemName,
-		BigDecimal price
-	) {}
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class RedisOrderData {
+	private Member member;
+	private BigDecimal totalAmount;
+	private String shippingRequest;
+	private String shippingAddressDetail;
+	private List<ItemData> items;
+
+	@Getter
+	@NoArgsConstructor
+	@AllArgsConstructor
+	@Builder
+	public static class ItemData {
+		private Long itemId;
+		private Long timeDealItemId;
+		private int quantity;
+		private String itemName;
+		private BigDecimal price;
+	}
 }

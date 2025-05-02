@@ -21,7 +21,7 @@ public class ItemTypeBrand extends BaseEntity {
 
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "type_id")
-	private ItemType itemType;
+	private Type itemType;
 
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "brand_id")
