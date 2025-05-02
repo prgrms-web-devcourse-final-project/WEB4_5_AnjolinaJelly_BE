@@ -29,7 +29,7 @@ public class OrderService {
 		try {
 			postPaymentProcessor.process(orderId, cached);
 		} catch (Exception e) {
-			refundService.refundImmediately(orderId, cached.totalAmount());
+			refundService.refundImmediately(orderId, cached.getTotalAmount());
 			log.error("주문 처리 실패로 환불 시도됨. orderId={}, reason={}", orderId, e.getMessage(), e);
 			throw new InvalidOrderException(BaseResponseStatus.ORDER_PROCESSING_FAILED_AFTER_PAYMENT);
 		}
