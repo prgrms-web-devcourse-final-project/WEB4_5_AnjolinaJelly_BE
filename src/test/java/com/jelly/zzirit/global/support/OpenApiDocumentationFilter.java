@@ -50,4 +50,15 @@ public class OpenApiDocumentationFilter {
 		);
 	}
 
+	public static Filter ofWithPathParamsAndResponseFields(
+		String identifier,
+		ParameterDescriptor[] pathParams,
+		FieldDescriptor[] responseFields
+	) {
+		return RestAssuredRestDocumentationWrapper.document(
+			identifier,
+			pathParameters(pathParams),
+			responseFields(responseFields)
+		);
+	}
 }
