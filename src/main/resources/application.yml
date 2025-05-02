@@ -49,7 +49,3 @@ logging:
     org:
       hibernate:
         SQL: debug
-
-springdoc:
-  swagger-ui:
-    url: /docs/openapi3.yaml

@@ -11,6 +11,8 @@ import com.jelly.zzirit.domain.member.dto.request.SignupDTO;
 import com.jelly.zzirit.domain.member.dto.request.SocialSignupDTO;
 import com.jelly.zzirit.domain.member.service.auth.AuthService;
 import com.jelly.zzirit.domain.member.service.email.EmailService;
+import com.jelly.zzirit.global.dto.BaseResponse;
+import com.jelly.zzirit.global.dto.Empty;
 import com.jelly.zzirit.global.security.oauth2.service.signup.FirstOAuthSignUpService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,23 +32,27 @@ public class AuthController {
 	private final EmailService emailService;
 
 	@PostMapping("/send-email-code")
-	public void sendEmailVerificationCode(@RequestBody @Valid EmailAuthDTO emailAuthDto) {
+	public BaseResponse<Empty> sendEmailVerificationCode(@RequestBody @Valid EmailAuthDTO emailAuthDto) {
 		emailService.sendEmailVerificationCode(emailAuthDto.getEmail());
+		return BaseResponse.success();
 	} // 이메일 인증 코드 전송
 
 	@PostMapping("/verify-email")
-	public void verifyEmailCode(@RequestBody @Valid EmailAuthVerificationDTO emailAuthVerificationDto) {
+	public BaseResponse<Empty> verifyEmailCode(@RequestBody @Valid EmailAuthVerificationDTO emailAuthVerificationDto) {
 		emailService.verifyEmailCode(emailAuthVerificationDto.getEmail(), emailAuthVerificationDto.getCode());
+		return BaseResponse.success();
 	} // 이메일 인증 코드 검증
 
 	@PostMapping("/signup")
-	public void signup(@RequestBody @Valid SignupDTO signupDTO) {
+	public BaseResponse<Empty> signup(@RequestBody @Valid SignupDTO signupDTO) {
 		authService.signup(signupDTO);
+		return BaseResponse.success();
 	} // 회원가입의 경우 두 가지로 나뉩니다. 해당 컨트롤러는 자체 회원가입 입니다
 
 	@PostMapping("/social-signup")
-	public void completeSignup(HttpServletRequest request, HttpServletResponse response,
+	public BaseResponse<Empty> completeSignup(HttpServletRequest request, HttpServletResponse response,
 		@RequestBody @Valid SocialSignupDTO socialSignupDto) {
 		firstOAuthSignUpService.finalizeSocialSignup(request, response, socialSignupDto);
+		return BaseResponse.success();
 	} // 회원가입의 경우 두 가지로 나뉩니다. 해당 컨트롤러는 기존 회원이 아닌 경우의 소셜 자체 회원가입 입니다
 }
