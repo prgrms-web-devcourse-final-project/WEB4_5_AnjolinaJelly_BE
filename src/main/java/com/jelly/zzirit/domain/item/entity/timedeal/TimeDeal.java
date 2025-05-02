@@ -1,4 +1,4 @@
-package com.jelly.zzirit.domain.item.entity;
+package com.jelly.zzirit.domain.item.entity.timedeal;
 
 import java.time.LocalDateTime;
 
@@ -8,12 +8,16 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
+@SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class TimeDeal extends BaseTime {
 
 	private String name;
@@ -22,6 +26,7 @@ public class TimeDeal extends BaseTime {
 	private TimeDealStatus status;
 
 	private LocalDateTime startTime;
+
 	private LocalDateTime endTime;
 
 	private int discountRatio;
