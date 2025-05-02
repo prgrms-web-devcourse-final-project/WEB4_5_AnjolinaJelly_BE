@@ -27,6 +27,13 @@ public class ResponseWrapper implements ResponseBodyAdvice<Object> {
 		ServerHttpRequest request,
 		ServerHttpResponse response
 	) {
+		String path = request.getURI().getPath();
+		if (path.startsWith("/v3/api-docs") ||
+			path.startsWith("/swagger-ui")
+		) {
+			return body;
+		}
+
 		if (body instanceof BaseResponse<?>) {
 			return body;
 		}
@@ -34,7 +41,6 @@ public class ResponseWrapper implements ResponseBodyAdvice<Object> {
 		if (body == null) {
 			return BaseResponse.success();
 		}
-
 
 		return BaseResponse.success(body);
 	}
