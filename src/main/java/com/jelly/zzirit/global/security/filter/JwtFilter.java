@@ -41,7 +41,6 @@ public class JwtFilter extends OncePerRequestFilter {
 			requestURI.startsWith("/oauth2/authorization") ||
 			requestURI.startsWith("/login/oauth2/code") ||
 			requestURI.startsWith("/docs") ||
-			requestURI.startsWith("/api/cart/") ||
 			requestURI.startsWith("/swagger-ui") ||
 			requestURI.startsWith("/v3/api-docs") ||
 			requestURI.equals("/favicon.ico")
@@ -52,6 +51,13 @@ public class JwtFilter extends OncePerRequestFilter {
 
 
 		String accessToken = CookieUtil.getCookieValue(request, AuthConst.TOKEN_TYPE_ACCESS);
+
+		if ((accessToken == null || accessToken.isEmpty()) && request.getHeader("Authorization") != null) {
+			String header = request.getHeader("Authorization");
+			if (header.startsWith("Bearer ")) {
+				accessToken = header.substring(7);
+			}
+		}
 
 		if (accessToken == null || accessToken.isEmpty()) {
 			setException(request, response, new InvalidTokenException(BaseResponseStatus.JWT_MISSING));
