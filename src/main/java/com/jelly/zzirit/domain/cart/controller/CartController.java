@@ -2,9 +2,6 @@ package com.jelly.zzirit.domain.cart.controller;
 
 import java.util.List;
 
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -12,7 +9,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.jelly.zzirit.domain.cart.dto.response.CartItemResponse;
 import com.jelly.zzirit.domain.cart.dto.response.CartResponse;
 import com.jelly.zzirit.global.dto.BaseResponse;
-import com.jelly.zzirit.global.dto.BaseResponseStatus;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,13 +34,13 @@ public class CartController {
 			)
 		);
 
-		CartResponse dummyCart = new CartResponse(
+		CartResponse response = new CartResponse(
 			1001L,
 			dummyItems,
 			3,
 			4870000
 		);
 
-		return BaseResponse.success(dummyCart);
+		return BaseResponse.success(response);
 	}
 }

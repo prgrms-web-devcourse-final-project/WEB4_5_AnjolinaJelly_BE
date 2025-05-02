@@ -43,8 +43,8 @@ public class CartItemController {
 
 	@DeleteMapping("/{itemId}")
 	public BaseResponse<Empty> removeItemFromCart(@PathVariable Long itemId) {
-		// Long memberId = AuthMember.getMemberId();
-		// log.info("장바구니에서 itemId {} 삭제 요청 - 사용자 ID: {}", itemId, memberId);
+		Long memberId = AuthMember.getMemberId();
+		log.info("장바구니에서 itemId {} 삭제 요청 - 사용자 ID: {}", itemId, memberId);
 		return BaseResponse.success();
 	}
 }
