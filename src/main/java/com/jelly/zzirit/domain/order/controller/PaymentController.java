@@ -14,7 +14,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import com.jelly.zzirit.domain.order.dto.request.PaymentRequestDto;
 import com.jelly.zzirit.domain.order.service.OrderService;
-import com.jelly.zzirit.domain.order.service.pay.TossPaymentService;
+import com.jelly.zzirit.domain.order.service.TossPaymentService;
 import com.jelly.zzirit.global.dto.BaseResponse;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.dto.Empty;
@@ -55,7 +55,7 @@ public class PaymentController {
 		@RequestParam BigDecimal amount
 	) {
 		log.info("결제 성공 콜백: paymentKey={}, orderId={}, amount={}", paymentKey, orderId, amount);
-		orderService.confirmPayment(orderId, amount);
+		orderService.confirmPayment(orderId);
 		return BaseResponse.success();
 	}
 
