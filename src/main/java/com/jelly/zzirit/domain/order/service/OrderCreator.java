@@ -1,7 +1,5 @@
 package com.jelly.zzirit.domain.order.service;
 
-import java.math.BigDecimal;
-
 import org.springframework.stereotype.Component;
 
 import com.jelly.zzirit.domain.item.entity.Item;
@@ -20,24 +18,14 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class PostPaymentProcessor {
+public class OrderCreator {
 
 	private final OrderRepository orderRepository;
 	private final OrderItemRepository orderItemRepository;
 	private final ItemStockRepository itemStockRepository;
 	private final TimeDealStockRepository timeDealStockRepository;
 
-	public void process(String orderId, RedisOrderData cached) {
-		// 금액 위조 검증
-		BigDecimal expectedAmount = cached.getItems().stream()
-			.map(RedisOrderData.ItemData::getPrice)
-			.reduce(BigDecimal.ZERO, BigDecimal::add);
-
-		if (expectedAmount.compareTo(cached.getTotalAmount()) != 0) {
-			throw new InvalidOrderException(BaseResponseStatus.PRICE_MANIPULATION_DETECTED);
-		}
-
-		// 주문 생성 및 저장
+	public void createOrderWithItems(String orderId, RedisOrderData cached) {
 		Order order = Order.of(
 			cached.getMember(),
 			orderId,
@@ -46,11 +34,13 @@ public class PostPaymentProcessor {
 		);
 		orderRepository.save(order);
 
-		// 주문 아이템 생성 + 재고 확정
 		for (RedisOrderData.ItemData item : cached.getItems()) {
-			Item itemEntity = findItem(item.getItemId());
+			Item itemEntity = itemStockRepository.findItemById(item.getItemId())
+				.orElseThrow(() -> new InvalidOrderException(BaseResponseStatus.ITEM_NOT_FOUND));
+
 			TimeDealItem timeDealItemEntity = (item.getTimeDealItemId() != null)
-				? findTimeDealItem(item.getTimeDealItemId())
+				? timeDealStockRepository.findTimeDealItemById(item.getTimeDealItemId())
+				.orElseThrow(() -> new InvalidOrderException(BaseResponseStatus.ITEM_NOT_FOUND))
 				: null;
 
 			OrderItem orderItem = OrderItem.of(
@@ -61,24 +51,6 @@ public class PostPaymentProcessor {
 				item.getPrice()
 			);
 			orderItemRepository.save(orderItem);
-
-			int updated = (timeDealItemEntity != null)
-				? timeDealStockRepository.confirmStock(timeDealItemEntity.getId(), item.getQuantity())
-				: itemStockRepository.confirmStock(itemEntity.getId(), item.getQuantity());
-
-			if (updated == 0) {
-				throw new InvalidOrderException(BaseResponseStatus.STOCK_CONFIRMATION_FAILED);
-			}
 		}
-	}
-
-	private Item findItem(Long itemId) {
-		return itemStockRepository.findItemById(itemId)
-			.orElseThrow(() -> new InvalidOrderException(BaseResponseStatus.ITEM_NOT_FOUND));
-	}
-
-	private TimeDealItem findTimeDealItem(Long timeDealItemId) {
-		return timeDealStockRepository.findTimeDealItemById(timeDealItemId)
-			.orElseThrow(() -> new InvalidOrderException(BaseResponseStatus.ITEM_NOT_FOUND));
 	}
 }
