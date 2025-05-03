@@ -8,12 +8,4 @@ public record OrderItemRequestDto(
 	int quantity,
 	String itemName,
 	BigDecimal price
-) {
-	public boolean isTimeDeal() {
-		return timeDealItemId != null;
-	}
-
-	public Long getStockTargetId() {
-		return isTimeDeal() ? timeDealItemId : itemId;
-	}
-}
+) {}

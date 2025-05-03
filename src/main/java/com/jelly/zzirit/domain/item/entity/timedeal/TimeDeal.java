@@ -34,9 +34,4 @@ public class TimeDeal extends BaseTime {
 	public enum TimeDealStatus {
 		SCHEDULED, ONGOING, ENDED
 	}
-
-	public boolean isActiveNow() {
-		LocalDateTime now = LocalDateTime.now();
-		return now.isAfter(startTime) && now.isBefore(endTime);
-	}
 }

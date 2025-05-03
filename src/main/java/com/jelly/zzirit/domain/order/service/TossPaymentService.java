@@ -1,4 +1,4 @@
-package com.jelly.zzirit.domain.order.service.pay;
+package com.jelly.zzirit.domain.order.service;
 
 import java.time.Duration;
 import java.util.Map;
@@ -22,9 +22,8 @@ import com.jelly.zzirit.domain.order.dto.request.RedisOrderData;
 import com.jelly.zzirit.domain.order.dto.request.TossPaymentRequest;
 import com.jelly.zzirit.domain.order.entity.Order;
 import com.jelly.zzirit.domain.order.mapper.RedisOrderDataMapper;
-import com.jelly.zzirit.domain.order.service.OrderSequenceGenerator;
 import com.jelly.zzirit.domain.order.service.cache.RedisOrderCacheService;
-import com.jelly.zzirit.domain.order.service.cache.stock.item.RedisStockService;
+import com.jelly.zzirit.domain.order.service.cache.RedisStockService;
 import com.jelly.zzirit.global.AuthMember;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
@@ -45,12 +44,13 @@ public class TossPaymentService {
 	private String secretKey;
 
 	public String createPayment(PaymentRequestDto dto) {
+		// Redis 재고 선점
 		for (OrderItemRequestDto item : dto.orderItems()) {
-			redisStockService.reserveStock(
-				item.getStockTargetId(),
-				item.quantity(),
-				item.isTimeDeal()
-			);
+			if (item.timeDealItemId() != null) {
+				redisStockService.reserveTimeDealStock(item.timeDealItemId(), item.quantity());
+			} else {
+				redisStockService.reserveItemStock(item.itemId(), item.quantity());
+			}
 		}
 
 		// 주문 번호 생성

@@ -31,13 +31,5 @@ public class RedisOrderData {
 		private int quantity;
 		private String itemName;
 		private BigDecimal price;
-
-		public boolean isTimeDeal() {
-			return timeDealItemId != null;
-		}
-
-		public Long getTargetStockId() {
-			return isTimeDeal() ? timeDealItemId : itemId;
-		}
 	}
 }
