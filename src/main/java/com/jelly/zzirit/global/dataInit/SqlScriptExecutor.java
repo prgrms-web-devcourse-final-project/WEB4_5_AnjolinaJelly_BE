@@ -4,6 +4,8 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Component;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Component;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class SqlScriptExecutor {
@@ -35,7 +38,7 @@ public class SqlScriptExecutor {
 			}
 
 		} catch (Exception e) {
-			throw new RuntimeException("❌ SQL 파일 실행 실패", e);
+			log.error("SQL 파일 실행 실패");
 		}
 	}
 }
