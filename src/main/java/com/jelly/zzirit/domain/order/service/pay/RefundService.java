@@ -1,7 +1,8 @@
-package com.jelly.zzirit.domain.order.service;
+package com.jelly.zzirit.domain.order.service.pay;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -13,6 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import com.jelly.zzirit.domain.order.dto.request.RedisOrderData;
+import com.jelly.zzirit.domain.order.service.cache.stock.item.RedisStockManager;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,12 +26,21 @@ import lombok.extern.slf4j.Slf4j;
 public class RefundService {
 
 	private final RestTemplate restTemplate;
+	private final RedisStockManager redisStockManager;
 
 	@Value("${toss.payments.secret-key}")
 	private String secretKey;
 
-	public void refundImmediately(String orderId, BigDecimal amount) {
+	public void refundImmediately(String orderId, BigDecimal amount, List<RedisOrderData.ItemData> items) {
 		try {
+			for (RedisOrderData.ItemData item : items) {
+				redisStockManager.restoreStock(
+					item.getTargetStockId(),
+					item.getQuantity(),
+					item.isTimeDeal()
+				);
+			}
+
 			String url = "https://api.tosspayments.com/v1/payments/" + orderId + "/cancel";
 			HttpHeaders headers = new HttpHeaders();
 			headers.setContentType(MediaType.APPLICATION_JSON);
@@ -49,6 +62,7 @@ public class RefundService {
 			if (!response.getStatusCode().is2xxSuccessful()) {
 				throw new IllegalStateException("토스 결제 취소 API 실패: " + response.getBody());
 			}
+
 		} catch (Exception e) {
 			log.error("자동 환불 실패: orderId={}, amount={}, message={}", orderId, amount, e.getMessage(), e);
 			throw new IllegalStateException("환불 처리에 실패했습니다. 관리자에게 문의하세요.");

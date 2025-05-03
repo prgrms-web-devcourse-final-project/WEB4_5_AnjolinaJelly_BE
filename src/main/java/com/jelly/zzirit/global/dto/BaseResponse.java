@@ -15,8 +15,7 @@ public class BaseResponse<T> {
 
 	private final int code;
 
-	@JsonProperty("httpStatus")
-	private final int httpStatusCode;
+	private final int httpStatus;
 
 	private final String message;
 
@@ -45,7 +44,7 @@ public class BaseResponse<T> {
 	private BaseResponse(BaseResponseStatus status, T result) {
 		this.success = status.isSuccess();
 		this.code = status.getCode();
-		this.httpStatusCode = status.getHttpStatusCode();
+		this.httpStatus = status.getHttpStatusCode();
 		this.message = status.getMessage();
 		this.result = result;
 	}
