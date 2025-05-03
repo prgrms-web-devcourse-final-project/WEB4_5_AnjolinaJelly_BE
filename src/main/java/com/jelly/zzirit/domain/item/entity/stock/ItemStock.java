@@ -24,7 +24,7 @@ public class ItemStock extends BaseEntity {
 	@JoinColumn(name = "item_id", nullable = false, unique = true)
 	private Item item;
 
-	private int quantity; // 타임딜 최초 설정된 총 재고
+	private int quantity; // 최초 설정된 총 재고
 
 	private int reservedQuantity; // 결제 진행 중인 미확정 수량
 
