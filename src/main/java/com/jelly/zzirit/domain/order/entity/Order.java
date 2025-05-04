@@ -10,10 +10,7 @@ import com.jelly.zzirit.domain.member.entity.Member;
 import com.jelly.zzirit.global.entity.BaseTime;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 @Entity
@@ -39,6 +36,7 @@ public class Order extends BaseTime {
 	private String orderNumber;
 
 	@OneToMany(mappedBy = "order", orphanRemoval = true, cascade = CascadeType.ALL)
+	@Builder.Default
 	private List<OrderItem> orderItems = new ArrayList<>();
 
 	public enum OrderStatus {
