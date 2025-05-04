@@ -1,10 +1,12 @@
 package com.jelly.zzirit.domain.item.controller;
 
+import java.util.List;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.jelly.zzirit.domain.item.dto.TypeResponses;
+import com.jelly.zzirit.domain.item.dto.response.TypeResponse;
 import com.jelly.zzirit.domain.item.service.QueryTypeService;
 import com.jelly.zzirit.global.dto.BaseResponse;
 
@@ -22,7 +24,7 @@ public class TypeController {
 
 	@GetMapping
 	@Operation(summary = "상품 종류 전체 조회", description = "상품 종류를 전체 조회 합니다.")
-	public BaseResponse<TypeResponses> findType() {
+	public BaseResponse<List<TypeResponse>> findType() {
 		return BaseResponse.success(
 			queryTypeService.getAll()
 		);

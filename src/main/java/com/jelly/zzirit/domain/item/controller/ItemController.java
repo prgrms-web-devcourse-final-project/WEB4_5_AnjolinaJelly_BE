@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.jelly.zzirit.domain.item.dto.ItemResponse;
-import com.jelly.zzirit.domain.item.dto.SimpleItemResponse;
+import com.jelly.zzirit.domain.item.dto.response.ItemResponse;
+import com.jelly.zzirit.domain.item.dto.response.SimpleItemResponse;
 import com.jelly.zzirit.domain.item.entity.TimeDealStatus;
 import com.jelly.zzirit.global.dto.BaseResponse;
 

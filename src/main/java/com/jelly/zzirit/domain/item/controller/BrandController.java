@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.jelly.zzirit.domain.item.dto.BrandResponse;
+import com.jelly.zzirit.domain.item.dto.response.BrandResponse;
 import com.jelly.zzirit.global.dto.BaseResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
