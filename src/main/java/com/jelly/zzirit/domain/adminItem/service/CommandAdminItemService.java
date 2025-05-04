@@ -31,9 +31,11 @@ public class CommandAdminItemService {
         Brand brand = brandRepository.findById(request.brandId())
                 .orElseThrow(() -> new InvalidItemException(BaseResponseStatus.BRAND_NOT_FOUND));
 
+        // 상품생성요청 dto -> 상품 객체 생성, 저장
         Item item = request.toItemEntity(type, brand);
         itemRepository.save(item); // save 후 item 객체에 id 채워짐
 
+        // 상품생성요청 dto -> 재고 객체 생성, 저장
         ItemStock itemStock = request.toItemStockEntity(item);
         itemStockRepository.save(itemStock);
 
