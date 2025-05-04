@@ -60,6 +60,8 @@ public class PostPaymentProcessor {
 				item.getQuantity(),
 				item.getPrice()
 			);
+
+			order.addOrderItem(orderItem);
 			orderItemRepository.save(orderItem);
 
 			int updated = (timeDealItemEntity != null)
