@@ -2,6 +2,8 @@ package com.jelly.zzirit.domain.adminItem.controller;
 
 import java.util.List;
 
+import com.jelly.zzirit.domain.adminItem.service.QueryAdminItemService;
+import com.jelly.zzirit.domain.item.repository.ItemRepository;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,6 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Tag(name = "관리자 상품 API", description = "관리자 상품 기능을 제공합니다.")
 public class AdminItemController {
+	private final QueryAdminItemService queryAdminItemService;
 
 	/**
 	 * (관리자) 상품 조회 & 검색
@@ -41,11 +44,7 @@ public class AdminItemController {
 		@RequestParam(required = false) String name,
 		@RequestParam(required = false) Long itemId
 	) {
-		List<AdminItemResponse> dummyItems = List.of(
-			new AdminItemResponse(1L, "iphone 15 pro", "https://dummyimage.com/iphone.jpg", 50, "휴대폰", "애플", 1_200_000),
-			new AdminItemResponse(2L, "갤럭시북3", "https://dummyimage.com/galaxybook.jpg", 100, "노트북", "삼성", 790_000)
-		);
-		return BaseResponse.success(dummyItems);
+		return queryAdminItemService.getItems();
 	}
 
 	/**
