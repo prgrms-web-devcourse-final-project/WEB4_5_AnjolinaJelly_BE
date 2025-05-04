@@ -20,13 +20,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class OrderServiceTest {
+public class QueryOrderServiceTest {
 
     @Mock
     OrderRepository orderRepository;
 
     @InjectMocks
-    OrderService orderService;
+    QueryOrderService orderService;
 
     @Test
     @DisplayName("주문 내역이 존재하는 경우 주문 전체를 조회하면 모든 주문을 반환한다")
