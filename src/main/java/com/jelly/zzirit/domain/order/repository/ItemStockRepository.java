@@ -1,5 +1,6 @@
 package com.jelly.zzirit.domain.order.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -30,4 +31,7 @@ public interface ItemStockRepository extends JpaRepository<ItemStock, Long> {
 		    WHERE s.item.id = :itemId
 		""")
 	Optional<Item> findItemById(@Param("itemId") Long itemId);
+
+	// 상품id 목록을 받아서 재고개수 목록 조회
+	List<ItemStock> findAllByItemIdIn(List<Long> itemIds);
 }

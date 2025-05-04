@@ -74,7 +74,11 @@ public enum BaseResponseStatus {
 	REFRESH_TOKEN_NOT_FOUND(false, 40023, "저장된 리프레시 토큰이 없습니다.", HttpStatus.UNAUTHORIZED),
 
 	// 기타
-	NOT_SUPPORTED(false, 50001, "지원하지 않는 형식입니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+	NOT_SUPPORTED(false, 50001, "지원하지 않는 형식입니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+
+	// 상품 관련
+	TYPE_NOT_FOUND(false, 60001, "타입이 없습니다.", HttpStatus.NOT_FOUND),
+	BRAND_NOT_FOUND(false, 60002, "브랜드가 없습니다.", HttpStatus.NOT_FOUND);
 
 	private final boolean isSuccess;
 	private final int code;
