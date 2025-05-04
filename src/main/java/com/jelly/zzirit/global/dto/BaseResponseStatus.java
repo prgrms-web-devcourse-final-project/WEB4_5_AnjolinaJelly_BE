@@ -51,6 +51,9 @@ public enum BaseResponseStatus {
 	PRICE_MANIPULATION_DETECTED(false, 3004, "결제 금액이 위조되었습니다.", HttpStatus.BAD_REQUEST),
 	STOCK_CONFIRMATION_FAILED(false, 3005, "재고 확정에 실패했습니다.", HttpStatus.BAD_REQUEST),
 	ORDER_PROCESSING_FAILED_AFTER_PAYMENT(false, 3006, "결제는 되었지만 주문 처리에 실패했습니다. 자동 환불되었습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+	ORDER_NOT_FOUND(false, 3007, "해당 주문이 존재하지 않습니다.", HttpStatus.BAD_REQUEST),
+	NOT_PAID_ORDER(false, 3008, "결제 완료된 주문만 취소할 수 있습니다.", HttpStatus.BAD_REQUEST),
+	EXPIRED_CANCEL_TIME(false, 3009, "24시간 이내의 주문만 취소할 수 있습니다.", HttpStatus.BAD_REQUEST),
 
 	// 실패
 	VALIDATION_FAILED(false, 40000, "입력 값이 유효하지 않습니다", HttpStatus.BAD_REQUEST),
