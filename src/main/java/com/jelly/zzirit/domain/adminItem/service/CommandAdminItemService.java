@@ -13,6 +13,7 @@ import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.dto.Empty;
 import com.jelly.zzirit.global.exception.custom.InvalidItemException;
 import jakarta.transaction.Transactional;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -43,7 +44,7 @@ public class CommandAdminItemService {
     }
 
     @Transactional
-    public Empty updateItem(Long itemId, ItemCreateRequest request) {
+    public Empty updateItem(@NotNull Long itemId, ItemCreateRequest request) {
 
         // 상품 조회, dto 보고 타입과 브랜드 조회
         Item item = itemRepository.findById(itemId)
@@ -65,5 +66,19 @@ public class CommandAdminItemService {
 
         return Empty.getInstance();
     }
-    
+
+    @Transactional
+    public Empty deleteItem(@NotNull Long itemId) {
+        // todo: 삭제 검증 로직 논의 필요 - 이미 판매된 상품은 삭제 불가 등
+        // todo: soft delete 사용할지 논의 필요
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND));
+        ItemStock itemStock = itemStockRepository.findByItemId(itemId)
+                .orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_STOCK_NOT_FOUND));
+
+        itemStockRepository.delete(itemStock);
+        itemRepository.delete(item);
+
+        return Empty.getInstance();
+    }
 }
