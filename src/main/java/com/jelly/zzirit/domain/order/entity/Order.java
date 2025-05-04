@@ -2,6 +2,7 @@ package com.jelly.zzirit.domain.order.entity;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,12 +10,16 @@ import java.util.List;
 import com.jelly.zzirit.domain.member.entity.Member;
 import com.jelly.zzirit.global.entity.BaseTime;
 
+import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+
+import static com.jelly.zzirit.global.dto.BaseResponseStatus.EXPIRED_CANCEL_TIME;
+import static com.jelly.zzirit.global.dto.BaseResponseStatus.NOT_PAID_ORDER;
 
 @Entity
 @Getter
@@ -62,6 +67,22 @@ public class Order extends BaseTime {
 
 	public void addOrderItem(OrderItem orderItem) {
 		orderItems.add(orderItem);
+	}
+
+	public boolean isOwnedBy(Long memberId) {
+		return this.getMember().getId().equals(memberId);
+	}
+
+	public void cancel() {
+		if (status != OrderStatus.PAID) { // 결제 완료 상태인 주문만 취소 가능
+			throw new InvalidOrderException(NOT_PAID_ORDER);
+		}
+
+		if (this.getCreatedAt().isBefore(LocalDateTime.now().minusHours(24))) { // 24시간 이내의 주문만 취소 가능
+			throw new InvalidOrderException(EXPIRED_CANCEL_TIME);
+		}
+
+		this.status = OrderStatus.CANCELLED;
 	}
 
 }
