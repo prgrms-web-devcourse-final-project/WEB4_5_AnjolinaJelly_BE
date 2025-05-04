@@ -2,6 +2,8 @@ package com.jelly.zzirit.domain.item.entity;
 
 import java.math.BigDecimal;
 
+import com.jelly.zzirit.domain.adminItem.dto.request.ItemCreateRequest;
+import com.jelly.zzirit.global.dto.Empty;
 import com.jelly.zzirit.global.entity.BaseTime;
 
 import jakarta.persistence.Column;
@@ -36,4 +38,12 @@ public class Item extends BaseTime {
 	private String imageUrl;
 
 	private BigDecimal price;
+
+	public Empty update (ItemCreateRequest request, Type type, Brand brand) {
+		this.type = type;
+		this.brand = brand;
+		this.name = request.name();
+		this.price = BigDecimal.valueOf(request.price()); // todo: bigdecimal로 변경 필요
+		return Empty.getInstance();
+	}
 }
