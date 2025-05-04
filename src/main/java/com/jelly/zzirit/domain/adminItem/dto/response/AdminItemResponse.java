@@ -25,6 +25,4 @@ public record AdminItemResponse (
                 .stockQuantity(itemStock.getQuantity() - itemStock.getReservedQuantity() - itemStock.getSoldQuantity()) // Todo: 재고수량 셋 다 줄지? 상품-재고 분리?(재고는 캐시x?), 단방향(양방향 할거면 합치기?)
                 .build();
     }
-    
-    // 일단 여기 완료. service, controller 작성 필요
 }

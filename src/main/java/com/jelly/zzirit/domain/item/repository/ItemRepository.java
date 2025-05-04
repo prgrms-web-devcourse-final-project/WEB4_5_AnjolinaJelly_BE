@@ -9,4 +9,5 @@ import java.util.List;
 public interface ItemRepository extends JpaRepository<Item, Long> {
     @Override
     List<Item> findAll();
+    List<Item> findAllByNameContainingIgnoreCase(String name);
 }
