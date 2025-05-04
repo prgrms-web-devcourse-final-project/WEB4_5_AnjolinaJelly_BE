@@ -1,4 +1,4 @@
-package com.jelly.zzirit.domain.orderitem.dto.response;
+package com.jelly.zzirit.domain.order.dto.response;
 
 import com.jelly.zzirit.domain.order.entity.OrderItem;
 

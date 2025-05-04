@@ -2,7 +2,6 @@ package com.jelly.zzirit.domain.order.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.jelly.zzirit.domain.order.entity.Order;
-import com.jelly.zzirit.domain.orderitem.dto.response.OrderItemFetchResponse;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
