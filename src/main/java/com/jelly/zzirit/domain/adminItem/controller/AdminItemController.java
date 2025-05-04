@@ -44,7 +44,7 @@ public class AdminItemController {
 		@RequestParam(required = false) String name,
 		@RequestParam(required = false) Long itemId
 	) {
-		return queryAdminItemService.getItems();
+		return BaseResponse.success(queryAdminItemService.getItems());
 	}
 
 	/**

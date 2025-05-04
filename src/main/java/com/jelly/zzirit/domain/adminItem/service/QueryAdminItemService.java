@@ -20,7 +20,7 @@ public class QueryAdminItemService {
     private final ItemRepository itemRepository;
     private final ItemStockRepository itemStockRepository;
 
-    public BaseResponse<List<AdminItemResponse>> getItems() {
+    public List<AdminItemResponse> getItems() {
         List<Item> items = itemRepository.findAll();
 
         // N+1문제 막기 위해 미리 찾아서 map 만들어둠
@@ -31,10 +31,9 @@ public class QueryAdminItemService {
         // Map<재고 id, 재고 객체>
 
 
-        return BaseResponse.success(
-                items.stream()
+        return items.stream()
                         // from(Item, ItemStock)
                         .map(item -> AdminItemResponse.from(item, itemStockMap.get(item.getId())))
-                        .toList());
+                        .toList();
     }
 }
