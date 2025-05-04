@@ -3,18 +3,13 @@ package com.jelly.zzirit.domain.order.entity;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.jelly.zzirit.domain.member.entity.Member;
 import com.jelly.zzirit.global.entity.BaseTime;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -43,6 +38,9 @@ public class Order extends BaseTime {
 	@Column(name = "order_number", unique = true, nullable = false, length = 30)
 	private String orderNumber;
 
+	@OneToMany(mappedBy = "order", orphanRemoval = true, cascade = CascadeType.ALL)
+	private List<OrderItem> orderItems = new ArrayList<>();
+
 	public enum OrderStatus {
 		PENDING, PAID, FAILED, CANCELLED, COMPLETED
 	}
@@ -61,4 +59,9 @@ public class Order extends BaseTime {
 			.shippingRequest(shippingRequest)
 			.build();
 	}
+
+	public void addOrderItem(OrderItem orderItem) {
+		orderItems.add(orderItem);
+	}
+
 }
