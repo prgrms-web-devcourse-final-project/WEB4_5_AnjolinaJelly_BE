@@ -17,4 +17,18 @@ public record OrderFetchResponse(
     Order.OrderStatus orderStatus, // 주문 상태
     List<OrderItemFetchResponse> items // 해당 주문에 포함된 상품 데이터
 ) {
+    public static OrderFetchResponse from(Order order) {
+        List<OrderItemFetchResponse> items = order.getOrderItems().stream()
+            .map(OrderItemFetchResponse::from)
+            .toList();
+
+        return new OrderFetchResponse(
+            order.getCreatedAt(),
+            order.getId(),
+            order.getOrderNumber(),
+            order.getTotalPrice(),
+            order.getStatus(),
+            items
+        );
+    }
 }
