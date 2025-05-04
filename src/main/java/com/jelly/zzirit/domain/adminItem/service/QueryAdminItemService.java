@@ -4,10 +4,10 @@ import com.jelly.zzirit.domain.adminItem.dto.response.AdminItemResponse;
 import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.domain.item.entity.stock.ItemStock;
 import com.jelly.zzirit.domain.order.repository.ItemStockRepository;
-import com.jelly.zzirit.global.dto.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.jelly.zzirit.domain.item.repository.ItemRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class QueryAdminItemService {
     private final ItemRepository itemRepository;
     private final ItemStockRepository itemStockRepository;
