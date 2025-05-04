@@ -2,9 +2,7 @@ package com.jelly.zzirit.domain.adminItem.dto.response;
 
 import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.domain.item.entity.stock.ItemStock;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
 
 @Builder // record는 getter, allagrsconstructor 자동 생성
 public record AdminItemResponse (
