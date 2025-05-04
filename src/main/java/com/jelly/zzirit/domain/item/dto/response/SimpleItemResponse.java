@@ -1,4 +1,4 @@
-package com.jelly.zzirit.domain.item.dto;
+package com.jelly.zzirit.domain.item.dto.response;
 
 import com.jelly.zzirit.domain.item.entity.TimeDealStatus;
 
