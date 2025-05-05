@@ -4,9 +4,11 @@ import com.jelly.zzirit.domain.adminItem.dto.request.ItemCreateRequest;
 import com.jelly.zzirit.domain.item.entity.Brand;
 import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.domain.item.entity.Type;
+import com.jelly.zzirit.domain.item.entity.TypeBrand;
 import com.jelly.zzirit.domain.item.entity.stock.ItemStock;
 import com.jelly.zzirit.domain.item.repository.BrandRepository;
 import com.jelly.zzirit.domain.item.repository.ItemRepository;
+import com.jelly.zzirit.domain.item.repository.TypeBrandRepository;
 import com.jelly.zzirit.domain.item.repository.TypeRepository;
 import com.jelly.zzirit.domain.order.repository.ItemStockRepository;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
@@ -24,16 +26,15 @@ public class CommandAdminItemService {
     private final ItemStockRepository itemStockRepository;
     private final TypeRepository typeRepository;
     private final BrandRepository brandRepository;
+    private final TypeBrandRepository typeBrandRepository;
 
     @Transactional // 트랜잭션
     public Empty createItem(ItemCreateRequest request) {
-        Type type = typeRepository.findById(request.typeId())
-                .orElseThrow(() -> new InvalidItemException(BaseResponseStatus.TYPE_NOT_FOUND)); // todo: 예외 처리 괜춘?
-        Brand brand = brandRepository.findById(request.brandId())
-                .orElseThrow(() -> new InvalidItemException(BaseResponseStatus.BRAND_NOT_FOUND));
+        TypeBrand typeBrand = typeBrandRepository.findByTypeIdAndBrandId(request.typeId(), request.brandId())
+            .orElseThrow(() -> new InvalidItemException(BaseResponseStatus.TYPE_BRAND_NOT_FOUND)); // todo: 예외 처리 괜춘?
 
         // 상품생성요청 dto -> 상품 객체 생성, 저장
-        Item item = request.toItemEntity(type, brand);
+        Item item = request.toItemEntity(typeBrand);
         itemRepository.save(item); // save 후 item 객체에 id 채워짐
 
         // 상품생성요청 dto -> 재고 객체 생성, 저장
@@ -48,18 +49,16 @@ public class CommandAdminItemService {
 
         // 상품 조회, dto 보고 타입과 브랜드 조회
         Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND));
-        Type type = typeRepository.findById(request.typeId())
-                .orElseThrow(() -> new InvalidItemException(BaseResponseStatus.TYPE_NOT_FOUND));
-        Brand brand = brandRepository.findById(request.brandId())
-                .orElseThrow(() -> new InvalidItemException(BaseResponseStatus.BRAND_NOT_FOUND));
+            .orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND));
+        TypeBrand typeBrand = typeBrandRepository.findByTypeIdAndBrandId(request.typeId(), request.brandId())
+            .orElseThrow(() -> new InvalidItemException(BaseResponseStatus.TYPE_BRAND_NOT_FOUND)); // todo: 예외 처리 괜춘?
 
         // 상품 업데이트
-        item.update(request, type, brand);
+        item.update(request, typeBrand);
 
         // 상품 재고 조회
         ItemStock itemStock = itemStockRepository.findByItemId(itemId)
-                .orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_STOCK_NOT_FOUND));
+            .orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_STOCK_NOT_FOUND));
 
         // 상품 재고 업데이트
         itemStock.update(request, item);
@@ -72,9 +71,9 @@ public class CommandAdminItemService {
         // todo: 삭제 검증 로직 논의 필요 - 이미 판매된 상품은 삭제 불가 등
         // todo: soft delete 사용할지 논의 필요
         Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND));
+            .orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND));
         ItemStock itemStock = itemStockRepository.findByItemId(itemId)
-                .orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_STOCK_NOT_FOUND));
+            .orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_STOCK_NOT_FOUND));
 
         itemStockRepository.delete(itemStock);
         itemRepository.delete(item);

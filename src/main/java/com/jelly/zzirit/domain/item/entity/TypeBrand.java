@@ -1,5 +1,6 @@
 package com.jelly.zzirit.domain.item.entity;
 
+import com.jelly.zzirit.global.entity.BaseEntity;
 import com.jelly.zzirit.global.entity.BaseTime;
 
 import jakarta.persistence.Entity;
