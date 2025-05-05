@@ -11,8 +11,13 @@ public class CartItemResponse {
 	private String itemName;
 	private String itemImageUrl;
 	private int quantity;
-	private int unitPrice;
-	private int totalPrice;
+	private int unitPrice;          // 상품 정가
+
+	// private int discountPrice;   // TODO: 타임딜 등 할인 적용가 (FE 협의 후 주석 제거)
+
+	private int totalPrice;         // 수량 * 할인 단가
 	private boolean isTimeDeal;
-	private Integer discountRatio;
+	private Integer discountRatio;  // 할인율
+
+	// private boolean isSoldOut;   // TODO: 재고 0 여부 (FE 협의 후 주석 제거)
 }
