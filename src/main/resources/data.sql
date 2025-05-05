@@ -68,7 +68,6 @@ INSERT INTO `type_brand` (`id`, `type_id`, `brand_id`, `created_at`, `updated_at
                                                                                        (42, 5, 8, NOW(), NOW()),
                                                                                        (43, 5, 6, NOW(), NOW());
 
-
 INSERT INTO `item` (`id`, `type_brand_id`, `name`, `image_url`, `price`, `item_status`, `created_at`, `updated_at`) VALUES
                                                                                                                     (1, 1, '레노버 노트북 ThinkPad X1 Carbon', 'https://i.postimg.cc/C1f7fpyp/image.avif', 1650000, 1, NOW(), NOW()),
                                                                                                                     (2, 2, '소니 노트북 VAIO Pro', 'https://i.postimg.cc/C1f7fpyp/image.avif', 1450000, 1, NOW(), NOW()),

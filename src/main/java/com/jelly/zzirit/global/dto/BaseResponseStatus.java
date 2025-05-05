@@ -79,7 +79,8 @@ public enum BaseResponseStatus {
 	// 상품 관련
 	TYPE_NOT_FOUND(false, 60001, "타입이 없습니다.", HttpStatus.NOT_FOUND),
 	BRAND_NOT_FOUND(false, 60002, "브랜드가 없습니다.", HttpStatus.NOT_FOUND),
-	ITEM_STOCK_NOT_FOUND(false, 60003, "상품 재고가 없습니다.", HttpStatus.NOT_FOUND);
+	ITEM_STOCK_NOT_FOUND(false, 60003, "상품 재고가 없습니다.", HttpStatus.NOT_FOUND),
+	TYPE_BRAND_NOT_FOUND(false, 60004, "상품 종류-브랜드가 없습니다.", HttpStatus.NOT_FOUND);
 
 	private final boolean isSuccess;
 	private final int code;

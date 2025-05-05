@@ -2,6 +2,7 @@ package com.jelly.zzirit.domain.item.entity;
 
 import com.jelly.zzirit.global.entity.BaseTime;
 
+import com.jelly.zzirit.global.entity.BaseTime;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -27,9 +28,4 @@ public class TypeBrand extends BaseTime {
 	@JoinColumn(name = "brand_id")
 	private Brand brand;
 }
-
-// <TYPE BRAND 테이블>
-// type    brand
-// 노트북     삼성
-// 노트북	 애플
 
