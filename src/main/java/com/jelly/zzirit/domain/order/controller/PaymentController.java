@@ -13,7 +13,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import com.jelly.zzirit.domain.order.dto.request.PaymentRequestDto;
-import com.jelly.zzirit.domain.order.service.OrderService;
+import com.jelly.zzirit.domain.order.service.CommandOrderService;
 import com.jelly.zzirit.domain.order.service.TossPaymentService;
 import com.jelly.zzirit.global.dto.BaseResponse;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
@@ -32,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 public class PaymentController {
 
 	private final TossPaymentService tossPaymentService;
-	private final OrderService orderService;
+	private final CommandOrderService commandOrderService;
 
 	@Operation(
 		summary = "결제 요청",
@@ -55,7 +55,7 @@ public class PaymentController {
 		@RequestParam BigDecimal amount
 	) {
 		log.info("결제 성공 콜백: paymentKey={}, orderId={}, amount={}", paymentKey, orderId, amount);
-		orderService.confirmPayment(orderId);
+		commandOrderService.confirmPayment(orderId);
 		return BaseResponse.success();
 	}
 
