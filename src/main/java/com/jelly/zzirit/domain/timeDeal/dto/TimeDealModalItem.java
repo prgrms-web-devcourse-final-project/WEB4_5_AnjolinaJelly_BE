@@ -1,4 +1,4 @@
-package com.jelly.zzirit.domain.timeDeal.dto.response;
+package com.jelly.zzirit.domain.timeDeal.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -20,7 +20,15 @@ public class TimeDealModalItem {
 		this.originalPrice = originalPrice;
 	}
 
-	public Long getItemId() { return itemId; }
-	public String getItemName() { return itemName; }
-	public Integer getOriginalPrice() { return originalPrice; }
+	public Long getItemId() {
+		return itemId;
+	}
+
+	public String getItemName() {
+		return itemName;
+	}
+
+	public Integer getOriginalPrice() {
+		return originalPrice;
+	}
 }

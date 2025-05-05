@@ -9,13 +9,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.jelly.zzirit.domain.timeDeal.dto.TimeDealCreateItem;
+import com.jelly.zzirit.domain.timeDeal.dto.TimeDealModalItem;
 import com.jelly.zzirit.domain.timeDeal.dto.response.TimeDealCreateResponse;
-import com.jelly.zzirit.domain.timeDeal.dto.response.TimeDealModalItem;
-import com.jelly.zzirit.domain.timeDeal.entity.TimeDealCreateItem;
+import com.jelly.zzirit.domain.timeDeal.service.TimeDealService;
 import com.jelly.zzirit.global.dto.BaseResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -28,6 +28,8 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping
 @Tag(name = "타임딜 상품 API", description = "타임딜 기능을 제공합니다.")
 public class TimeDealController {
+	private final TimeDealService timeDealService;
+
 	@Operation(
 		summary = "타임딜 등록",
 		description = "타임딜 정보와 아이템 리스트를 등록합니다.",
@@ -94,42 +96,9 @@ public class TimeDealController {
 	}
 
 	@PostMapping("/api/admin/time-deal/modal")
-	@Operation(
-		summary = "타임딜 생성 모달 상품 조회",
-		requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-			required = true,
-			content = @Content(
-				mediaType = "application/json",
-				examples = @ExampleObject(
-					value = "[1, 2, 3]"
-				)
-			)
-		),
-		responses = {
-			@ApiResponse(
-				responseCode = "200",
-				content = @Content(
-					mediaType = "application/json",
-					array = @ArraySchema(
-						schema = @Schema(implementation = TimeDealModalItem.class)
-					),
-					examples = @ExampleObject(
-						value = "[\n" +
-							"  {\"itemId\": 1, \"itemName\": \"맥북 프로 16인치\", \"originalPrice\": 2990000},\n" +
-							"  {\"itemId\": 2, \"itemName\": \"갤럭시 북3\", \"originalPrice\": 1890000},\n" +
-							"  {\"itemId\": 3, \"itemName\": \"아이패드 에어 5세대\", \"originalPrice\": 929000}\n" +
-							"]"
-					)
-				)
-			)
-		}
-	)
+	@Operation(summary = "타임딜 생성 모달 상품 조회")
 	public BaseResponse<List<TimeDealModalItem>> getTimeDealModalItems(@RequestBody List<Long> itemIds) {
-		List<TimeDealModalItem> result = List.of(
-			new TimeDealModalItem(1L, "맥북 프로 16인치", 2990000),
-			new TimeDealModalItem(2L, "갤럭시 북3", 1890000),
-			new TimeDealModalItem(3L, "아이패드 에어 5세대", 929000)
-		);
+		List<TimeDealModalItem> result = timeDealService.getModalItems(itemIds);
 		return BaseResponse.success(result);
 	}
 

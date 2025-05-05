@@ -2,7 +2,7 @@ package com.jelly.zzirit.domain.timeDeal.dto.response;
 
 import java.util.List;
 
-import com.jelly.zzirit.domain.timeDeal.entity.TimeDealCreateItem;
+import com.jelly.zzirit.domain.timeDeal.dto.TimeDealCreateItem;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
