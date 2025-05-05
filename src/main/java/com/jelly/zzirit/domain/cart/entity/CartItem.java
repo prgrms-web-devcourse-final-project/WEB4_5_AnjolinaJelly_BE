@@ -32,4 +32,16 @@ public class CartItem extends BaseTime {
 	@Column(name = "quantity", nullable = false)
 	private int quantity;
 
+	public static CartItem of(Cart cart, Item item, int quantity) {
+		return CartItem.builder()
+			.cart(cart)
+			.item(item)
+			.quantity(quantity)
+			.build();
+	}
+
+	public void increaseQuantity(int additionalQuantity) {
+		this.quantity += additionalQuantity;
+	}
+
 }
