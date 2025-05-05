@@ -1,5 +1,8 @@
 package com.jelly.zzirit.global.redis;
 
+import org.redisson.Redisson;
+import org.redisson.api.RedissonClient;
+import org.redisson.config.Config;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,7 +13,6 @@ import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSeriali
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jelly.zzirit.domain.order.dto.request.RedisOrderData;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Configuration
 @RequiredArgsConstructor
-public class RedisSingleNodeConfig {
+public class RedisConfig {
 
 	private final RedisProperties redisProperties;
 
@@ -27,23 +29,19 @@ public class RedisSingleNodeConfig {
 		return new LettuceConnectionFactory(redisProperties.getHost(), redisProperties.getPort());
 	}
 
+	@Bean
+	public RedissonClient redissonClient(RedisProperties redisProperties) {
+		Config config = new Config();
+		config.useSingleServer()
+			.setAddress("redis://" + redisProperties.getHost() + ":" + redisProperties.getPort());
+		return Redisson.create(config);
+	}
+
 	@Bean(name = "CachingStringRedisTemplate")
 	public RedisTemplate<String, String> cachingStringRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
 		RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
 		redisTemplate.setKeySerializer(new StringRedisSerializer());
 		redisTemplate.setValueSerializer(new StringRedisSerializer());
-		redisTemplate.setConnectionFactory(redisConnectionFactory);
-		return redisTemplate;
-	}
-
-	@Bean
-	public RedisTemplate<String, RedisOrderData> orderDataRedisTemplate(
-		RedisConnectionFactory redisConnectionFactory,
-		ObjectMapper redisObjectMapper
-	) {
-		RedisTemplate<String, RedisOrderData> redisTemplate = new RedisTemplate<>();
-		redisTemplate.setKeySerializer(new StringRedisSerializer());
-		redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer(redisObjectMapper));
 		redisTemplate.setConnectionFactory(redisConnectionFactory);
 		return redisTemplate;
 	}

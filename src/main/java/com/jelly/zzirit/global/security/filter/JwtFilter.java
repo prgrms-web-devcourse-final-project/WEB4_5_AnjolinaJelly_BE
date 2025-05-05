@@ -36,28 +36,21 @@ public class JwtFilter extends OncePerRequestFilter {
 		@NonNull FilterChain filterChain) throws ServletException, IOException {
 
 		String requestURI = request.getRequestURI();
+
 		if (requestURI.startsWith("/api/auth") ||
-			requestURI.startsWith("/api/info") ||
 			requestURI.startsWith("/oauth2/authorization") ||
 			requestURI.startsWith("/login/oauth2/code") ||
 			requestURI.startsWith("/docs") ||
 			requestURI.startsWith("/swagger-ui") ||
 			requestURI.startsWith("/v3/api-docs") ||
+			requestURI.equals("/api/info/temp-check") ||
 			requestURI.equals("/favicon.ico")
 		) {
 			filterChain.doFilter(request, response);
 			return;
 		}
 
-
 		String accessToken = CookieUtil.getCookieValue(request, AuthConst.TOKEN_TYPE_ACCESS);
-
-		if ((accessToken == null || accessToken.isEmpty()) && request.getHeader("Authorization") != null) {
-			String header = request.getHeader("Authorization");
-			if (header.startsWith("Bearer ")) {
-				accessToken = header.substring(7);
-			}
-		}
 
 		if (accessToken == null || accessToken.isEmpty()) {
 			setException(request, response, new InvalidTokenException(BaseResponseStatus.JWT_MISSING));
@@ -72,8 +65,10 @@ public class JwtFilter extends OncePerRequestFilter {
 		try {
 			if (jwtUtil.isExpired(accessToken)) {
 				String newAccessToken = handleExpiredToken(request, response);
-				SecurityContextHolder.getContext().setAuthentication(tokenService.getAuthenticationFromToken(newAccessToken));
-				filterChain.doFilter(request, response);
+				if (newAccessToken != null) {
+					SecurityContextHolder.getContext().setAuthentication(tokenService.getAuthenticationFromToken(newAccessToken));
+					filterChain.doFilter(request, response);
+				}
 				return;
 			}
 

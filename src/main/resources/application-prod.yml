@@ -1,25 +1,39 @@
 # application-prod.yml
 
-toss:
-  payments:
-    success-url: https://api.zzirit.shop/payments/success
-    fail-url: https://api.zzirit.shop/payments/fail
+spring:
+  profiles:
+    include: secret
+
+  datasource:
+    url: jdbc:mysql://localhost:3406/zzirit-prod?useSSL=false&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQLDialect
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+
+  data:
+    redis:
+      host: localhost
+      port: 6479
 
 custom:
+  site:
+    domain: api.zzirit.shop
+    back-url: https://api.zzirit.shop
+    front-url: https://zzirit.vercel.app
   file:
     upload-dir: uploads/
-  site:
-    domain: zzirit.shop
-    back-url: https://api.zzirit.shop
-    front-url: https://zzirit.shop
-    allowed-origins: https://zzirit.shop,https://www.zzirit.shop
 
 oauth2:
-  naver:
-    redirect-uri: https://api.zzirit.shop/login/oauth2/code/naver
-
   google:
     redirect-uri: https://api.zzirit.shop/login/oauth2/code/google
 
   kakao:
     redirect-uri: https://api.zzirit.shop/login/oauth2/code/kakao
+
+  naver:
+    redirect-uri: https://api.zzirit.shop/login/oauth2/code/naver

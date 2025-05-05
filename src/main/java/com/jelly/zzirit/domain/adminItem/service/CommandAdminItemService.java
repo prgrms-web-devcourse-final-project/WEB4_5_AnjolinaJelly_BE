@@ -1,16 +1,14 @@
 package com.jelly.zzirit.domain.adminItem.service;
 
 import com.jelly.zzirit.domain.adminItem.dto.request.ItemCreateRequest;
-import com.jelly.zzirit.domain.item.entity.Brand;
 import com.jelly.zzirit.domain.item.entity.Item;
-import com.jelly.zzirit.domain.item.entity.Type;
 import com.jelly.zzirit.domain.item.entity.TypeBrand;
 import com.jelly.zzirit.domain.item.entity.stock.ItemStock;
 import com.jelly.zzirit.domain.item.repository.BrandRepository;
 import com.jelly.zzirit.domain.item.repository.ItemRepository;
 import com.jelly.zzirit.domain.item.repository.TypeBrandRepository;
 import com.jelly.zzirit.domain.item.repository.TypeRepository;
-import com.jelly.zzirit.domain.order.repository.ItemStockRepository;
+import com.jelly.zzirit.domain.item.repository.ItemStockRepository;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.dto.Empty;
 import com.jelly.zzirit.global.exception.custom.InvalidItemException;

@@ -9,6 +9,7 @@ import com.jelly.zzirit.domain.order.entity.Order;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
@@ -24,4 +25,5 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
         @Param("statuses") Collection<Order.OrderStatus> orderStatuses
     );
 
+    Optional<Order> findByOrderNumber(String orderNumber);
 }

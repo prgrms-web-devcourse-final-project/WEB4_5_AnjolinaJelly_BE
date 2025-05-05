@@ -6,6 +6,7 @@ import java.util.List;
 public record PaymentRequestDto(
 	List<OrderItemRequestDto> orderItems,
 	BigDecimal totalAmount,
-	String shippingAddress,
-	String shippingAddressDetail
+	String shippingRequest,
+	String address,
+	String addressDetail
 ) {}

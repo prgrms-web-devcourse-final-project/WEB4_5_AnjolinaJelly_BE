@@ -1,7 +1,5 @@
 package com.jelly.zzirit.domain.order.controller;
 
-import java.math.BigDecimal;
-
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -9,21 +7,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import com.jelly.zzirit.domain.order.dto.request.PaymentRequestDto;
-import com.jelly.zzirit.domain.order.service.CommandOrderService;
-import com.jelly.zzirit.domain.order.service.TossPaymentService;
+import com.jelly.zzirit.domain.order.service.pay.TossConfirmService;
+import com.jelly.zzirit.domain.order.service.pay.TossPaymentService;
 import com.jelly.zzirit.global.dto.BaseResponse;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.dto.Empty;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/payments")
@@ -32,17 +28,17 @@ import lombok.extern.slf4j.Slf4j;
 public class PaymentController {
 
 	private final TossPaymentService tossPaymentService;
-	private final CommandOrderService commandOrderService;
+	private final TossConfirmService tossConfirmService;
 
 	@Operation(
-		summary = "결제 요청",
-		description = "주문 정보를 기반으로 Toss 결제 URL 을 생성합니다."
+		summary = "주문번호 생성",
+		description = "결제를 위한 주문번호를 생성하고 임시 주문을 저장합니다."
 	)
-	@PostMapping
-	public BaseResponse<String> requestPayment(@RequestBody @Valid PaymentRequestDto requestDto) {
-		String paymentUrl = tossPaymentService.createPayment(requestDto);
-		return BaseResponse.success(paymentUrl);
-	} // 프론트는 이 URL 로 window.location.href
+	@PostMapping("/init")
+	public BaseResponse<String> initOrder(@RequestBody @Valid PaymentRequestDto requestDto) {
+		String orderNumber = tossPaymentService.createOrderAndReturnOrderNumber(requestDto);
+		return BaseResponse.success(orderNumber);
+	}
 
 	@Operation(
 		summary = "결제 성공 콜백",
@@ -50,12 +46,11 @@ public class PaymentController {
 	)
 	@GetMapping("/toss/success")
 	public BaseResponse<Empty> confirmPayment(
-		@RequestParam String paymentKey,
-		@RequestParam String orderId,
-		@RequestParam BigDecimal amount
+		@RequestParam("paymentKey") String paymentKey,
+		@RequestParam("orderId") String orderId,
+		@RequestParam("amount") String amount
 	) {
-		log.info("결제 성공 콜백: paymentKey={}, orderId={}, amount={}", paymentKey, orderId, amount);
-		commandOrderService.confirmPayment(orderId);
+		tossConfirmService.confirmPayment(paymentKey, orderId, amount);
 		return BaseResponse.success();
 	}
 
@@ -69,9 +64,7 @@ public class PaymentController {
 		@RequestParam(required = false) String message,
 		@RequestParam(required = false) String orderId
 	) {
-		log.warn("결제 실패: code={}, message={}, orderId={}", code, message, orderId);
-
-		String failReason = String.format("결제 실패 (%s): %s", code, message);
+		String failReason = String.format("결제 실패 (%s): %s | 주문번호: %s", code, message, orderId);
 		return BaseResponse.error(BaseResponseStatus.TOSS_PAYMENT_REQUEST_FAILED, failReason);
 	}
 }
