@@ -1,4 +1,4 @@
-package com.jelly.zzirit.domain.timeDeal.entity;
+package com.jelly.zzirit.domain.timeDeal.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
