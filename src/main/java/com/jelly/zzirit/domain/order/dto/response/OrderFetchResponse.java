@@ -2,7 +2,6 @@ package com.jelly.zzirit.domain.order.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.jelly.zzirit.domain.order.entity.Order;
-import com.jelly.zzirit.domain.orderitem.dto.response.OrderItemFetchResponse;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -17,4 +16,18 @@ public record OrderFetchResponse(
     Order.OrderStatus orderStatus, // 주문 상태
     List<OrderItemFetchResponse> items // 해당 주문에 포함된 상품 데이터
 ) {
+    public static OrderFetchResponse from(Order order) {
+        List<OrderItemFetchResponse> items = order.getOrderItems().stream()
+            .map(OrderItemFetchResponse::from)
+            .toList();
+
+        return new OrderFetchResponse(
+            order.getCreatedAt(),
+            order.getId(),
+            order.getOrderNumber(),
+            order.getTotalPrice(),
+            order.getStatus(),
+            items
+        );
+    }
 }

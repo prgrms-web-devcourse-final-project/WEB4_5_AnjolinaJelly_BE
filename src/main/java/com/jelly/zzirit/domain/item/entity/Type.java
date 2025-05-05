@@ -17,4 +17,8 @@ public class Type extends BaseTime {
 
 	@Column(nullable = false, length = 100)
 	private String name;
+
+	public Type(String name) {
+		this.name = name;
+	}
 }
