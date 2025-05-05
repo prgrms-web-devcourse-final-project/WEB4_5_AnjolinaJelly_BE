@@ -44,17 +44,17 @@ public class CartItemController {
 		return BaseResponse.success(response);
 	}
 
-	// @Operation(
-	// 	summary = "장바구니 항목 삭제",
-	// 	description = "장바구니에서 항목을 제거합니다.",
-	// 	security = {@SecurityRequirement(name = "bearer")}
-	// )
-	// @DeleteMapping("/{itemId}")
-	// public BaseResponse<Empty> removeItemFromCart(@PathVariable Long itemId) {
-	// 	Long memberId = AuthMember.getMemberId();
-	// 	log.info("장바구니에서 itemId {} 삭제 요청 - 사용자 ID: {}", itemId, memberId);
-	//
-	// 	cartItemService.removeItemFromCart(memberId, itemId);
-	// 	return BaseResponse.success();
-	// }
+	@Operation(
+		summary = "장바구니 항목 삭제",
+		description = "장바구니에서 항목을 제거합니다.",
+		security = {@SecurityRequirement(name = "bearer")}
+	)
+	@DeleteMapping("/{itemId}")
+	public BaseResponse<Empty> removeItemToCart(@PathVariable Long itemId) {
+		Long memberId = AuthMember.getMemberId();
+		log.info("장바구니에서 itemId {} 삭제 요청 - 사용자 ID: {}", itemId, memberId);
+
+		cartItemService.removeItemToCart(memberId, itemId);
+		return BaseResponse.success();
+	}
 }

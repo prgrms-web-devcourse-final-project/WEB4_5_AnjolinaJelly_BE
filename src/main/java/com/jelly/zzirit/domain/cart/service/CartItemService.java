@@ -87,5 +87,18 @@ public class CartItemService {
 		);
 	}
 
+	@Transactional
+	public void removeItemToCart(Long memberId, Long itemId) {
+		// 1. 회원 장바구니 조회
+		Cart cart = cartRepository.findByMemberId(memberId)
+			.orElseThrow(() -> new InvalidUserException(BaseResponseStatus.USER_NOT_FOUND));
+
+		// 2. 장바구니 항목 조회
+		CartItem cartItem = cartItemRepository.findByCartIdAndItemId(cart.getId(), itemId)
+			.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND_IN_CART));
+
+		// 3. 항목 삭제
+		cartItemRepository.delete(cartItem);
+	}
 
 }
