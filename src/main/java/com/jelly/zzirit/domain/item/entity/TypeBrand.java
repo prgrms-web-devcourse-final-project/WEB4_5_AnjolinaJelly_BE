@@ -1,6 +1,6 @@
 package com.jelly.zzirit.domain.item.entity;
 
-import com.jelly.zzirit.global.entity.BaseEntity;
+import com.jelly.zzirit.global.entity.BaseTime;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -17,7 +17,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class TypeBrand extends BaseEntity {
+public class TypeBrand extends BaseTime {
 
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "type_id")

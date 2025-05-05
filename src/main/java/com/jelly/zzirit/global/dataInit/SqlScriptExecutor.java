@@ -32,13 +32,13 @@ public class SqlScriptExecutor {
 
 			for (String statement : statements) {
 				String trimmed = statement.trim();
-				if (!trimmed.isEmpty()) {
+				if (!trimmed.isEmpty() && !trimmed.startsWith("--")) {
 					entityManager.createNativeQuery(trimmed).executeUpdate();
 				}
 			}
 
 		} catch (Exception e) {
-			log.error("SQL 파일 실행 실패");
+			log.error("SQL 파일 실행 실패", e);
 		}
 	}
 }
