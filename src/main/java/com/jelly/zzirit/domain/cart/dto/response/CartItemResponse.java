@@ -12,6 +12,9 @@ public class CartItemResponse {
 	private String itemImageUrl;
 	private int quantity;
 	private int unitPrice;
+
+	//private int discountedPrice; // 할인된 가격
+
 	private int totalPrice;
 	private boolean isTimeDeal;
 	private Integer discountRatio;
