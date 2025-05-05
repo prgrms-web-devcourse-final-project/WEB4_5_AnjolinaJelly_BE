@@ -48,7 +48,7 @@ public class AdminItemController {
 		@RequestParam(required = false) String name,
 		@RequestParam(required = false) Long itemId
 	) {
-		return BaseResponse.success(queryAdminItemService.getItems());
+		return BaseResponse.success(queryAdminItemService.getItems(name, itemId));
 	}
 
 	/**
@@ -93,7 +93,9 @@ public class AdminItemController {
 	 */
 	@Operation(summary = "관리자 상품 삭제", description = "관리자가 id로 상품을 삭제합니다.")
 	@DeleteMapping("/{itemId}")
-	public BaseResponse<Empty> deleteItem(@PathVariable Long itemId) {
-		return BaseResponse.success();
+	public BaseResponse<Empty> deleteItem(@PathVariable @NotNull Long itemId) {
+		return BaseResponse.success(
+				commandAdminItemService.deleteItem(itemId)
+		);
 	}
 }
