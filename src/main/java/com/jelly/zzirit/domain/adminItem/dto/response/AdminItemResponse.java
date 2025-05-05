@@ -19,10 +19,10 @@ public record AdminItemResponse (
                 .id(item.getId())
                 .name(item.getName())
                 .imageUrl(item.getImageUrl())
-                .type(item.getType().getName()) // TODO: enum으로 관리?
-                .brand(item.getBrand().getName())
+                .type(item.getTypeBrand().getType().getName()) // TODO: enum으로 관리?
+                .brand(item.getTypeBrand().getBrand().getName())
                 .price(item.getPrice().intValue()) // TODO: 추후 bigdecimal로 스펙 변경 필요
-                .stockQuantity(itemStock.getQuantity() - itemStock.getReservedQuantity() - itemStock.getSoldQuantity()) // Todo: 재고수량 셋 다 줄지? 상품-재고 분리?(재고는 캐시x?), 단방향(양방향 할거면 합치기?)
+                .stockQuantity(itemStock.getQuantity() - itemStock.getSoldQuantity()) // Todo: 재고수량 둘 다 줄지? 상품-재고 분리?(재고는 캐시x?), 단방향(양방향 할거면 합치기?)
                 .build();
     }
 }
