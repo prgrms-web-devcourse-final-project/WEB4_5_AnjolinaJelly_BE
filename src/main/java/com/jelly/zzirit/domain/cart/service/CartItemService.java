@@ -16,6 +16,7 @@ import com.jelly.zzirit.domain.item.entity.ItemStatus;
 import com.jelly.zzirit.domain.item.entity.timedeal.TimeDealItem;
 import com.jelly.zzirit.domain.item.repository.ItemRepository;
 import com.jelly.zzirit.domain.item.repository.TimeDealItemRepository;
+import com.jelly.zzirit.domain.member.entity.Member;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.exception.custom.InvalidItemException;
 import com.jelly.zzirit.global.exception.custom.InvalidUserException;
@@ -35,7 +36,11 @@ public class CartItemService {
 	public CartItemResponse addItemToCart(Long memberId, CartItemAddRequest request) {
 
 		Cart cart = cartRepository.findByMemberId(memberId)
-			.orElseThrow(() -> new InvalidUserException(BaseResponseStatus.USER_NOT_FOUND));
+			.orElseGet(() -> {
+				Member member = Member.builder().id(memberId).build();
+				Cart newCart = Cart.builder().member(member).build();
+				return cartRepository.save(newCart);
+			});
 
 		Item item = itemRepository.findById(request.getItemId())
 			.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND));

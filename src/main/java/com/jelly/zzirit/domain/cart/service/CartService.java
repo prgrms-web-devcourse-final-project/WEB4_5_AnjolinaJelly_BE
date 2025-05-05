@@ -15,10 +15,10 @@ import com.jelly.zzirit.domain.item.entity.ItemStatus;
 import com.jelly.zzirit.domain.item.entity.stock.ItemStock;
 import com.jelly.zzirit.domain.item.entity.timedeal.TimeDealItem;
 import com.jelly.zzirit.domain.item.repository.TimeDealItemRepository;
+import com.jelly.zzirit.domain.member.entity.Member;
 import com.jelly.zzirit.domain.order.repository.ItemStockRepository;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.exception.custom.InvalidItemException;
-import com.jelly.zzirit.global.exception.custom.InvalidUserException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -35,7 +35,11 @@ public class CartService {
 
 		// 사용자 장바구니 조회
 		Cart cart = cartRepository.findByMemberId(memberId)
-			.orElseThrow(() -> new InvalidUserException(BaseResponseStatus.USER_NOT_FOUND));
+			.orElseGet(() -> {
+				Member member = Member.builder().id(memberId).build();
+				Cart newCart = Cart.builder().member(member).build();
+				return cartRepository.save(newCart);
+			});
 
 		// 장바구니 항목 조회
 		List<CartItem> cartItems = cartItemRepository.findAllByCartId(cart.getId());
