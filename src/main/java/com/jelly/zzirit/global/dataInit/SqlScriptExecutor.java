@@ -32,7 +32,7 @@ public class SqlScriptExecutor {
 
 			for (String statement : statements) {
 				String trimmed = statement.trim();
-				if (!trimmed.isEmpty()) {
+				if (!trimmed.isEmpty() && !trimmed.startsWith("--")) {
 					entityManager.createNativeQuery(trimmed).executeUpdate();
 				}
 			}
