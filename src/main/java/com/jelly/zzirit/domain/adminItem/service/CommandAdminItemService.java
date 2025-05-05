@@ -41,5 +41,29 @@ public class CommandAdminItemService {
 
         return Empty.getInstance(); // 싱글턴 - getInstance() 사용
     }
+
+    @Transactional
+    public Empty updateItem(Long itemId, ItemCreateRequest request) {
+
+        // 상품 조회, dto 보고 타입과 브랜드 조회
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND));
+        Type type = typeRepository.findById(request.typeId())
+                .orElseThrow(() -> new InvalidItemException(BaseResponseStatus.TYPE_NOT_FOUND));
+        Brand brand = brandRepository.findById(request.brandId())
+                .orElseThrow(() -> new InvalidItemException(BaseResponseStatus.BRAND_NOT_FOUND));
+
+        // 상품 업데이트
+        item.update(request, type, brand);
+
+        // 상품 재고 조회
+        ItemStock itemStock = itemStockRepository.findByItemId(itemId)
+                .orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_STOCK_NOT_FOUND));
+
+        // 상품 재고 업데이트
+        itemStock.update(request, item);
+
+        return Empty.getInstance();
+    }
     
 }

@@ -34,4 +34,5 @@ public interface ItemStockRepository extends JpaRepository<ItemStock, Long> {
 
 	// 상품id 목록을 받아서 재고개수 목록 조회
 	List<ItemStock> findAllByItemIdIn(List<Long> itemIds);
+	Optional<ItemStock> findByItemId(Long itemId);
 }
