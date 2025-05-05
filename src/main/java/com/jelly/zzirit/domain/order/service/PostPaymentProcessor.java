@@ -50,9 +50,9 @@ public class PostPaymentProcessor {
 		for (RedisOrderData.ItemData item : cached.getItems()) {
 			Item itemEntity = findItem(item.getItemId());
 			TimeDealItem timeDealItemEntity = null;
-			//					(item.getTimeDealItemId() != null)
-			//				? findTimeDealItem(item.getTimeDealItemId())
-			//				: null;
+//					(item.getTimeDealItemId() != null)
+//				? findTimeDealItem(item.getTimeDealItemId())
+//				: null;
 
 			OrderItem orderItem = OrderItem.of(
 				order,
@@ -65,9 +65,9 @@ public class PostPaymentProcessor {
 			orderItemRepository.save(orderItem);
 
 			int updated = itemStockRepository.confirmStock(itemEntity.getId(), item.getQuantity());
-			//			(timeDealItemEntity != null)
-			//				? timeDealStockRepository.confirmStock(timeDealItemEntity.getId(), item.getQuantity())
-			//				:
+//			(timeDealItemEntity != null)
+//				? timeDealStockRepository.confirmStock(timeDealItemEntity.getId(), item.getQuantity())
+//				:
 
 			if (updated == 0) {
 				throw new InvalidOrderException(BaseResponseStatus.STOCK_CONFIRMATION_FAILED);
@@ -80,8 +80,8 @@ public class PostPaymentProcessor {
 			.orElseThrow(() -> new InvalidOrderException(BaseResponseStatus.ITEM_NOT_FOUND));
 	}
 
-	//	private TimeDealItem findTimeDealItem(Long timeDealItemId) {
-	//		return timeDealStockRepository.findTimeDealItemById(timeDealItemId)
-	//			.orElseThrow(() -> new InvalidOrderException(BaseResponseStatus.ITEM_NOT_FOUND));
-	//	}
+//	private TimeDealItem findTimeDealItem(Long timeDealItemId) {
+//		return timeDealStockRepository.findTimeDealItemById(timeDealItemId)
+//			.orElseThrow(() -> new InvalidOrderException(BaseResponseStatus.ITEM_NOT_FOUND));
+//	}
 }

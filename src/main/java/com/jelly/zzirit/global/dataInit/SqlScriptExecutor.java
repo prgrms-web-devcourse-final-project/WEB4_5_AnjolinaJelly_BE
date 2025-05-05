@@ -38,7 +38,7 @@ public class SqlScriptExecutor {
 			}
 
 		} catch (Exception e) {
-			log.error("SQL 파일 실행 실패");
+			log.error("SQL 파일 실행 실패", e);
 		}
 	}
 }

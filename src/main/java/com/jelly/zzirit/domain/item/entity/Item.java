@@ -45,6 +45,7 @@ public class Item extends BaseTime {
 		this.name = request.name();
 		this.price = BigDecimal.valueOf(request.price()); // todo: bigdecimal로 변경 필요
 		this.typeBrand = typeBrand;
+
 		return Empty.getInstance();
 	}
 

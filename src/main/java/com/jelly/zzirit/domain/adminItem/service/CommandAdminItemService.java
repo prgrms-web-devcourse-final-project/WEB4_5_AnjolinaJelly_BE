@@ -31,7 +31,7 @@ public class CommandAdminItemService {
     @Transactional // 트랜잭션
     public Empty createItem(ItemCreateRequest request) {
         TypeBrand typeBrand = typeBrandRepository.findByTypeIdAndBrandId(request.typeId(), request.brandId())
-            .orElseThrow(() -> new InvalidItemException(BaseResponseStatus.TYPE_BRAND_NOT_FOUND)); // todo: 예외 처리 괜춘?
+                .orElseThrow(() -> new InvalidItemException(BaseResponseStatus.TYPE_BRAND_NOT_FOUND)); // todo: 예외 처리 괜춘?
 
         // 상품생성요청 dto -> 상품 객체 생성, 저장
         Item item = request.toItemEntity(typeBrand);
@@ -49,9 +49,9 @@ public class CommandAdminItemService {
 
         // 상품 조회, dto 보고 타입과 브랜드 조회
         Item item = itemRepository.findById(itemId)
-            .orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND));
+                .orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND));
         TypeBrand typeBrand = typeBrandRepository.findByTypeIdAndBrandId(request.typeId(), request.brandId())
-            .orElseThrow(() -> new InvalidItemException(BaseResponseStatus.TYPE_BRAND_NOT_FOUND)); // todo: 예외 처리 괜춘?
+                .orElseThrow(() -> new InvalidItemException(BaseResponseStatus.TYPE_BRAND_NOT_FOUND)); // todo: 예외 처리 괜춘?
 
         // 상품 업데이트
         item.update(request, typeBrand);
