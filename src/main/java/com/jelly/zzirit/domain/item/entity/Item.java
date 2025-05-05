@@ -41,11 +41,12 @@ public class Item extends BaseTime {
 	private TypeBrand typeBrand;
 
 	// update함수는 entity 수정 pr 머지 이후에 수정하는 게 좋을 것 같아요!
-	public Empty update (ItemCreateRequest request, Type type, Brand brand) {
+	public Empty update (ItemCreateRequest request, TypeBrand typeBrand) {
 		this.name = request.name();
 		this.price = BigDecimal.valueOf(request.price()); // todo: bigdecimal로 변경 필요
-		// this.timeDealStatus
-		// this.typeBrand = typeBrand;
+		 this.typeBrand = typeBrand;
 		return Empty.getInstance();
 	}
+
+	// todo: timeDealStatus 업데이트 로직 추가해야 함
 }
