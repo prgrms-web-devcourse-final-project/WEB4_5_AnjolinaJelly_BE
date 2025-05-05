@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.jelly.zzirit.domain.cart.dto.request.CartItemAddRequest;
 import com.jelly.zzirit.domain.cart.dto.response.CartItemResponse;
+import com.jelly.zzirit.domain.cart.dto.response.CartResponse;
 import com.jelly.zzirit.domain.cart.service.CartItemService;
 import com.jelly.zzirit.global.AuthMember;
 import com.jelly.zzirit.global.dto.BaseResponse;
@@ -32,9 +33,7 @@ public class CartItemController {
 
 	@Operation(
 		summary = "장바구니에 상품 추가",
-		description = "상품 ID와 수량을 전달받아 장바구니에 항목을 추가합니다.",
-		security = {@SecurityRequirement(name = "bearer")}
-	)
+		description = "상품 ID와 수량을 전달받아 장바구니에 항목을 추가합니다.")
 	@PostMapping
 	public BaseResponse<CartItemResponse> addItemToCart(@Valid @RequestBody CartItemAddRequest request) {
 		Long memberId = AuthMember.getMemberId();
@@ -46,8 +45,7 @@ public class CartItemController {
 
 	@Operation(
 		summary = "장바구니 항목 삭제",
-		description = "장바구니에서 항목을 제거합니다.",
-		security = {@SecurityRequirement(name = "bearer")}
+		description = "장바구니에서 항목을 제거합니다."
 	)
 	@DeleteMapping("/{itemId}")
 	public BaseResponse<Empty> removeItemToCart(@PathVariable Long itemId) {
@@ -56,5 +54,19 @@ public class CartItemController {
 
 		cartItemService.removeItemToCart(memberId, itemId);
 		return BaseResponse.success();
+	}
+
+	@Operation(summary = "장바구니 상품 수량 증가", description = "+1 수량 증가")
+	@PostMapping("/{itemId}/increase")
+	public BaseResponse<CartResponse> increaseQuantity(@PathVariable Long itemId) {
+		Long memberId = AuthMember.getMemberId();
+		return BaseResponse.success(cartItemService.modifyQuantity(memberId, itemId, +1));
+	}
+
+	@Operation(summary = "장바구니 상품 수량 감소", description = "-1 수량 감소")
+	@PostMapping("/{itemId}/decrease")
+	public BaseResponse<CartResponse> decreaseQuantity(@PathVariable Long itemId) {
+		Long memberId = AuthMember.getMemberId();
+		return BaseResponse.success(cartItemService.modifyQuantity(memberId, itemId, -1));
 	}
 }
