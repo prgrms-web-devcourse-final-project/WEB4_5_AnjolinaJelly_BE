@@ -3,9 +3,9 @@ package com.jelly.zzirit.domain.order.entity;
 import java.math.BigDecimal;
 
 import com.jelly.zzirit.domain.item.entity.Item;
-import com.jelly.zzirit.domain.item.entity.timedeal.TimeDealItem;
 import com.jelly.zzirit.global.entity.BaseTime;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -31,19 +31,16 @@ public class OrderItem extends BaseTime {
 	@JoinColumn(name = "item_id", nullable = false)
 	private Item item;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "time_deal_item_id")
-	private TimeDealItem timeDealItem;
-
+	@Column(name = "quantity", nullable = false)
 	private int quantity;
 
+	@Column(name = "price", nullable = false)
 	private BigDecimal price;
 
-	public static OrderItem of(Order order, Item item, TimeDealItem timeDealItem, int quantity, BigDecimal price) {
+	public static OrderItem of(Order order, Item item, int quantity, BigDecimal price) {
 		return OrderItem.builder()
 			.order(order)
 			.item(item)
-			.timeDealItem(timeDealItem)
 			.quantity(quantity)
 			.price(price)
 			.build();

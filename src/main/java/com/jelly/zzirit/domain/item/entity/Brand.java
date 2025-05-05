@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Brand extends BaseTime {
 
-	@Column(nullable = false, length = 100)
+	@Column(name = "name", nullable = false, length = 100)
 	private String name;
+
 }

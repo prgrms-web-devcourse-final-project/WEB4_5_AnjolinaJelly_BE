@@ -2,7 +2,7 @@ package com.jelly.zzirit.domain.item.dto.response;
 
 import java.time.LocalDateTime;
 
-import com.jelly.zzirit.domain.item.entity.TimeDealStatus;
+import com.jelly.zzirit.domain.item.entity.ItemStatus;
 
 public record ItemResponse(
 	Long itemId,
@@ -11,7 +11,7 @@ public record ItemResponse(
 	String brand,
 	Integer quantity,
 	Integer price,
-	TimeDealStatus timeDealStatus,
+	ItemStatus timeDealStatus,
 	LocalDateTime endTimeDeal
 ) {
 }

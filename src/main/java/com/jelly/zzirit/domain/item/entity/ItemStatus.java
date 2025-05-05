@@ -1,6 +1,6 @@
 package com.jelly.zzirit.domain.item.entity;
 
-public enum TimeDealStatus {
+public enum ItemStatus {
 	NONE,
 	TIME_DEAL
 }
