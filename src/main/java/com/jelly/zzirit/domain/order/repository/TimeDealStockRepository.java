@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.jelly.zzirit.domain.item.entity.stock.TimeDealStock;
 import com.jelly.zzirit.domain.item.entity.timedeal.TimeDealItem;
 
 @Repository

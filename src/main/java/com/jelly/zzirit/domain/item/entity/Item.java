@@ -2,6 +2,8 @@ package com.jelly.zzirit.domain.item.entity;
 
 import java.math.BigDecimal;
 
+import com.jelly.zzirit.domain.adminItem.dto.request.ItemCreateRequest;
+import com.jelly.zzirit.global.dto.Empty;
 import com.jelly.zzirit.global.entity.BaseTime;
 
 import jakarta.persistence.Column;
@@ -22,18 +24,28 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class Item extends BaseTime {
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "type_id", nullable = false)
-	private Type type;
-
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "brand_id", nullable = false)
-	private Brand brand;
-
+	@Column(name = "name", nullable = false, length = 100)
 	private String name;
 
 	@Column(name = "image_url")
 	private String imageUrl;
 
+	@Column(name = "price", nullable = false)
 	private BigDecimal price;
+
+	@Column(name = "item_status", nullable = false)
+	private ItemStatus itemStatus;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "type_brand_id", nullable = false)
+	private TypeBrand typeBrand;
+
+	// update함수는 entity 수정 pr 머지 이후에 수정하는 게 좋을 것 같아요!
+	public Empty update (ItemCreateRequest request, Type type, Brand brand) {
+		this.name = request.name();
+		this.price = BigDecimal.valueOf(request.price()); // todo: bigdecimal로 변경 필요
+		// this.timeDealStatus
+		// this.typeBrand = typeBrand;
+		return Empty.getInstance();
+	}
 }

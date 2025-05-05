@@ -2,6 +2,11 @@ package com.jelly.zzirit.domain.adminItem.controller;
 
 import java.util.List;
 
+import com.jelly.zzirit.domain.adminItem.service.CommandAdminItemService;
+import com.jelly.zzirit.domain.adminItem.service.QueryAdminItemService;
+import com.jelly.zzirit.domain.item.repository.ItemRepository;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,30 +36,30 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Tag(name = "관리자 상품 API", description = "관리자 상품 기능을 제공합니다.")
 public class AdminItemController {
+	private final QueryAdminItemService queryAdminItemService;
+	private final CommandAdminItemService commandAdminItemService;
 
 	/**
 	 * (관리자) 상품 조회 & 검색
 	 */
 	@Operation(summary = "관리자 상품 조회 & 검색", description = "관리자가 id/이름으로 상품 목록을 조회합니다.")
 	@GetMapping
-	public BaseResponse<List<AdminItemResponse>> searchItems(
+	public BaseResponse<List<AdminItemResponse>> getItems(
 		@RequestParam(required = false) String name,
 		@RequestParam(required = false) Long itemId
 	) {
-		List<AdminItemResponse> dummyItems = List.of(
-			new AdminItemResponse(1L, "iphone 15 pro", "https://dummyimage.com/iphone.jpg", 50, "휴대폰", "애플", 1_200_000),
-			new AdminItemResponse(2L, "갤럭시북3", "https://dummyimage.com/galaxybook.jpg", 100, "노트북", "삼성", 790_000)
-		);
-		return BaseResponse.success(dummyItems);
+		return BaseResponse.success(queryAdminItemService.getItems(name, itemId));
 	}
 
 	/**
 	 * (관리자) 상품 등록
 	 */
 	@Operation(summary = "관리자 상품 등록", description = "관리자가 상품을 등록합니다.")
-	@PostMapping
-	public BaseResponse<Empty> addItem(@RequestBody ItemCreateRequest request) {
-		return BaseResponse.success();
+	@PostMapping // validity check
+	public BaseResponse<Empty> createItem(@RequestBody @Valid ItemCreateRequest request) {
+		return BaseResponse.success(
+				commandAdminItemService.createItem(request)
+		);
 	}
 
 	/**
@@ -62,8 +67,10 @@ public class AdminItemController {
 	 */
 	@Operation(summary = "관리자 상품 수정", description = "관리자가 id로 상품을 수정합니다.")
 	@PutMapping("/{itemId}")
-	public BaseResponse<Empty> updateItem(@PathVariable Long itemId, @RequestBody ItemCreateRequest request) {
-		return BaseResponse.success();
+	public BaseResponse<Empty> updateItem(@PathVariable @NotNull Long itemId, @RequestBody @Valid ItemCreateRequest request) {
+		return BaseResponse.success(
+				commandAdminItemService.updateItem(itemId, request)
+		);
 	}
 
 	/**
@@ -86,7 +93,9 @@ public class AdminItemController {
 	 */
 	@Operation(summary = "관리자 상품 삭제", description = "관리자가 id로 상품을 삭제합니다.")
 	@DeleteMapping("/{itemId}")
-	public BaseResponse<Empty> deleteItem(@PathVariable Long itemId) {
-		return BaseResponse.success();
+	public BaseResponse<Empty> deleteItem(@PathVariable @NotNull Long itemId) {
+		return BaseResponse.success(
+				commandAdminItemService.deleteItem(itemId)
+		);
 	}
 }

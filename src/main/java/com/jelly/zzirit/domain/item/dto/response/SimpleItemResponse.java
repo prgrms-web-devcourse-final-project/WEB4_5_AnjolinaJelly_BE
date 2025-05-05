@@ -1,6 +1,6 @@
 package com.jelly.zzirit.domain.item.dto.response;
 
-import com.jelly.zzirit.domain.item.entity.TimeDealStatus;
+import com.jelly.zzirit.domain.item.entity.ItemStatus;
 
 public record SimpleItemResponse(
 	Long itemId,
@@ -8,7 +8,7 @@ public record SimpleItemResponse(
 	String type,
 	String brand,
 	Integer price,
-	TimeDealStatus timeDealStatus
+	ItemStatus timeDealStatus
 ) {
 
 }

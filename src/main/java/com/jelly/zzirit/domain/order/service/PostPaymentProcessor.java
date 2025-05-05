@@ -56,7 +56,6 @@ public class PostPaymentProcessor {
 			OrderItem orderItem = OrderItem.of(
 				order,
 				itemEntity,
-				timeDealItemEntity,
 				item.getQuantity(),
 				item.getPrice()
 			);
