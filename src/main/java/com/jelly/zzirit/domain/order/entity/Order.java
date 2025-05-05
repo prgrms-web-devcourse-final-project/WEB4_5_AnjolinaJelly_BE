@@ -25,19 +25,32 @@ public class Order extends BaseTime {
 	@JoinColumn(name = "member_id", nullable = false)
 	private Member member;
 
+	@Column(precision = 10, scale = 2, nullable = false)
 	private BigDecimal totalPrice;
 
 	@Enumerated(EnumType.STRING)
+	@Column(name = "status")
 	private OrderStatus status;
 
+	@Column(name = "shipping_request")
 	private String shippingRequest;
 
 	@Column(name = "order_number", unique = true, nullable = false, length = 30)
 	private String orderNumber;
 
-	@OneToMany(mappedBy = "order", orphanRemoval = true, cascade = CascadeType.ALL)
 	@Builder.Default
+	@OneToMany(mappedBy = "order", orphanRemoval = true, cascade = CascadeType.ALL)
 	private List<OrderItem> orderItems = new ArrayList<>();
+
+	@Column(name = "address", nullable = false)
+	private String address;
+
+	@Column(name = "address_detail")
+	private String addressDetail;
+
+	@OneToOne(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+	@JoinColumn(name = "payment_id")
+	private Payment payment;
 
 	public enum OrderStatus {
 		PENDING, PAID, FAILED, CANCELLED, COMPLETED

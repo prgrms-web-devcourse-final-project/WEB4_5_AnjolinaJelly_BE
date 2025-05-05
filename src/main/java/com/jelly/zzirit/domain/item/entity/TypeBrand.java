@@ -28,3 +28,8 @@ public class TypeBrand extends BaseEntity {
 	private Brand brand;
 }
 
+// <TYPE BRAND 테이블>
+// type    brand
+// 노트북     삼성
+// 노트북	 애플
+

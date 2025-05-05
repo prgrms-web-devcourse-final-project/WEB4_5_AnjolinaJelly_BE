@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.jelly.zzirit.domain.item.dto.response.ItemResponse;
 import com.jelly.zzirit.domain.item.dto.response.SimpleItemResponse;
-import com.jelly.zzirit.domain.item.entity.TimeDealStatus;
+import com.jelly.zzirit.domain.item.entity.ItemStatus;
 import com.jelly.zzirit.global.dto.BaseResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,8 +31,8 @@ public class ItemController {
 	) {
 		return BaseResponse.success(
 			List.of(
-				new SimpleItemResponse(1L, "에이수스 노트북", "노트북", "에이수스", 10000000, TimeDealStatus.NONE),
-				new SimpleItemResponse(2L, "삼성 노트북", "노트북", "삼성", 10000, TimeDealStatus.TIME_DEAL)
+				new SimpleItemResponse(1L, "에이수스 노트북", "노트북", "에이수스", 10000000, ItemStatus.NONE),
+				new SimpleItemResponse(2L, "삼성 노트북", "노트북", "삼성", 10000, ItemStatus.TIME_DEAL)
 			)
 		);
 	}
@@ -41,7 +41,7 @@ public class ItemController {
 	@Operation(summary = "상품 상세 조회", description = "상품을 상세 조회 합니다.")
 	public BaseResponse<ItemResponse> getById(@PathVariable(name = "item-id") Long itemId) {
 		return BaseResponse.success(
-			new ItemResponse(1L, "에이수스 노트북", "노트북", "에이수스", 10, 10000000, TimeDealStatus.NONE, null)
+			new ItemResponse(1L, "에이수스 노트북", "노트북", "에이수스", 10, 10000000, ItemStatus.NONE, null)
 		);
 	}
 }

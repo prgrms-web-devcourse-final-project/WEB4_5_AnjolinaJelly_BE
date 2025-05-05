@@ -1,5 +1,6 @@
 package com.jelly.zzirit.domain.cart.entity;
 
+import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.global.entity.BaseTime;
 
 import jakarta.persistence.Column;
@@ -24,11 +25,11 @@ public class CartItem extends BaseTime {
 	@JoinColumn(name = "cart_id", nullable = false)
 	private Cart cart;
 
-	@Column(name = "normal_product_id")
-	private Long normalProductId;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "item_id", nullable = false)
+	private Item item;
 
-	@Column(name = "time_deal_product_id")
-	private Long timeDealProductId;
-
+	@Column(name = "quantity", nullable = false)
 	private int quantity;
+
 }
