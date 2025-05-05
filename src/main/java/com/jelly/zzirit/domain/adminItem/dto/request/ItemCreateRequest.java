@@ -9,11 +9,11 @@ import jakarta.validation.constraints.PositiveOrZero;
 import java.math.BigDecimal;
 
 public record ItemCreateRequest (
-        @NotBlank String name, // validity check
-        @PositiveOrZero int stockQuantity,
-        @PositiveOrZero int price,
-        @NotNull Long typeId,
-        @NotNull Long brandId
+    @NotBlank String name, // validity check
+    @PositiveOrZero int stockQuantity,
+    @PositiveOrZero int price,
+    @NotNull Long typeId,
+    @NotNull Long brandId
 ){
     public Item toItemEntity (TypeBrand typeBrand) { // 서비스에서 주입, 외부 사용 public
         return Item.builder()
@@ -26,8 +26,8 @@ public record ItemCreateRequest (
 
     public ItemStock toItemStockEntity (Item item) {
         return ItemStock.builder()
-                .item(item)
-                .quantity(stockQuantity)
-                .build();
+            .item(item)
+            .quantity(stockQuantity)
+            .build();
     }
 }

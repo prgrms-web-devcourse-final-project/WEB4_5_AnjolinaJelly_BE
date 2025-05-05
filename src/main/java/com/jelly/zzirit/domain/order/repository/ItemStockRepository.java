@@ -22,8 +22,8 @@ public interface ItemStockRepository extends JpaRepository<ItemStock, Long> {
 		    WHERE s.item.id = :itemId
 
 		""")
-			// s.reservedQuantity = s.reservedQuantity - :qty,
-	// 		      AND s.reservedQuantity >= :qty
+		// s.reservedQuantity = s.reservedQuantity - :qty,
+		// 		      AND s.reservedQuantity >= :qty
 	int confirmStock(@Param("itemId") Long itemId, @Param("qty") int qty);
 
 	@Query("""

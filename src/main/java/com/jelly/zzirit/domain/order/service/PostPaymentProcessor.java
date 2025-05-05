@@ -25,7 +25,7 @@ public class PostPaymentProcessor {
 	private final OrderRepository orderRepository;
 	private final OrderItemRepository orderItemRepository;
 	private final ItemStockRepository itemStockRepository;
-//	private final TimeDealStockRepository timeDealStockRepository;
+	//	private final TimeDealStockRepository timeDealStockRepository;
 
 	public void process(String orderId, RedisOrderData cached) {
 		// 금액 위조 검증

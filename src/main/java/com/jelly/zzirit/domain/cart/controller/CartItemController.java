@@ -55,7 +55,8 @@ public class CartItemController {
 							    "itemImageUrl": "https://dummyimage.com/iphone15.jpg",
 							    "quantity": 2,
 							    "unitPrice": 1740000,
-							    "totalPrice": 3480000,
+							    "discountedPrice": 1566000,
+							    "totalPrice": 3132000,
 							    "discountRatio": 10,
 							    "timeDeal": true
 							  }

@@ -58,7 +58,7 @@ public class CommandAdminItemService {
 
         // 상품 재고 조회
         ItemStock itemStock = itemStockRepository.findByItemId(itemId)
-                .orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_STOCK_NOT_FOUND));
+            .orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_STOCK_NOT_FOUND));
 
         // 상품 재고 업데이트
         itemStock.update(request, item);
@@ -71,9 +71,9 @@ public class CommandAdminItemService {
         // todo: 삭제 검증 로직 논의 필요 - 이미 판매된 상품은 삭제 불가 등
         // todo: soft delete 사용할지 논의 필요
         Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND));
+            .orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND));
         ItemStock itemStock = itemStockRepository.findByItemId(itemId)
-                .orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_STOCK_NOT_FOUND));
+            .orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_STOCK_NOT_FOUND));
 
         itemStockRepository.delete(itemStock);
         itemRepository.delete(item);
