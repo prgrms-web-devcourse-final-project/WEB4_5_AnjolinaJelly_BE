@@ -1,4 +1,4 @@
-package com.jelly.zzirit.domain.orderitem.dto.request;
+package com.jelly.zzirit.domain.order.dto.request;
 
 public record OrderItemCreateRequest(
     Long itemId,
