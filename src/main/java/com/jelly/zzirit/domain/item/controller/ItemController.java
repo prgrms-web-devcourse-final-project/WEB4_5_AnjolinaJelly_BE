@@ -35,10 +35,7 @@ public class ItemController {
 		@RequestParam(defaultValue = "priceAsc") String sort
 	) {
 		return BaseResponse.success(
-			List.of(
-				new SimpleItemResponse(1L, "에이수스 노트북", "노트북", "에이수스", 10000000, ItemStatus.NONE),
-				new SimpleItemResponse(2L, "삼성 노트북", "노트북", "삼성", 10000, ItemStatus.TIME_DEAL)
-			)
+			queryItemService.search(type, brands, keyword, sort)
 		);
 	}
 
