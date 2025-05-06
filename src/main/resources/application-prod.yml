@@ -1,11 +1,10 @@
 # application-prod.yml
 
 spring:
-  profiles:
-    include: secret
 
   datasource:
-    url: jdbc:mysql://localhost:3406/zzirit-prod?useSSL=false&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://localhost:3406/zzirit-dev?useSSL=false&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
+    # 추후 운영환경용 db docker file 작성 후 다시 prod로 변경 예정
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -24,7 +23,7 @@ custom:
   site:
     domain: api.zzirit.shop
     back-url: https://api.zzirit.shop
-    front-url: https://zzirit.vercel.app
+    front-url: https://zzirit.vercel.app,https://www.app4.qwas.shop,https://login.aleph.kr
   file:
     upload-dir: uploads/
 
