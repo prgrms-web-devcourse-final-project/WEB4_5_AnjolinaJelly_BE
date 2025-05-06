@@ -84,7 +84,7 @@ public class Order extends BaseTime {
 		return this.getMember().getId().equals(memberId);
 	}
 
-	public void cancel() {
+	public void checkCancellation() {
 		if (status != OrderStatus.PAID) { // 결제 완료 상태인 주문만 취소 가능
 			throw new InvalidOrderException(NOT_PAID_ORDER);
 		}
@@ -92,7 +92,9 @@ public class Order extends BaseTime {
 		if (this.getCreatedAt().isBefore(LocalDateTime.now().minusHours(24))) { // 24시간 이내의 주문만 취소 가능
 			throw new InvalidOrderException(EXPIRED_CANCEL_TIME);
 		}
+	}
 
+	public void cancel() {
 		this.status = OrderStatus.CANCELLED;
 	}
 
