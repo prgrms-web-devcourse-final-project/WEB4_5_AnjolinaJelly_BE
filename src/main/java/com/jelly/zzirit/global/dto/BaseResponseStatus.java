@@ -54,6 +54,7 @@ public enum BaseResponseStatus {
 	ORDER_NOT_FOUND(false, 3007, "해당 주문이 존재하지 않습니다.", HttpStatus.BAD_REQUEST),
 	NOT_PAID_ORDER(false, 3008, "결제 완료된 주문만 취소할 수 있습니다.", HttpStatus.BAD_REQUEST),
 	EXPIRED_CANCEL_TIME(false, 3009, "24시간 이내의 주문만 취소할 수 있습니다.", HttpStatus.BAD_REQUEST),
+	TOSS_PAYMENT_REFUND_FAILED(false, 3010, "토스 결제 취소에 실패했습니다.", HttpStatus.BAD_REQUEST),
 
 	// 실패
 	VALIDATION_FAILED(false, 40000, "입력 값이 유효하지 않습니다", HttpStatus.BAD_REQUEST),

@@ -2,8 +2,9 @@ package com.jelly.zzirit.domain.order.controller;
 
 import com.jelly.zzirit.domain.order.dto.request.OrderCreateRequest;
 import com.jelly.zzirit.domain.order.dto.response.OrderFetchResponse;
-import com.jelly.zzirit.domain.order.service.CommandOrderService;
+import com.jelly.zzirit.domain.order.service.OrderCancellationFacade;
 import com.jelly.zzirit.domain.order.service.QueryOrderService;
+import com.jelly.zzirit.global.AuthMember;
 import com.jelly.zzirit.global.dto.BaseResponse;
 import com.jelly.zzirit.global.dto.Empty;
 import com.jelly.zzirit.global.security.model.MemberPrincipal;
@@ -22,7 +23,7 @@ import java.util.List;
 public class OrderController {
 
     private final QueryOrderService queryOrderService;
-    private final CommandOrderService commandOrderService;
+    private final OrderCancellationFacade orderCancellationFacade;
 
     @PostMapping
     @Operation(summary = "주문 생성 API", description = "주문 하나를 생성합니다.")
@@ -41,14 +42,10 @@ public class OrderController {
 
     @DeleteMapping("/{order-id}")
     @Operation(summary = "주문 취소 API", description = "orderId에 해당되는 주문을 취소합니다.")
-    public BaseResponse<Empty> cancelOrder(
-        @PathVariable(name = "order-id") Long orderId,
-        @AuthenticationPrincipal MemberPrincipal member
-    ) {
-        commandOrderService.cancelOrder(
+    public BaseResponse<Empty> cancelOrder(@PathVariable(name = "order-id") Long orderId) {
+        orderCancellationFacade.cancelOrderAndRefund(
             orderId,
-            member.getMemberId(),
-            member.getRole()
+            AuthMember.getAuthUser()
         );
 
         return BaseResponse.success();
