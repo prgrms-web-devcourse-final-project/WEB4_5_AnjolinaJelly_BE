@@ -1,9 +1,11 @@
 package com.jelly.zzirit.domain.adminItem.controller;
 
+import java.io.IOException;
 import java.util.List;
 
 import com.jelly.zzirit.domain.adminItem.service.CommandAdminItemService;
 import com.jelly.zzirit.domain.adminItem.service.QueryAdminItemService;
+import com.jelly.zzirit.domain.adminItem.service.S3Service;
 import com.jelly.zzirit.domain.item.repository.ItemRepository;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -38,6 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 public class AdminItemController {
 	private final QueryAdminItemService queryAdminItemService;
 	private final CommandAdminItemService commandAdminItemService;
+	private final S3Service s3Service;
 
 	/**
 	 * (관리자) 상품 조회 & 검색
@@ -52,7 +55,17 @@ public class AdminItemController {
 	}
 
 	/**
-	 * (관리자) 상품 등록
+	 * (관리자) 상품 이미지 등록
+	 */
+	@Operation(summary = "관리자 상품 이미지 업로드", description = "상품 등록 전 이미지를 S3에 업로드하고 URL 반환")
+	@PostMapping("/image")
+	public BaseResponse<ImageUploadResponse> uploadImage(@RequestPart("image") MultipartFile image) throws IOException {
+		String uploadedUrl = s3Service.upload(image, "item-images");
+		return BaseResponse.success(new ImageUploadResponse(uploadedUrl));
+	}
+
+	/**
+	 * (관리자) 상품 등록, 이미지 URL 포함한 요청 본문 필요
 	 */
 	@Operation(summary = "관리자 상품 등록", description = "관리자가 상품을 등록합니다.")
 	@PostMapping // validity check
@@ -74,18 +87,17 @@ public class AdminItemController {
 	}
 
 	/**
-	 * (관리자) 상품 이미지 업로드
+	 * (관리자) 상품 이미지 수정
 	 */
-	@Operation(summary = "관리자 상품 이미지  업로드", description = "관리자가 id로 상품 이미지를 업로드합니다.")
-	@PostMapping("/{itemId}/image")
-	public BaseResponse<ImageUploadResponse> uploadImage(@PathVariable Long itemId,
-		@RequestPart("image") MultipartFile image) {
-		//        // 1. S3 업로드
-		//        String uploadedUrl = s3Uploader.upload(image, "item-images"); // 예: https://bucket.s3.amazonaws.com/item-images/uuid.jpg
-		//
-		//        // 2. DB 업데이트
-		//        itemService.updateImageUrl(itemId, uploadedUrl);
-		return BaseResponse.success(new ImageUploadResponse("https://dummyimage.com/iphone.jpg"));
+	@Operation(summary = "관리자 상품 이미지 수정", description = "상품 ID로 기존 상품의 이미지를 새 이미지로 교체")
+	@PutMapping("/{itemId}/image")
+	public BaseResponse<ImageUploadResponse> updateImage(
+		@PathVariable Long itemId,
+		@RequestPart("image") MultipartFile image
+	) throws IOException {
+		String uploadedUrl = s3Service.upload(image, "item-images");
+		commandAdminItemService.updateImageUrl(itemId, uploadedUrl);
+		return BaseResponse.success(new ImageUploadResponse(uploadedUrl));
 	}
 
 	/**

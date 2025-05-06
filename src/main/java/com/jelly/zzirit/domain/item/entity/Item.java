@@ -15,6 +15,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 @Entity
@@ -27,7 +28,8 @@ public class Item extends BaseTime {
 	@Column(name = "name", nullable = false, length = 100)
 	private String name;
 
-	@Column(name = "image_url")
+	@Setter
+	@Column(name = "image_url", nullable = false)
 	private String imageUrl;
 
 	@Column(name = "price", nullable = false)

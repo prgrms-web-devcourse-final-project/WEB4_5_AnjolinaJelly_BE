@@ -25,9 +25,15 @@ public class CommandAdminItemService {
     private final TypeRepository typeRepository;
     private final BrandRepository brandRepository;
     private final TypeBrandRepository typeBrandRepository;
+    private final S3Service s3Service;
 
     @Transactional // 트랜잭션
     public Empty createItem(ItemCreateRequest request) {
+
+        if (request.imageUrl() == null || request.imageUrl().isBlank()) {
+            throw new InvalidItemException(BaseResponseStatus.IMAGE_REQUIRED);
+        }
+
         TypeBrand typeBrand = typeBrandRepository.findByTypeIdAndBrandId(request.typeId(), request.brandId())
                 .orElseThrow(() -> new InvalidItemException(BaseResponseStatus.TYPE_BRAND_NOT_FOUND)); // todo: 예외 처리 괜춘?
 
@@ -77,5 +83,18 @@ public class CommandAdminItemService {
         itemRepository.delete(item);
 
         return Empty.getInstance();
+    }
+
+    @Transactional
+    public void updateImageUrl(Long itemId, String newImageUrl) {
+        Item item = itemRepository.findById(itemId)
+            .orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND));
+
+        String oldImageUrl = item.getImageUrl();
+        if (oldImageUrl != null && !oldImageUrl.equals(newImageUrl)) {
+            s3Service.delete(oldImageUrl); // 기존 이미지 삭제
+        }
+
+        item.setImageUrl(newImageUrl);
     }
 }
