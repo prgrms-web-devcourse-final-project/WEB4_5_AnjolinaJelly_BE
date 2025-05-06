@@ -6,8 +6,14 @@ import com.jelly.zzirit.domain.item.entity.stock.ItemStock;
 import com.jelly.zzirit.domain.item.repository.ItemStockRepository;
 
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import com.jelly.zzirit.domain.item.repository.ItemRepository;
+import com.jelly.zzirit.global.dto.PageResponse;
+
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -22,9 +28,9 @@ public class QueryAdminItemService {
     private final ItemRepository itemRepository;
     private final ItemStockRepository itemStockRepository;
 
-    public List<AdminItemResponse> getItems(String name, Long itemId) {
+    public PageResponse<AdminItemResponse> getItems(String name, Long itemId, Pageable pageable) {
 
-        List<Item> items;
+        Page<Item> itemsPage;
 
         // 상품id로 검색
         if (itemId != null) {
@@ -32,29 +38,40 @@ public class QueryAdminItemService {
             Item item = itemRepository.findById(itemId).orElse(null);
 
             // 검색 결과 없는 경우
-            items = item != null ? List.of(item) : List.of();
+            List<Item> itemList = (item != null) ? List.of(item) : List.of();
+            itemsPage = new PageImpl<>(itemList, pageable, itemList.size());
 
-        // 상품 이름으로 검색
+            // 상품 이름으로 검색
         } else if (name != null && !name.isBlank()) { // blank까지 검사해서 첫검색은 필터링 안되는 문제 해결
-            items = itemRepository.findAllByNameContainingIgnoreCase(name);
+            itemsPage = itemRepository.findAllByNameContainingIgnoreCase(name, pageable);
 
         // 전체 상품 목록 조회
         } else {
-            items = itemRepository.findAll();
+            itemsPage = itemRepository.findAll(pageable);
         }
 
         // N+1문제 막기 위해 미리 찾아서 map 만들어둠
         // Todo: item과 item stock의 id를 같게 관리하면 어떨까?
         // Todo: 로직 더 간단히 가능?
-        List<Long> itemIds = items.stream().map(Item::getId).toList(); // 상품 id 목록
-        List<ItemStock> itemStocks = itemStockRepository.findAllByItemIdIn(itemIds); // 재고 객체 목록
-        Map<Item, ItemStock> itemStockMap = itemStocks.stream()
-                .collect(Collectors.toMap(ItemStock::getItem, Function.identity()));
-        // Map<상품, 재고 객체>
+        List<Long> itemIds = itemsPage.getContent().stream()
+            .map(Item::getId)
+            .toList();
 
-        return items.stream()
-                        // from(Item, ItemStock)
-                        .map(item -> AdminItemResponse.from(item, itemStockMap.get(item)))
-                        .toList();
+        List<ItemStock> itemStocks = itemStockRepository.findAllByItemIdIn(itemIds);
+        Map<Item, ItemStock> itemStockMap = itemStocks.stream()
+            .collect(Collectors.toMap(ItemStock::getItem, Function.identity()));
+
+        List<AdminItemResponse> content = itemsPage.getContent().stream()
+            .map(item -> AdminItemResponse.from(item, itemStockMap.get(item)))
+            .toList();
+
+        return new PageResponse<>(
+            content,
+            itemsPage.getNumber(),
+            itemsPage.getSize(),
+            itemsPage.getTotalElements(),
+            itemsPage.getTotalPages(),
+            itemsPage.isLast()
+        );
     }
 }
