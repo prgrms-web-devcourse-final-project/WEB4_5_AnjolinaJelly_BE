@@ -1,12 +1,12 @@
-package com.jelly.zzirit.domain.timeDeal.service;
+package com.jelly.zzirit.domain.item.service;
 
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.jelly.zzirit.domain.item.dto.timeDeal.TimeDealModalItem;
 import com.jelly.zzirit.domain.item.repository.ItemRepository;
-import com.jelly.zzirit.domain.timeDeal.dto.TimeDealModalItem;
 
 import lombok.RequiredArgsConstructor;
 

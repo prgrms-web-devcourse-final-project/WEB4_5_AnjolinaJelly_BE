@@ -16,8 +16,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jelly.zzirit.domain.item.controller.TimeDealController;
+import com.jelly.zzirit.domain.item.service.TimeDealService;
 import com.jelly.zzirit.domain.timeDeal.dto.TimeDealModalItem;
-import com.jelly.zzirit.domain.timeDeal.service.TimeDealService;
 
 @WebMvcTest(TimeDealController.class)
 @AutoConfigureMockMvc(addFilters = false)

@@ -1,4 +1,4 @@
-package com.jelly.zzirit.domain.timeDeal.controller;
+package com.jelly.zzirit.domain.item.controller;
 
 import java.util.List;
 import java.util.Map;
@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.jelly.zzirit.domain.timeDeal.dto.TimeDealCreateItem;
-import com.jelly.zzirit.domain.timeDeal.dto.TimeDealModalItem;
-import com.jelly.zzirit.domain.timeDeal.dto.response.TimeDealCreateResponse;
-import com.jelly.zzirit.domain.timeDeal.service.TimeDealService;
+import com.jelly.zzirit.domain.item.dto.timeDeal.TimeDealCreateItem;
+import com.jelly.zzirit.domain.item.dto.timeDeal.TimeDealModalItem;
+import com.jelly.zzirit.domain.item.dto.timeDeal.response.TimeDealCreateResponse;
+import com.jelly.zzirit.domain.item.service.TimeDealService;
 import com.jelly.zzirit.global.dto.BaseResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
