@@ -22,7 +22,7 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public class Item extends BaseTime {
 
 	@Column(name = "name", nullable = false, length = 100)
@@ -43,7 +43,7 @@ public class Item extends BaseTime {
 	private TypeBrand typeBrand;
 
 	// update함수는 entity 수정 pr 머지 이후에 수정하는 게 좋을 것 같아요!
-	public Empty update (ItemCreateRequest request, TypeBrand typeBrand) {
+	public Empty update(ItemCreateRequest request, TypeBrand typeBrand) {
 		this.name = request.name();
 		this.price = BigDecimal.valueOf(request.price()); // todo: bigdecimal로 변경 필요
 		this.typeBrand = typeBrand;
