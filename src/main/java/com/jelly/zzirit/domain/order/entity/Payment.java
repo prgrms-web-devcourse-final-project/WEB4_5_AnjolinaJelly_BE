@@ -49,4 +49,12 @@ public class Payment {
 		READY, DONE, CANCELLED, FAILED
 	}
 
+	public void markCancelled() {
+		paymentStatus = PaymentStatus.CANCELLED;
+	}
+
+	public void markFailed() {
+		paymentStatus = PaymentStatus.FAILED;
+	}
+
 }
