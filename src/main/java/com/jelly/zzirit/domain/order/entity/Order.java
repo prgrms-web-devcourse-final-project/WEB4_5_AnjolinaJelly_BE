@@ -7,10 +7,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.jelly.zzirit.domain.member.entity.Member;
+import com.jelly.zzirit.domain.order.dto.request.PaymentRequestDto;
 import com.jelly.zzirit.global.entity.BaseTime;
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 @Entity
@@ -61,18 +76,23 @@ public class Order extends BaseTime {
 		return String.format("ORD%s-%06d", date, sequence);
 	}
 
-	public static Order of(Member member, String orderNumber, BigDecimal totalPrice, String shippingRequest) {
+	public static Order tempOf(Member member, String orderNumber, PaymentRequestDto dto) {
 		return Order.builder()
 			.member(member)
 			.orderNumber(orderNumber)
-			.totalPrice(totalPrice)
-			.status(OrderStatus.PAID)
-			.shippingRequest(shippingRequest)
+			.totalPrice(dto.totalAmount())
+			.status(OrderStatus.PENDING)
+			.shippingRequest(dto.shippingRequest())
+			.address(dto.address())
+			.addressDetail(dto.addressDetail())
 			.build();
+	}
+
+	public void changeStatus(OrderStatus newStatus) {
+		this.status = newStatus;
 	}
 
 	public void addOrderItem(OrderItem orderItem) {
 		orderItems.add(orderItem);
 	}
-
 }

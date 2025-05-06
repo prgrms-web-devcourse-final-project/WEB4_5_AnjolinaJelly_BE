@@ -1,7 +1,5 @@
 package com.jelly.zzirit.global.config;
 
-import java.util.List;
-
 import org.apache.tika.Tika;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,20 +33,6 @@ public class AppConfig {
 	@Getter
 	private static String siteDomain;
 
-	@Getter
-	private static List<String> allowedOrigins;
-
-	@Getter
-	private static String tossSuccessUrl;
-
-	@Getter
-	private static String tossFailUrl;
-
-	@Value("${custom.site.allowed-origins}")
-	public void setAllowedOrigins(List<String> allowedOrigins) {
-		AppConfig.allowedOrigins = allowedOrigins;
-	}
-
 	@Value("${custom.site.back-url}")
 	public void setSiteBackUrl(String siteBackUrl) {
 		AppConfig.siteBackUrl = siteBackUrl;
@@ -77,16 +61,6 @@ public class AppConfig {
 	@Value("${custom.site.domain}")
 	public void setSiteDomain(String siteDomain) {
 		AppConfig.siteDomain = siteDomain;
-	}
-
-	@Value("${toss.payments.success-url}")
-	public void setTossSuccessUrl(String url) {
-		AppConfig.tossSuccessUrl = url;
-	}
-
-	@Value("${toss.payments.fail-url}")
-	public void setTossFailUrl(String url) {
-		AppConfig.tossFailUrl = url;
 	}
 
 	@Autowired

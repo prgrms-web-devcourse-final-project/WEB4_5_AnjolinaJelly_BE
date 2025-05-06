@@ -42,5 +42,4 @@ public class OrderController {
     public BaseResponse<Empty> cancelOrder(@PathVariable(name = "order-id") Long orderId) {
         return BaseResponse.success();
     }
-
 }

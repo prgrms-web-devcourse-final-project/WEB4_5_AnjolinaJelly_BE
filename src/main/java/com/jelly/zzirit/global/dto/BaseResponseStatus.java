@@ -43,14 +43,29 @@ public enum BaseResponseStatus {
 	// 회원 관련
 	INVALID_PASSWORD(false, 2301, "비밀번호가 일치하지 않습니다", HttpStatus.BAD_REQUEST),
 
-	// 주문 관련
+	// 주문 관련 에러 코드
 	TOSS_PAYMENT_REQUEST_FAILED(false, 3000, "토스 결제 요청에 실패했습니다.", HttpStatus.BAD_GATEWAY),
 	ITEM_NOT_FOUND(false, 3001, "해당 상품이 존재하지 않습니다.", HttpStatus.BAD_REQUEST),
-	OUT_OF_STOCK(false, 3002, "상품 재고가 부족합니다.", HttpStatus.BAD_REQUEST),
-	ORDER_CACHE_NOT_FOUND(false, 3003, "주문 캐시가 존재하지 않습니다.", HttpStatus.BAD_REQUEST),
-	PRICE_MANIPULATION_DETECTED(false, 3004, "결제 금액이 위조되었습니다.", HttpStatus.BAD_REQUEST),
-	STOCK_CONFIRMATION_FAILED(false, 3005, "재고 확정에 실패했습니다.", HttpStatus.BAD_REQUEST),
-	ORDER_PROCESSING_FAILED_AFTER_PAYMENT(false, 3006, "결제는 되었지만 주문 처리에 실패했습니다. 자동 환불되었습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+	ORDER_NOT_FOUND(false, 3002, "주문 정보를 찾을 수 없습니다.", HttpStatus.BAD_REQUEST),
+	PAYMENT_AMOUNT_MISMATCH(false, 3003, "결제 금액이 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
+	ORDER_ID_MISMATCH(false, 3004, "주문 번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
+	ALREADY_PROCESSED(false, 3005, "이미 처리된 주문입니다.", HttpStatus.BAD_REQUEST),
+	TOSS_PAYMENT_VERIFY_FAILED(false, 3006, "토스 결제 정보 검증에 실패했습니다.", HttpStatus.BAD_GATEWAY),
+	TOSS_CONFIRM_FAILED(false, 3007, "토스 결제 최종 승인에 실패했습니다.", HttpStatus.BAD_GATEWAY),
+
+	// 환불 및 상태 변경 관련 추가
+	TOSS_REFUND_FAILED(false, 3008, "토스 결제 취소 API 실패입니다.", HttpStatus.BAD_GATEWAY),
+	ORDER_REFUND_FAILED(false, 3009, "환불 처리에 실패했습니다. 관리자에게 문의하세요.", HttpStatus.INTERNAL_SERVER_ERROR),
+	STOCK_RESTORE_FAILED(false, 3010, "재고 복원에 실패했습니다.", HttpStatus.BAD_REQUEST),
+	TOSS_PAYMENT_NOT_DONE(false, 3011, "토스 결제가 완료되지 않았습니다.", HttpStatus.BAD_REQUEST),
+	TOSS_PAYMENT_AMOUNT_MISMATCH(false, 3012, "토스 결제 금액이 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
+	STOCK_REDUCE_FAILED(false, 3013, "재고 차감에 실패했습니다.", HttpStatus.BAD_REQUEST),
+	PAYMENT_NOT_FOUND(false, 3014, "결제 정보를 찾을 수 없습니다.", HttpStatus.BAD_REQUEST),
+	STOCK_NOT_FOUND(false, 3015, "재고 정보를 찾을 수 없습니다.", HttpStatus.BAD_REQUEST),
+	OUT_OF_STOCK(false, 3016, "상품 재고가 부족합니다.", HttpStatus.BAD_REQUEST),
+
+	LOCK_FAILED(false, 3017, "다른 요청과 충돌이 발생했습니다. 다시 시도해주세요.", HttpStatus.CONFLICT),
+	LOCK_INTERRUPTED(false, 3018, "시스템 인터럽트가 발생했습니다. 다시 시도해주세요.", HttpStatus.INTERNAL_SERVER_ERROR),
 
 	// 실패
 	VALIDATION_FAILED(false, 40000, "입력 값이 유효하지 않습니다", HttpStatus.BAD_REQUEST),

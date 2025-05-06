@@ -52,4 +52,8 @@ public class ItemStock extends BaseEntity {
 		this.quantity = request.stockQuantity(); // todo: 최초 설정된 재고만 업데이트 가능?
 		return Empty.getInstance();
 	}
+
+	public void addSoldQuantity(int quantity) {
+		this.soldQuantity += quantity;
+	}
 }

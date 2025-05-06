@@ -76,7 +76,4 @@ logging:
 
 toss:
   payments:
-    success-url: http://localhost:8080/payments/success
-    fail-url: http://localhost:8080/payments/fail
     secret-key: test_sk_26DlbXAaV06zWDPZljpb8qY50Q9R
-    # 운영 환경 전환 시 여기만 live_sk_... 로 변경하면 됨
