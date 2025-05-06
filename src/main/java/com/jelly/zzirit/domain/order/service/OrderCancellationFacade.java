@@ -9,8 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import static com.jelly.zzirit.global.dto.BaseResponseStatus.ORDER_NOT_FOUND;
-import static com.jelly.zzirit.global.dto.BaseResponseStatus.TOSS_PAYMENT_REFUND_FAILED;
+import static com.jelly.zzirit.global.dto.BaseResponseStatus.*;
 
 @Slf4j
 @Service
@@ -49,7 +48,7 @@ public class OrderCancellationFacade {
 
         // 결제 취소에 실패한 경우에만 예외 발생
         if (!isRefundSuccessful) {
-            throw new InvalidOrderException(TOSS_PAYMENT_REFUND_FAILED);
+            throw new InvalidOrderException(TOSS_REFUND_FAILED);
         }
     }
 
