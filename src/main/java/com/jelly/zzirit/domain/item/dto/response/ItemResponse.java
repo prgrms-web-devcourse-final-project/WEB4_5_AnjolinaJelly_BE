@@ -1,8 +1,13 @@
 package com.jelly.zzirit.domain.item.dto.response;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import com.jelly.zzirit.domain.item.entity.Brand;
+import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.domain.item.entity.ItemStatus;
+import com.jelly.zzirit.domain.item.entity.Type;
+import com.jelly.zzirit.domain.item.entity.timedeal.TimeDealItem;
 
 public record ItemResponse(
 	Long itemId,
@@ -10,8 +15,34 @@ public record ItemResponse(
 	String type,
 	String brand,
 	Integer quantity,
-	Integer price,
+	BigDecimal price,
 	ItemStatus timeDealStatus,
 	LocalDateTime endTimeDeal
 ) {
+
+	public static ItemResponse from(TimeDealItem timeDealItem, Integer quantity) {
+		return new ItemResponse(
+			timeDealItem.getItem().getId(),
+			timeDealItem.getItem().getName(),
+			timeDealItem.getItem().getTypeBrand().getType().getName(),
+			timeDealItem.getItem().getTypeBrand().getBrand().getName(),
+			quantity,
+			timeDealItem.getPrice(),
+			timeDealItem.getItem().getItemStatus(),
+			timeDealItem.getTimeDeal().getEndTime()
+		);
+	}
+
+	public static ItemResponse from(Item item, Integer quantity) {
+		return new ItemResponse(
+			item.getId(),
+			item.getName(),
+			item.getTypeBrand().getType().getName(),
+			item.getTypeBrand().getBrand().getName(),
+			quantity,
+			item.getPrice(),
+			item.getItemStatus(),
+			null
+		);
+	}
 }

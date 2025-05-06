@@ -11,15 +11,20 @@ import org.springframework.web.bind.annotation.RestController;
 import com.jelly.zzirit.domain.item.dto.response.ItemResponse;
 import com.jelly.zzirit.domain.item.dto.response.SimpleItemResponse;
 import com.jelly.zzirit.domain.item.entity.ItemStatus;
+import com.jelly.zzirit.domain.item.service.QueryItemService;
 import com.jelly.zzirit.global.dto.BaseResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/items")
 @Tag(name = "상품 API", description = "상품과 관련된 API를 설명합니다.")
 public class ItemController {
+
+	private final QueryItemService queryItemService;
 
 	@GetMapping("/search")
 	@Operation(summary = "상품 조회 및 검색", description = "상품을 조회하고 검색합니다.")
@@ -41,7 +46,7 @@ public class ItemController {
 	@Operation(summary = "상품 상세 조회", description = "상품을 상세 조회 합니다.")
 	public BaseResponse<ItemResponse> getById(@PathVariable(name = "item-id") Long itemId) {
 		return BaseResponse.success(
-			new ItemResponse(1L, "에이수스 노트북", "노트북", "에이수스", 10, 10000000, ItemStatus.NONE, null)
+			queryItemService.getById(itemId)
 		);
 	}
 }
