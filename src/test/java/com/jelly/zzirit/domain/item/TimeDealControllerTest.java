@@ -92,4 +92,24 @@ public class TimeDealControllerTest {
 			.andExpect(jsonPath("$.result[0].itemName").value("레노버 노트북 ThinkPad X1 Carbon"))
 			.andExpect(jsonPath("$.result[0].originalPrice").value(1650000));
 	}
+	
+	@Test
+	@DisplayName("타임딜 목록 검색 및 필터 - 성공")
+	void searchTimeDeals_withFilters_success() throws Exception {
+		Long userId = 1L;
+		Role role = Role.ROLE_ADMIN;
+		String accessToken = jwtUtil.createJwt("access", userId, role, 3600); // 1시간 유효한 access token
+
+		mockMvc.perform(get("/api/time-deal/search")
+				.cookie(new Cookie("access", accessToken))
+				.param("timeDealName", "노트북")
+				.param("status", "ONGOING")
+				.param("page", "0")
+				.param("size", "10")
+				.contentType(MediaType.APPLICATION_JSON))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.result.content").isArray())
+			.andExpect(jsonPath("$.result.content.length()").isNumber());
+	}
+
 }
