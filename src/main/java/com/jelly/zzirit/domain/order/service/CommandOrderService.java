@@ -3,6 +3,7 @@ package com.jelly.zzirit.domain.order.service;
 import com.jelly.zzirit.domain.order.entity.Order;
 import com.jelly.zzirit.domain.order.entity.Payment;
 import com.jelly.zzirit.domain.order.repository.OrderRepository;
+import com.jelly.zzirit.domain.order.repository.PaymentRepository;
 import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static com.jelly.zzirit.global.dto.BaseResponseStatus.ORDER_NOT_FOUND;
+import static com.jelly.zzirit.global.dto.BaseResponseStatus.PAYMENT_NOT_FOUND;
 
 @Slf4j
 @Service
@@ -17,6 +19,7 @@ import static com.jelly.zzirit.global.dto.BaseResponseStatus.ORDER_NOT_FOUND;
 public class CommandOrderService {
 
 	private final OrderRepository orderRepository;
+	private final PaymentRepository paymentRepository;
 
 	/**
 	 * 결제 취소 시도 후 주문 상태 및 결제 상태 변경
@@ -25,10 +28,11 @@ public class CommandOrderService {
 	 */
 	@Transactional
 	public void updateOrderAndPaymentStatusAfterRefund(Long orderId, boolean isRefundSuccessful) {
-		Order order = orderRepository.findByIdWithPayment(orderId)
+		Order order = orderRepository.findById(orderId)
 			.orElseThrow(() -> new InvalidOrderException(ORDER_NOT_FOUND));
 
-		Payment payment = order.getPayment();
+		Payment payment = paymentRepository.findByOrder(order)
+			.orElseThrow(() -> new InvalidOrderException(PAYMENT_NOT_FOUND));
 
 		if (isRefundSuccessful) {
 			order.cancel();
