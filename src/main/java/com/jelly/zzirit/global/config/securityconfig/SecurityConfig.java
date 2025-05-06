@@ -60,7 +60,8 @@ public class SecurityConfig {
 	}
 
 	@Bean
-	public LoginFilter loginFilter(AuthenticationManager authenticationManager, ObjectMapper objectMapper, TokenService tokenService) {
+	public LoginFilter loginFilter(AuthenticationManager authenticationManager, ObjectMapper objectMapper,
+		TokenService tokenService) {
 		return new LoginFilter(authenticationManager, objectMapper, tokenService);
 	}
 
@@ -92,10 +93,10 @@ public class SecurityConfig {
 					"/favicon.ico"
 				).permitAll()
 				.requestMatchers("/api/admin/item/**").hasRole(Role.ROLE_ADMIN.getKey())
+				.requestMatchers("/api/admin/time-deal/**").permitAll() // 수정 필요
 				.requestMatchers("/api/cart/**").authenticated()
 				.anyRequest().authenticated()
 			);
-
 
 		http
 			.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
@@ -111,7 +112,8 @@ public class SecurityConfig {
 
 		http
 			.oauth2Login((oauth2) -> oauth2
-				.userInfoEndpoint((userInfoEndpointConfig -> userInfoEndpointConfig.userService(customOAuth2UserService)))
+				.userInfoEndpoint(
+					(userInfoEndpointConfig -> userInfoEndpointConfig.userService(customOAuth2UserService)))
 				.successHandler(customOAuth2SuccessHandler)
 				.failureHandler(customOAuth2FailureHandler)
 				.clientRegistrationRepository(clientRegistrationRepository.clientRegistrationRepository())
