@@ -1,5 +1,6 @@
-package com.jelly.zzirit.domain.order.service;
+package com.jelly.zzirit.domain.order.service.order;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
@@ -18,6 +19,7 @@ public class OrderSequenceGenerator {
 
 	public Long getTodaySequence() {
 		String key = getTodayKey();
+		cachingStringRedisTemplate.opsForValue().setIfAbsent(key, "0", Duration.ofDays(1));
 		return cachingStringRedisTemplate.opsForValue().increment(key);
 	}
 

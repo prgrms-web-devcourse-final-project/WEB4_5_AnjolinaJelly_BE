@@ -1,6 +1,5 @@
 package com.jelly.zzirit.domain.order.service;
 
-import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.HashMap;
@@ -27,35 +26,6 @@ public class RefundService {
 
 	@Value("${toss.payments.secret-key}")
 	private String secretKey;
-
-	public void refundImmediately(String orderId, BigDecimal amount) {
-		try {
-			String url = "https://api.tosspayments.com/v1/payments/" + orderId + "/cancel";
-			HttpHeaders headers = new HttpHeaders();
-			headers.setContentType(MediaType.APPLICATION_JSON);
-			headers.setBasicAuth(secretKey);
-
-			Map<String, Object> body = new HashMap<>();
-			body.put("cancelReason", "결제 후 주문 처리 실패로 인한 자동 환불");
-			body.put("cancelAmount", amount);
-
-			HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
-
-			ResponseEntity<String> response = restTemplate.exchange(
-				url,
-				HttpMethod.POST,
-				request,
-				String.class
-			);
-
-			if (!response.getStatusCode().is2xxSuccessful()) {
-				throw new IllegalStateException("토스 결제 취소 API 실패: " + response.getBody());
-			}
-		} catch (Exception e) {
-			log.error("자동 환불 실패: orderId={}, amount={}, message={}", orderId, amount, e.getMessage(), e);
-			throw new IllegalStateException("환불 처리에 실패했습니다. 관리자에게 문의하세요.");
-		}
-	}
 
 	/**
 	 * 주문 취소 요청에 따른 결제 취소

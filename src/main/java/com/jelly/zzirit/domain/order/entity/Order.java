@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.jelly.zzirit.domain.member.entity.Member;
+import com.jelly.zzirit.domain.order.dto.request.PaymentRequestDto;
 import com.jelly.zzirit.global.entity.BaseTime;
 
 import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
@@ -66,14 +67,20 @@ public class Order extends BaseTime {
 		return String.format("ORD%s-%06d", date, sequence);
 	}
 
-	public static Order of(Member member, String orderNumber, BigDecimal totalPrice, String shippingRequest) {
+	public static Order tempOf(Member member, String orderNumber, PaymentRequestDto dto) {
 		return Order.builder()
 			.member(member)
 			.orderNumber(orderNumber)
-			.totalPrice(totalPrice)
-			.status(OrderStatus.PAID)
-			.shippingRequest(shippingRequest)
+			.totalPrice(dto.totalAmount())
+			.status(OrderStatus.PENDING)
+			.shippingRequest(dto.shippingRequest())
+			.address(dto.address())
+			.addressDetail(dto.addressDetail())
 			.build();
+	}
+
+	public void changeStatus(OrderStatus newStatus) {
+		this.status = newStatus;
 	}
 
 	public void addOrderItem(OrderItem orderItem) {

@@ -12,6 +12,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 @Entity
@@ -29,7 +30,19 @@ public class CartItem extends BaseTime {
 	@JoinColumn(name = "item_id", nullable = false)
 	private Item item;
 
+	@Setter
 	@Column(name = "quantity", nullable = false)
 	private int quantity;
 
+	public static CartItem of(Cart cart, Item item, int quantity) {
+		return CartItem.builder()
+			.cart(cart)
+			.item(item)
+			.quantity(quantity)
+			.build();
+	}
+
+	public void increaseQuantity(int additionalQuantity) {
+		this.quantity += additionalQuantity;
+	}
 }

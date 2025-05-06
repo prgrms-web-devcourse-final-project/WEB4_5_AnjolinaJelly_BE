@@ -1,13 +1,12 @@
 package com.jelly.zzirit.domain.order.entity;
 
+import com.jelly.zzirit.global.entity.BaseTime;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import lombok.AccessLevel;
@@ -21,10 +20,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class Payment {
-
-	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+public class Payment extends BaseTime {
 
 	@Column(name = "payment_key", nullable = false, unique = true)
 	private String paymentKey;
@@ -41,12 +37,17 @@ public class Payment {
 	@Enumerated(EnumType.STRING)
 	private PaymentStatus paymentStatus;
 
-	public enum PaymentMethod {
-		CARD, VIRTUAL_ACCOUNT, ACCOUNT_TRANSFER, MOBILE_PHONE, PAYPAL
-	}
-
 	public enum PaymentStatus {
 		READY, DONE, CANCELLED, FAILED
+	}
+
+	public static Payment of(Order order, String paymentKey, String methodRaw) {
+		return Payment.builder()
+			.order(order)
+			.paymentKey(paymentKey)
+			.paymentMethod(PaymentMethod.from(methodRaw))
+			.paymentStatus(PaymentStatus.DONE)
+			.build();
 	}
 
 	public void markCancelled() {
@@ -55,6 +56,10 @@ public class Payment {
 
 	public void markFailed() {
 		paymentStatus = PaymentStatus.FAILED;
+	}
+
+	public void changeStatus(PaymentStatus newStatus) {
+		this.paymentStatus = newStatus;
 	}
 
 }

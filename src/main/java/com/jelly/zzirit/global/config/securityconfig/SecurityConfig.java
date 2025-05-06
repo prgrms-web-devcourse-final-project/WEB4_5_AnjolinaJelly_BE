@@ -14,6 +14,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jelly.zzirit.domain.member.entity.authenum.Role;
 import com.jelly.zzirit.global.config.securityconfig.oauth2config.ClientRegistrationRepository;
 import com.jelly.zzirit.global.exception.CustomAccessDeniedHandler;
 import com.jelly.zzirit.global.exception.CustomAuthenticationEntryPoint;
@@ -82,18 +83,19 @@ public class SecurityConfig {
 		http
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
-				.requestMatchers(HttpMethod.POST, "/api/info/**").permitAll()
+				.requestMatchers("/api/info/temp-check").permitAll()
 				.requestMatchers("/oauth2/authorization/**", "/login/oauth2/code/**").permitAll()
-				.requestMatchers("/api/admin/item/**").hasRole("ADMIN")
 				.requestMatchers(
 					"/docs/**",
 					"/swagger-ui/**",
 					"/v3/api-docs/**",
 					"/favicon.ico"
 				).permitAll()
-				.requestMatchers("/api/cart/**", "/api/admin/item/**").authenticated()
+				.requestMatchers("/api/admin/item/**").hasRole(Role.ROLE_ADMIN.getKey())
+				.requestMatchers("/api/cart/**").authenticated()
 				.anyRequest().authenticated()
 			);
+
 
 		http
 			.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

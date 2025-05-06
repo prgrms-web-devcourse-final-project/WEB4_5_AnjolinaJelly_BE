@@ -27,11 +27,12 @@ public class InfoController {
 
 	@Operation(summary = "로그인 인증 상태 확인")
 	@GetMapping("/check")
-	public BaseResponse<Member> checkAuth() {
-		Member member = AuthMember.getAuthUser();
-		log.info("유저 로그인 체크 : {}", member);
-		return BaseResponse.success(member);
+	public BaseResponse<Empty> checkAuth() {
+		Member authUser = AuthMember.getAuthUser();
+		log.info("유저 로그인 체크 : {}", authUser);
+		return BaseResponse.success();
 	}
+
 
 	@Operation(summary = "임시 회원가입 토큰 검증")
 	@GetMapping("/temp-check")

@@ -3,9 +3,8 @@ package com.jelly.zzirit.domain.adminItem.service;
 import com.jelly.zzirit.domain.adminItem.dto.response.AdminItemResponse;
 import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.domain.item.entity.stock.ItemStock;
-import com.jelly.zzirit.domain.order.repository.ItemStockRepository;
-import com.jelly.zzirit.global.dto.BaseResponseStatus;
-import com.jelly.zzirit.global.exception.custom.InvalidItemException;
+import com.jelly.zzirit.domain.item.repository.ItemStockRepository;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.jelly.zzirit.domain.item.repository.ItemRepository;

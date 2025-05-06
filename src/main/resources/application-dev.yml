@@ -10,19 +10,13 @@ spring:
       host: localhost
       port: 6479
 
-toss:
-  payments:
-    success-url: http://localhost:8080/payments/success
-    fail-url: http://localhost:8080/payments/fail
-
 custom:
   file:
     upload-dir: uploads/
   site:
     domain: localhost
     back-url: http://localhost:8080
-    front-url: http://localhost:3000
-    allowed-origins: http://localhost:3000
+    front-url: http://localhost:5173
 
 oauth2:
   naver:
