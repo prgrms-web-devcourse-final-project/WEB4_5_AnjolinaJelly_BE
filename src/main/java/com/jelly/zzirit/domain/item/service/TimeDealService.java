@@ -1,6 +1,7 @@
 package com.jelly.zzirit.domain.item.service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -8,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.jelly.zzirit.domain.item.dto.timeDeal.TimeDealCreateItem;
 import com.jelly.zzirit.domain.item.dto.timeDeal.TimeDealModalItem;
+import com.jelly.zzirit.domain.item.dto.timeDeal.response.SearchTimeDeal;
 import com.jelly.zzirit.domain.item.dto.timeDeal.response.TimeDealCreateResponse;
 import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.domain.item.entity.ItemStatus;
@@ -19,6 +21,8 @@ import com.jelly.zzirit.domain.item.repository.ItemStockRepository;
 import com.jelly.zzirit.domain.item.repository.TimeDealItemRepository;
 import com.jelly.zzirit.domain.item.repository.TimeDealRepository;
 import com.jelly.zzirit.domain.timeDeal.dto.request.TimeDealCreateRequest;
+import com.jelly.zzirit.domain.timeDeal.dto.response.SearchTimeDealItem;
+import com.jelly.zzirit.global.dto.PageResponse;
 
 import lombok.RequiredArgsConstructor;
 
@@ -94,10 +98,134 @@ public class TimeDealService {
 		);
 	}
 
+	// 타임딜 등록 모달 생성
 	public List<TimeDealModalItem> getModalItems(List<Long> itemIds) {
 		return itemRepository.findAllById(itemIds).stream()
 			.map(item -> new TimeDealModalItem(item.getId(), item.getName(),
 				new BigDecimal(String.valueOf(item.getPrice())).intValue()))
 			.toList();
+	}
+
+	// 타임틸 관리자 조회
+	public PageResponse<SearchTimeDeal> getTimeDeals(
+		String timeDealName,
+		Long timeDealId,
+		String timeDealItemName,
+		Long timeDealItemId,
+		TimeDeal.TimeDealStatus status,
+		int page,
+		int size
+	) {
+		List<SearchTimeDeal> result = new ArrayList<>();
+		List<TimeDeal> timeDeals;
+		List<TimeDealItem> timeDealItems = new ArrayList<>();
+
+		// 1. 타임딜 이름으로 검색 + 타임딜 상태 필터 적용
+		if (timeDealName != null && !timeDealName.isEmpty()) {
+
+			// 입력된 키워드가 포함된 제목을 가진 타임딜 리스트 db 조회
+			timeDeals = timeDealRepository.findByNameContaining(timeDealName);
+
+			timeDeals.forEach(timeDeal -> {
+				// 타임딜 상태 필터링
+				if (status != null && timeDeal.getStatus() != status)
+					return;
+
+				// 타임딜에 포함된 아이템 리스트 조회 후 반환 형식 변환
+				List<TimeDealItem> tdItems = timeDealItemRepository.findAllByTimeDeal(timeDeal);
+				List<SearchTimeDealItem> items = tdItems.stream()
+					.map(this::toSearchTimeDealItem)
+					.toList();
+				result.add(toSearchTimeDeal(timeDeal, items));
+			});
+		}
+
+		// 2. 타임딜 아이디로 검색 + 타임딜 상태 필터 적용
+		if (timeDealId != null) {
+
+			TimeDeal timeDeal = timeDealRepository.findById(timeDealId).orElse(null);
+
+			// 타임딜 상태 필터링
+			if (timeDeal != null && (status == null || timeDeal.getStatus() == status)) {
+
+				// 타임딜에 포함된 아이템 리스트 조회 후 반환 형식 변환
+				List<TimeDealItem> tdItems = timeDealItemRepository.findAllByTimeDeal(timeDeal);
+				List<SearchTimeDealItem> items = tdItems.stream()
+					.map(this::toSearchTimeDealItem)
+					.toList();
+				result.add(toSearchTimeDeal(timeDeal, items));
+			}
+		}
+
+		// 3. 아이템 이름으로 검색 + 타임딜 상태 필터 적용
+		if (timeDealItemName != null && !timeDealItemName.isEmpty()) {
+
+			// 입력된 키워드가 포함된 제목을 가진 아이템 리스트 db 조회
+			timeDealItems = timeDealItemRepository.findByItem_NameContaining(timeDealItemName);
+
+			timeDealItems.forEach(timeDealItem -> {
+
+				// 해당 아이템이 포함된 타임딜 정보 조회
+				TimeDeal timeDeal = timeDealItem.getTimeDeal();
+				if (status != null && timeDeal.getStatus() != status)
+					return;
+
+				// 검색한 아이템과 해당 타임딜 정보로 반환 형식 변환
+				List<SearchTimeDealItem> items = List.of(toSearchTimeDealItem(timeDealItem));
+				result.add(toSearchTimeDeal(timeDeal, items));
+			});
+		}
+
+		// 4. 아이템 아이디로 검색 + 타임딜 상태 필터 적용 (주의. 타임딜 아이템 아이디가 아니라 아이템 테이블의 아이디이다.)
+		if (timeDealItemId != null) {
+			TimeDealItem timeDealItem = timeDealItemRepository.findTimeDealItemById(timeDealItemId);
+			if (timeDealItem != null) {
+				TimeDeal timeDeal = timeDealItem.getTimeDeal();
+				if (status == null || timeDeal.getStatus() == status) {
+					List<SearchTimeDealItem> items = List.of(toSearchTimeDealItem(timeDealItem));
+					result.add(toSearchTimeDeal(timeDeal, items));
+				}
+			}
+		}
+
+		// 페이징 처리
+		int start = page * size;
+		int end = Math.min(start + size, result.size());
+		List<SearchTimeDeal> pagedResult = result.subList(start, end);
+
+		return new PageResponse<>(
+			pagedResult,
+			page,
+			size,
+			result.size(),
+			(int)Math.ceil((double)result.size() / size),
+			end >= result.size()
+		);
+	}
+
+	// 타임딜 아이템을 응답 형식으로 변환
+	private SearchTimeDealItem toSearchTimeDealItem(TimeDealItem timeDealItem) {
+		int quantity = itemStockRepository.findByItemId(timeDealItem.getItem().getId())
+			.map(ItemStock::getQuantity)
+			.orElse(0);
+		return new SearchTimeDealItem(
+			timeDealItem.getId(),
+			timeDealItem.getItem().getName(),
+			quantity,
+			timeDealItem.getItem().getPrice(),
+			timeDealItem.getPrice()
+		);
+	}
+
+	private SearchTimeDeal toSearchTimeDeal(TimeDeal timeDeal, List<SearchTimeDealItem> items) {
+		return new SearchTimeDeal(
+			timeDeal.getId(),
+			timeDeal.getName(),
+			timeDeal.getStartTime(),
+			timeDeal.getEndTime(),
+			timeDeal.getStatus(),
+			timeDeal.getDiscountRatio(),
+			items
+		);
 	}
 }

@@ -3,17 +3,22 @@ package com.jelly.zzirit.domain.item.controller;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jelly.zzirit.domain.item.dto.timeDeal.TimeDealModalItem;
+import com.jelly.zzirit.domain.item.dto.timeDeal.response.SearchTimeDeal;
 import com.jelly.zzirit.domain.item.dto.timeDeal.response.TimeDealCreateResponse;
+import com.jelly.zzirit.domain.item.entity.timedeal.TimeDeal;
 import com.jelly.zzirit.domain.item.service.TimeDealService;
 import com.jelly.zzirit.domain.timeDeal.dto.request.TimeDealCreateRequest;
 import com.jelly.zzirit.global.dto.BaseResponse;
+import com.jelly.zzirit.global.dto.PageResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -113,65 +118,20 @@ public class TimeDealController {
 	}
 
 	@GetMapping("/api/time-deal/search")
-	@Operation(
-		summary = "(관리자 페이지)타임딜 목록 조회",
-		responses = {
-			@ApiResponse(
-				responseCode = "200",
-				content = @Content(
-					mediaType = "application/json",
-					examples = @ExampleObject(
-						value = "[{ \"timeDealId\": 1, \"timeDealName\": \"노트북 90% 할인\", \"startTime\": \"2025-05-01T00:00:00\", \"endTime\": \"2025-05-01T12:00:00\", \"status\": \"ONGOING\", \"discountRate\": 90, \"items\": [{\"itemId\": 1, \"itemName\": \"맥북 프로\", \"quantity\": 5, \"originalPrice\": 1000000, \"finalPrice\": 100000}]}]"
-					)
-				)
-			)
-		}
-	)
-	public BaseResponse<List<Map<String, Object>>> searchTimeDeals() {
-		List<Map<String, Object>> content = List.of(
-			Map.of(
-				"timeDealId", 1L,
-				"timeDealName", "노트북 90% 할인",
-				"startTime", "2025-05-01T00:00:00",
-				"endTime", "2025-05-01T12:00:00",
-				"status", "ONGOING",
-				"discountRate", 90,
-				"items", List.of(
-					Map.of(
-						"itemId", 1L,
-						"itemName", "맥북 프로",
-						"quantity", 5,
-						"originalPrice", 1000000,
-						"finalPrice", 100000
-					),
-					Map.of(
-						"itemId", 2L,
-						"itemName", "삼성 노트북",
-						"quantity", 3,
-						"originalPrice", 800000,
-						"finalPrice", 80000
-					)
-				)
-			),
-			Map.of(
-				"timeDealId", 2L,
-				"timeDealName", "태블릿 70% 할인",
-				"startTime", "2025-06-01T08:00:00",
-				"endTime", "2025-06-01T18:00:00",
-				"status", "UPCOMING",
-				"discountRate", 70,
-				"items", List.of(
-					Map.of(
-						"itemId", 3L,
-						"itemName", "아이패드 프로",
-						"quantity", 7,
-						"originalPrice", 1200000,
-						"finalPrice", 360000
-					)
-				)
-			)
+	@Operation(summary = "(관리자 페이지)타임딜 목록 조회", description = "관리자 페이지에서 타임딜 목록을 조회합니다.")
+	public ResponseEntity<PageResponse<SearchTimeDeal>> searchTimeDeals(
+		@RequestParam(required = false) String timeDealName,
+		@RequestParam(required = false) Long timeDealId,
+		@RequestParam(required = false) String timeDealItemName,
+		@RequestParam(required = false) Long timeDealItemId,
+		@RequestParam(required = false) TimeDeal.TimeDealStatus status,
+		@RequestParam(defaultValue = "0") int page,
+		@RequestParam(defaultValue = "10") int size
+	) {
+		PageResponse<SearchTimeDeal> result = timeDealService.getTimeDeals(
+			timeDealName, timeDealId, timeDealItemName, timeDealItemId, status, page, size
 		);
-		return BaseResponse.success(content);
+		return ResponseEntity.ok(result);
 	}
 }
 
