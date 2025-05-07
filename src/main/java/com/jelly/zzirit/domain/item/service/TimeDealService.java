@@ -21,6 +21,8 @@ import com.jelly.zzirit.domain.item.repository.ItemStockRepository;
 import com.jelly.zzirit.domain.item.repository.TimeDealItemRepository;
 import com.jelly.zzirit.domain.item.repository.TimeDealRepository;
 import com.jelly.zzirit.domain.timeDeal.dto.request.TimeDealCreateRequest;
+import com.jelly.zzirit.domain.timeDeal.dto.response.CurruntTimeDeal;
+import com.jelly.zzirit.domain.timeDeal.dto.response.CurruntTimeDealItem;
 import com.jelly.zzirit.domain.timeDeal.dto.response.SearchTimeDealItem;
 import com.jelly.zzirit.global.dto.PageResponse;
 
@@ -225,6 +227,36 @@ public class TimeDealService {
 			timeDeal.getEndTime(),
 			timeDeal.getStatus(),
 			timeDeal.getDiscountRatio(),
+			items
+		);
+	}
+
+	// 진행중인 타임딜 조회
+	public CurruntTimeDeal getCurrentTimeDeals() {
+		TimeDeal timeDeal = timeDealRepository.getOngoingTimeDeal().orElseThrow();
+
+		List<CurruntTimeDealItem> items = timeDealItemRepository.findActiveTimeDealItemByItemId(timeDeal.getId())
+			.stream()
+			.map(item -> {
+				Item normalItem = itemRepository.findById(item.getId()).orElseThrow();
+				return new CurruntTimeDealItem(
+					item.getItem().getId(),
+					normalItem.getImageUrl(),
+					normalItem.getPrice(),
+					item.getPrice(),
+					normalItem.getTypeBrand().getType(),
+					normalItem.getTypeBrand().getBrand()
+				);
+			})
+			.toList();
+
+		return new CurruntTimeDeal(
+			timeDeal.getId(),
+			timeDeal.getName(),
+			timeDeal.getStartTime(),
+			timeDeal.getEndTime(),
+			timeDeal.getDiscountRatio(),
+			timeDeal.getStatus(),
 			items
 		);
 	}
