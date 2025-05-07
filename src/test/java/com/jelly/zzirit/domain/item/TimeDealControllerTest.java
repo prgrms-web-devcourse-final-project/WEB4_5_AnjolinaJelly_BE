@@ -63,7 +63,7 @@ public class TimeDealControllerTest {
 
 		// When & Then
 		mockMvc.perform(
-				post("/api/admin/time-deal")
+				post("/api/admin/time-deals")
 					.cookie(new Cookie("access", accessToken))
 					.contentType(MediaType.APPLICATION_JSON)
 					.content(objectMapper.writeValueAsString(request))
@@ -98,7 +98,7 @@ public class TimeDealControllerTest {
 		timeDealTestHelper.createOngoingTimeDeal(request);
 
 		// When & Then
-		mockMvc.perform(get("/api/time-deal/now")
+		mockMvc.perform(get("/api/time-deals/now")
 				.cookie(new Cookie("access", accessToken)))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.result.timeDealId").isNumber())
@@ -120,7 +120,7 @@ public class TimeDealControllerTest {
 			new TimeDealModalCreateResponse(2L, "소니 노트북 VAIO Pro", 1450000)
 		);
 		// When & Then
-		mockMvc.perform(post("/api/admin/time-deal/modal")
+		mockMvc.perform(post("/api/admin/time-deals/modal")
 				.cookie(new Cookie("access", accessToken))
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(itemIds)))
@@ -137,7 +137,7 @@ public class TimeDealControllerTest {
 		Role role = Role.ROLE_ADMIN;
 		String accessToken = jwtUtil.createJwt("access", userId, role, 3600); // 1시간 유효한 access token
 
-		mockMvc.perform(get("/api/time-deal/search")
+		mockMvc.perform(get("/api/admin/time-deals/search")
 				.cookie(new Cookie("access", accessToken))
 				.param("timeDealName", "노트북")
 				.param("status", "ONGOING")

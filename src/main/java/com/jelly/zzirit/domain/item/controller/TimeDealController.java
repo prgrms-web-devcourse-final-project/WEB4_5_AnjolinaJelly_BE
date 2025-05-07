@@ -31,27 +31,27 @@ public class TimeDealController {
 	private final TimeDealService timeDealService;
 
 	@Operation(summary = "타임딜 등록", description = "타임딜 정보와 아이템 리스트를 등록합니다.")
-	@PostMapping("/api/admin/time-deal")
+	@PostMapping("/api/admin/time-deals")
 	public BaseResponse<TimeDealCreateResponse> createTimeDeal(@RequestBody TimeDealCreateRequest request) {
 		TimeDealCreateResponse response = timeDealService.createTimeDeal(request);
 		return BaseResponse.success(response);
 	}
 
-	@PostMapping("/api/admin/time-deal/modal")
+	@PostMapping("/api/admin/time-deals/modal")
 	@Operation(summary = "타임딜 생성 모달 상품 조회")
 	public BaseResponse<List<TimeDealModalCreateResponse>> getTimeDealModalItems(@RequestBody List<Long> itemIds) {
 		List<TimeDealModalCreateResponse> result = timeDealService.getModalItems(itemIds);
 		return BaseResponse.success(result);
 	}
 
-	@GetMapping("/api/time-deal/now")
+	@GetMapping("/api/time-deals/now")
 	@Operation(summary = "현재 진행 중인 타임딜", description = "현재 진행중인 타임딜 및 타임딜 상품을 조회합니다.")
 	public BaseResponse<CurrentTimeDealResponse> getCurrentTimeDeals() {
 		CurrentTimeDealResponse response = timeDealService.getCurrentTimeDeals();
 		return BaseResponse.success(response);
 	}
 
-	@GetMapping("/api/time-deal/search")
+	@GetMapping("/api/admin/time-deals/search")
 	@Operation(summary = "(관리자 페이지)타임딜 목록 조회", description = "관리자 페이지에서 타임딜 목록을 조회합니다.")
 	public BaseResponse<PageResponse<TimeDealSearchResponse>> searchTimeDeals(
 		@RequestParam(required = false) String timeDealName,
