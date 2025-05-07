@@ -4,10 +4,10 @@ import java.util.List;
 
 public record TimeDealCreateResponse(
 	Long timeDealId,
-	String title,
+	String timeDealName,
 	String startTime,
 	String endTime,
-	Integer discountRate,
+	Integer discountRatio,
 	List<TimeDealCreateItem> items
 ) {
 	public record TimeDealCreateItem(

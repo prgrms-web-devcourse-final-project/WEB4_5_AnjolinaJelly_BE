@@ -10,7 +10,7 @@ import com.jelly.zzirit.domain.item.entity.timedeal.TimeDeal;
 
 public record CurrentTimeDealResponse(
 	Long timeDealId,
-	String title,
+	String timeDealName,
 	LocalDateTime startTime,
 	LocalDateTime endTime,
 	Integer discountRatio,
@@ -21,7 +21,7 @@ public record CurrentTimeDealResponse(
 		Long itemId,
 		String imageUrl,
 		BigDecimal originalPrice,
-		BigDecimal finalPrice,
+		BigDecimal discountedPrice,
 		Type type,
 		Brand brand
 	) {

@@ -8,7 +8,7 @@ import com.jelly.zzirit.domain.item.entity.timedeal.TimeDeal;
 
 public record TimeDealSearchResponse(
 	Long timeDealId,
-	String title,
+	String timeDealName,
 	LocalDateTime startTime,
 	LocalDateTime endTime,
 	TimeDeal.TimeDealStatus status,
@@ -20,7 +20,7 @@ public record TimeDealSearchResponse(
 		String itemName,
 		int quantity,
 		BigDecimal originalPrice,
-		BigDecimal finalPrice
+		BigDecimal discountedPrice
 	) {
 	}
 }

@@ -45,7 +45,7 @@ public class TimeDealService {
 				TimeDeal.TimeDealStatus.SCHEDULED,    // 생성시 동시에 계획됨 상태 설정. 만약 등록 시점이 타임딜 진행시 점이라면?
 				request.startTime(),
 				request.endTime(),
-				request.discountRate()));    // 엔티티 상에선 discountRatio. 추후 통일(우선순위 낮음)
+				request.discountRatio()));    // 엔티티 상에선 discountRatio. 추후 통일(우선순위 낮음)
 
 		// 2. 요청으로 들어온 items(id, quantity)와 위에서 저장한 타임딜 정보로 타임딜 아이템을 저장합니다.
 		request.items().forEach(item -> {

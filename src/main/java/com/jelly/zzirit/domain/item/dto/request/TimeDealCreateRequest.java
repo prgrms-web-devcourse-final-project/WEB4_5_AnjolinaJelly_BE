@@ -7,7 +7,7 @@ public record TimeDealCreateRequest(
 	String title,
 	LocalDateTime startTime,
 	LocalDateTime endTime,
-	int discountRate,
+	int discountRatio,
 	List<TimeDealCreateItemDetail> items
 ) {
 	public record TimeDealCreateItemDetail(
