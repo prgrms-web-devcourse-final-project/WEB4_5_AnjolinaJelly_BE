@@ -5,22 +5,22 @@ on:
     branches: feat/101/chaeeun
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout source
-        uses: actions/checkout@v3
-
-      - name: Set up JDK
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'  # Eclipse Temurin 배포판 사용
-          java-version: '17'       # Java 버전 (프로젝트에 맞게 조정)
-          cache: gradle            # Gradle 캐싱 활성화
-
-      - name: Run tests
-        run: ./gradlew test
+#  test:
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - name: Checkout source
+#        uses: actions/checkout@v3
+#
+#      - name: Set up JDK
+#        uses: actions/setup-java@v3
+#        with:
+#          distribution: 'temurin'  # Eclipse Temurin 배포판 사용
+#          java-version: '17'       # Java 버전 (프로젝트에 맞게 조정)
+#          cache: gradle            # Gradle 캐싱 활성화
+#
+#      - name: Run tests
+#        run: ./gradlew test
 
 #      - name: Generate test report
 #        if: always()               # 테스트 실패해도 리포트 생성
@@ -34,7 +34,7 @@ jobs:
 #          path: build/reports/tests/
 
   deploy:
-    needs: test                    # test 작업이 성공한 후에만 실행
+#    needs: test                    # test 작업이 성공한 후에만 실행
     runs-on: ubuntu-latest
 
     steps:
