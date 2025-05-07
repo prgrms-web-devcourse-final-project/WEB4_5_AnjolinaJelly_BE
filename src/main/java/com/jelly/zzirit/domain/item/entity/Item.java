@@ -38,7 +38,7 @@ public class Item extends BaseTime {
 	private BigDecimal price;
 
 	@Column(name = "item_status", nullable = false)
-	@Enumerated(EnumType.ORDINAL)
+	@Enumerated(EnumType.STRING)
 	private ItemStatus itemStatus;
 
 	@ManyToOne(fetch = FetchType.LAZY)
