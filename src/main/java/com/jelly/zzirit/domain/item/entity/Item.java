@@ -48,7 +48,7 @@ public class Item extends BaseTime {
 	// update함수는 entity 수정 pr 머지 이후에 수정하는 게 좋을 것 같아요!
 	public Empty update(ItemCreateRequest request, TypeBrand typeBrand) {
 		this.name = request.name();
-		this.price = BigDecimal.valueOf(request.price()); // todo: bigdecimal로 변경 필요
+		this.price = request.price(); // todo: bigdecimal로 변경 필요
 		this.typeBrand = typeBrand;
 
 		return Empty.getInstance();
