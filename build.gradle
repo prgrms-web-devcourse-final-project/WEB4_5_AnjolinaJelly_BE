@@ -1,114 +1,115 @@
 import org.hidetake.gradle.swagger.generator.GenerateSwaggerUI
 
 buildscript {
-	ext {
-		restdocsApiSpecVersion = '0.18.2'
-	}
+    ext {
+        restdocsApiSpecVersion = '0.18.2'
+    }
 }
 
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '3.4.5'
-	id 'io.spring.dependency-management' version '1.1.7'
-	id "jacoco"
+    id 'java'
+    id 'org.springframework.boot' version '3.4.5'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id "jacoco"
 
-	id 'com.epages.restdocs-api-spec' version "${restdocsApiSpecVersion}"
-	id 'org.hidetake.swagger.generator' version '2.18.2' // openapi3.yaml 읽어서 Swagger-UI HTML 생성
+    id 'com.epages.restdocs-api-spec' version "${restdocsApiSpecVersion}"
+    id 'org.hidetake.swagger.generator' version '2.18.2' // openapi3.yaml 읽어서 Swagger-UI HTML 생성
 }
 
 jacoco {
-	toolVersion = "0.8.13"
+    toolVersion = "0.8.13"
 }
 
 group = 'com.jelly'
 version = '0.0.1-SNAPSHOT'
 
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(21)
-	}
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
 }
 
 configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
 
-	// JWT (JSON Web Token)
-	implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
-	implementation 'io.jsonwebtoken:jjwt-impl:0.12.3'
-	implementation 'io.jsonwebtoken:jjwt-jackson:0.12.3'
+    // JWT (JSON Web Token)
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
+    implementation 'io.jsonwebtoken:jjwt-impl:0.12.3'
+    implementation 'io.jsonwebtoken:jjwt-jackson:0.12.3'
 
-	// Tika (MIME 타입 탐지 등)
-	implementation("org.apache.tika:tika-core:3.0.0")
+    // Tika (MIME 타입 탐지 등)
+    implementation("org.apache.tika:tika-core:3.0.0")
 
-	// Email && Retry && Validation
-	implementation 'org.springframework.retry:spring-retry'
-	implementation 'org.springframework.boot:spring-boot-starter-mail'
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
+    // Email && Retry && Validation
+    implementation 'org.springframework.retry:spring-retry'
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
 
-	// S3
-	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+    // S3
+    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'com.mysql:mysql-connector-j'
-	annotationProcessor 'org.projectlombok:lombok'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    compileOnly 'org.projectlombok:lombok'
+    runtimeOnly 'com.mysql:mysql-connector-j'
+    annotationProcessor 'org.projectlombok:lombok'
 
-	implementation 'org.redisson:redisson-spring-boot-starter:3.23.2'
-	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
-	implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.redisson:redisson-spring-boot-starter:3.23.2'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
 
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-	testRuntimeOnly 'com.h2database:h2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testRuntimeOnly 'com.h2database:h2'
 
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'org.springframework.restdocs:spring-restdocs-restassured'
-	testImplementation "com.epages:restdocs-api-spec-restassured:${restdocsApiSpecVersion}"
-	testImplementation "com.epages:restdocs-api-spec-mockmvc:${restdocsApiSpecVersion}"
-	testImplementation "org.springframework.restdocs:spring-restdocs-mockmvc"
-	testImplementation 'io.rest-assured:rest-assured'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.restdocs:spring-restdocs-restassured'
+    testImplementation "com.epages:restdocs-api-spec-restassured:${restdocsApiSpecVersion}"
+    testImplementation "com.epages:restdocs-api-spec-mockmvc:${restdocsApiSpecVersion}"
+    testImplementation "org.springframework.restdocs:spring-restdocs-mockmvc"
+    testImplementation 'io.rest-assured:rest-assured'
 
-	swaggerUI 'org.webjars:swagger-ui:4.11.1'
+    swaggerUI 'org.webjars:swagger-ui:4.11.1'
 
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5'
 
 }
 
 test {
-	useJUnitPlatform()
-	finalizedBy 'jacocoTestReport'
+    useJUnitPlatform()
+    finalizedBy 'jacocoTestReport'
 }
 
 jacocoTestReport {
-	reports {
-		html.required = true
+    reports {
+        html.required = true
 
-		html.destination file("$buildDir/jacoco/index.html")
-	}
+        html.destination file("$buildDir/jacoco/index.html")
+    }
 
-	afterEvaluate {
-		classDirectories.setFrom(
-				files(classDirectories.files.collect {
-					fileTree(dir: it, excludes: [
-							'**/*Application*',
-							'**/*Response*',
-							'**/*Request*',
-					])
-				})
-		)
-	}
+    afterEvaluate {
+        classDirectories.setFrom(
+                files(classDirectories.files.collect {
+                    fileTree(dir: it, excludes: [
+                            '**/*Application*',
+                            '**/*Response*',
+                            '**/*Request*',
+                    ])
+                })
+        )
+    }
 
-	finalizedBy 'jacocoTestCoverageVerification'
+    finalizedBy 'jacocoTestCoverageVerification'
 }
 
 //jacocoTestCoverageVerification {
@@ -138,49 +139,49 @@ jacocoTestReport {
 //}
 
 openapi3 {
-	servers = [
-			{
-				url = "http://localhost:8080"
-			}
-	]
-	title = "찌릿 API Docs"
-	description = "찌릿 API 명세서"
-	version = "1.0.0"
-	format = "yaml"
+    servers = [
+            {
+                url = "http://localhost:8080"
+            }
+    ]
+    title = "찌릿 API Docs"
+    description = "찌릿 API 명세서"
+    version = "1.0.0"
+    format = "yaml"
 } // 독스 스니펫 읽어서 openapi3.yaml 생성
 
 swaggerSources {
-	zzirit {
-		setInputFile(file("build/api-spec/openapi3.yaml"))
-	}
+    zzirit {
+        setInputFile(file("build/api-spec/openapi3.yaml"))
+    }
 }
 
 tasks.withType(GenerateSwaggerUI) {
-	dependsOn 'openapi3'
+    dependsOn 'openapi3'
 }
 
 generateSwaggerUIZzirit {
-	doLast {
-		copy {
-			from outputDir.toPath()
-			into "src/main/resources/static/docs/"
-		}
-		copy {
-			from("build/api-spec/openapi3.yaml")
-			into("src/main/resources/static/docs")
-		}
-	}
+    doLast {
+        copy {
+            from outputDir.toPath()
+            into "src/main/resources/static/docs/"
+        }
+        copy {
+            from("build/api-spec/openapi3.yaml")
+            into("src/main/resources/static/docs")
+        }
+    }
 } // src/main/resources/static/docs/로 복사
 
 test {
-	useJUnitPlatform()
-	finalizedBy 'jacocoTestReport'
+    useJUnitPlatform()
+    finalizedBy 'jacocoTestReport'
 }
 
 build {
-	dependsOn generateSwaggerUIZzirit
+    dependsOn generateSwaggerUIZzirit
 }
 
 bootJar {
-	dependsOn generateSwaggerUIZzirit
+    dependsOn generateSwaggerUIZzirit
 }
