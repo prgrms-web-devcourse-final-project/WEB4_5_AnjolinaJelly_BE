@@ -119,7 +119,7 @@ public class TimeDealController {
 
 	@GetMapping("/api/time-deal/search")
 	@Operation(summary = "(관리자 페이지)타임딜 목록 조회", description = "관리자 페이지에서 타임딜 목록을 조회합니다.")
-	public ResponseEntity<PageResponse<SearchTimeDeal>> searchTimeDeals(
+	public BaseResponse<PageResponse<SearchTimeDeal>> searchTimeDeals(
 		@RequestParam(required = false) String timeDealName,
 		@RequestParam(required = false) Long timeDealId,
 		@RequestParam(required = false) String timeDealItemName,
@@ -131,7 +131,7 @@ public class TimeDealController {
 		PageResponse<SearchTimeDeal> result = timeDealService.getTimeDeals(
 			timeDealName, timeDealId, timeDealItemName, timeDealItemId, status, page, size
 		);
-		return ResponseEntity.ok(result);
+		return BaseResponse.success(result);
 	}
 }
 
