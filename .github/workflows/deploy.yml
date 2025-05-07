@@ -2,7 +2,7 @@ name: Deploy to EC2
 
 on:
   push:
-    branches: feat/101/chaeeun # 결국 여기는 main 브랜치로 바뀌어야 해요!
+    branches: feat/101/chaeeun # 나중에 main으로 바꿔야함
 
 jobs:
   deploy:
@@ -35,8 +35,7 @@ jobs:
             # 실행 중인 스프링 앱 PID 찾아서 종료 (프로세스가 없는 경우 에러 방지)
             ps aux | grep 'zzirit-0.0.1-SNAPSHOT.jar' | grep -v grep | awk '{print $2}' | xargs -r kill -9
             
-            ./gradlew build # -x test
-#           테스트코드 빼고 빌드하면 잘 되는데, 테스트 포함하면 db 연결 오류 생김            
+            ./gradlew build -x test # 테스트 제외해야 빌드 성공
             mv ./build/libs/zzirit-0.0.1-SNAPSHOT.jar ./src/main/resources/
             
             cd ./src/main/resources
