@@ -1,4 +1,4 @@
-package com.jelly.zzirit.domain.timeDeal.controller;
+package com.jelly.zzirit.domain.item.controller;
 
 import java.util.List;
 import java.util.Map;
@@ -9,16 +9,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.jelly.zzirit.domain.timeDeal.dto.TimeDealCreateItem;
-import com.jelly.zzirit.domain.timeDeal.dto.TimeDealModalItem;
-import com.jelly.zzirit.domain.timeDeal.dto.response.TimeDealCreateResponse;
-import com.jelly.zzirit.domain.timeDeal.service.TimeDealService;
+import com.jelly.zzirit.domain.item.dto.timeDeal.TimeDealModalItem;
+import com.jelly.zzirit.domain.item.dto.timeDeal.response.TimeDealCreateResponse;
+import com.jelly.zzirit.domain.item.service.TimeDealService;
+import com.jelly.zzirit.domain.timeDeal.dto.request.TimeDealCreateRequest;
 import com.jelly.zzirit.global.dto.BaseResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -30,68 +29,10 @@ import lombok.RequiredArgsConstructor;
 public class TimeDealController {
 	private final TimeDealService timeDealService;
 
-	@Operation(
-		summary = "타임딜 등록",
-		description = "타임딜 정보와 아이템 리스트를 등록합니다.",
-		requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-			required = true,
-			content = @Content(
-				mediaType = "application/json",
-				examples = @ExampleObject(
-					name = "타임딜 등록 요청 예시",
-					value = "{\n" +
-						"  \"title\": \"노트북 90% 할인\",\n" +
-						"  \"startTime\": \"2025-05-01T00:00:00\",\n" +
-						"  \"endTime\": \"2025-05-01T12:00:00\",\n" +
-						"  \"discountRate\": 90,\n" +
-						"  \"items\": [\n" +
-						"    {\"itemId\": 1, \"quantity\": 5},\n" +
-						"    {\"itemId\": 2, \"quantity\": 3},\n" +
-						"    {\"itemId\": 3, \"quantity\": 10}\n" +
-						"  ]\n" +
-						"}"
-				)
-			)
-		),
-		responses = {
-			@ApiResponse(
-				responseCode = "200",
-				content = @Content(
-					mediaType = "application/json",
-					schema = @Schema(implementation = TimeDealCreateResponse.class),
-					examples = @ExampleObject(
-						name = "타임딜 등록 응답 예시",
-						value = "{\n" +
-							"  \"timeDealId\": 12345,\n" +
-							"  \"title\": \"노트북 90% 할인\",\n" +
-							"  \"startTime\": \"2025-05-01T00:00:00\",\n" +
-							"  \"endTime\": \"2025-05-01T12:00:00\",\n" +
-							"  \"discountRate\": 90,\n" +
-							"  \"items\": [\n" +
-							"    {\"itemId\": 1, \"quantity\": 5},\n" +
-							"    {\"itemId\": 2, \"quantity\": 3},\n" +
-							"    {\"itemId\": 3, \"quantity\": 10}\n" +
-							"  ]\n" +
-							"}"
-					)
-				)
-			)
-		}
-	)
+	@Operation(summary = "타임딜 등록", description = "타임딜 정보와 아이템 리스트를 등록합니다.")
 	@PostMapping("/api/admin/time-deal")
-	public BaseResponse<TimeDealCreateResponse> createTimeDeal(@RequestBody Map<String, Object> request) {
-		TimeDealCreateResponse response = new TimeDealCreateResponse(
-			12345L,
-			"노트북 90% 할인",
-			"2025-05-01T00:00:00",
-			"2025-05-01T12:00:00",
-			90,
-			List.of(
-				new TimeDealCreateItem(1L, 5),
-				new TimeDealCreateItem(2L, 3),
-				new TimeDealCreateItem(3L, 10)
-			)
-		);
+	public BaseResponse<TimeDealCreateResponse> createTimeDeal(@RequestBody TimeDealCreateRequest request) {
+		TimeDealCreateResponse response = timeDealService.createTimeDeal(request);
 		return BaseResponse.success(response);
 	}
 

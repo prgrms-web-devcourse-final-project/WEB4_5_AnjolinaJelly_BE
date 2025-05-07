@@ -1,13 +1,10 @@
 package com.jelly.zzirit.domain.item.entity.stock;
 
 import com.jelly.zzirit.domain.adminItem.dto.request.ItemCreateRequest;
-import com.jelly.zzirit.domain.item.entity.Brand;
 import com.jelly.zzirit.domain.item.entity.Item;
-import com.jelly.zzirit.domain.item.entity.Type;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.dto.Empty;
 import com.jelly.zzirit.global.entity.BaseEntity;
-
 import com.jelly.zzirit.global.exception.custom.InvalidItemException;
 
 import jakarta.persistence.Column;
@@ -21,13 +18,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import java.math.BigDecimal;
-
 @Entity
 @Getter
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public class ItemStock extends BaseEntity {
 
 	@OneToOne(fetch = FetchType.LAZY)
@@ -41,7 +36,7 @@ public class ItemStock extends BaseEntity {
 	@Column(name = "sold_quantity")
 	private int soldQuantity; // 결제 완료되어 확정된 수량
 
-	public Empty update (ItemCreateRequest request, Item item) {
+	public Empty update(ItemCreateRequest request, Item item) {
 		this.item = item;
 
 		// 팔린 만큼 재고 채워넣어야 함(임시 비즈니스 로직)

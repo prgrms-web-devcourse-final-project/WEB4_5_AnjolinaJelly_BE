@@ -1,8 +1,8 @@
-package com.jelly.zzirit.domain.timeDeal.dto.response;
+package com.jelly.zzirit.domain.item.dto.timeDeal.response;
 
 import java.util.List;
 
-import com.jelly.zzirit.domain.timeDeal.dto.TimeDealCreateItem;
+import com.jelly.zzirit.domain.item.dto.timeDeal.TimeDealCreateItem;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
