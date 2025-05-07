@@ -1,6 +1,5 @@
 package com.jelly.zzirit.domain.order.controller;
 
-import com.jelly.zzirit.domain.order.dto.request.OrderCreateRequest;
 import com.jelly.zzirit.domain.order.dto.response.OrderFetchResponse;
 import com.jelly.zzirit.domain.order.service.OrderCancellationFacade;
 import com.jelly.zzirit.domain.order.service.QueryOrderService;
@@ -25,12 +24,6 @@ public class OrderController {
     private final QueryOrderService queryOrderService;
     private final OrderCancellationFacade orderCancellationFacade;
 
-    @PostMapping
-    @Operation(summary = "주문 생성 API", description = "주문 하나를 생성합니다.")
-    public BaseResponse<Empty> createOrder(@RequestBody OrderCreateRequest request) {
-        return BaseResponse.success();
-    }
-
     @GetMapping
     @Operation(summary = "주문 전체 조회 API", description = "전체 주문을 조회합니다.")
     public BaseResponse<List<OrderFetchResponse>> fetchAllOrders(@AuthenticationPrincipal MemberPrincipal member) {
@@ -50,4 +43,5 @@ public class OrderController {
 
         return BaseResponse.success();
     }
+
 }
