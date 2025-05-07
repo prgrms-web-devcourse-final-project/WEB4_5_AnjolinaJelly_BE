@@ -40,4 +40,9 @@ public class TimeDeal extends BaseTime {
 	public enum TimeDealStatus {
 		SCHEDULED, ONGOING, ENDED
 	}
+
+	public void updateStatus(TimeDealStatus timeDealStatus) {
+		this.status = timeDealStatus;
+	}
+
 }

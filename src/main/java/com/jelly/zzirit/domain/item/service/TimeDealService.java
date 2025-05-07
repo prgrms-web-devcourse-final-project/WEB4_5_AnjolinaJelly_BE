@@ -21,6 +21,8 @@ import com.jelly.zzirit.domain.item.repository.ItemStockRepository;
 import com.jelly.zzirit.domain.item.repository.TimeDealItemRepository;
 import com.jelly.zzirit.domain.item.repository.TimeDealRepository;
 import com.jelly.zzirit.domain.timeDeal.dto.request.TimeDealCreateRequest;
+import com.jelly.zzirit.domain.timeDeal.dto.response.CurruntTimeDeal;
+import com.jelly.zzirit.domain.timeDeal.dto.response.CurruntTimeDealItem;
 import com.jelly.zzirit.domain.timeDeal.dto.response.SearchTimeDealItem;
 import com.jelly.zzirit.global.dto.PageResponse;
 
@@ -227,5 +229,56 @@ public class TimeDealService {
 			timeDeal.getDiscountRatio(),
 			items
 		);
+	}
+
+	// 진행중인 타임딜 조회
+	public CurruntTimeDeal getCurrentTimeDeals() {
+		TimeDeal timeDeal = timeDealRepository.getOngoingTimeDeal().orElseThrow();
+
+		List<CurruntTimeDealItem> items = timeDealItemRepository.findActiveTimeDealItemByItemId(timeDeal.getId())
+			.stream()
+			.map(item -> {
+				Item normalItem = itemRepository.findById(item.getId()).orElseThrow();
+				return new CurruntTimeDealItem(
+					item.getItem().getId(),
+					normalItem.getImageUrl(),
+					normalItem.getPrice(),
+					item.getPrice(),
+					normalItem.getTypeBrand().getType(),
+					normalItem.getTypeBrand().getBrand()
+				);
+			})
+			.toList();
+
+		return new CurruntTimeDeal(
+			timeDeal.getId(),
+			timeDeal.getName(),
+			timeDeal.getStartTime(),
+			timeDeal.getEndTime(),
+			timeDeal.getDiscountRatio(),
+			timeDeal.getStatus(),
+			items
+		);
+	}
+
+	// 테스트용 진행중 타임딜 생성 메서드
+	@Transactional
+	public TimeDealCreateResponse createOngoingTimeDealForTest(TimeDealCreateRequest request) {
+
+		TimeDealCreateRequest modified = new TimeDealCreateRequest(
+			request.title(),
+			request.startTime(),
+			request.endTime(),
+			request.discountRate(),
+			request.items()
+		);
+
+		TimeDealCreateResponse response = createTimeDeal(modified);
+
+		// 타임딜 상태를 강제로 ONGOING으로 변경
+		TimeDeal timeDeal = timeDealRepository.findById(response.timeDealId).orElseThrow();
+		timeDeal.updateStatus(TimeDeal.TimeDealStatus.ONGOING);
+
+		return response;
 	}
 }

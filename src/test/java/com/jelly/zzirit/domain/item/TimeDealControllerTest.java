@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jelly.zzirit.domain.item.dto.timeDeal.TimeDealModalItem;
 import com.jelly.zzirit.domain.item.dto.timeDeal.request.TimeDealCreateItemDetail;
+import com.jelly.zzirit.domain.item.service.TimeDealService;
 import com.jelly.zzirit.domain.member.entity.authenum.Role;
 import com.jelly.zzirit.domain.timeDeal.dto.request.TimeDealCreateRequest;
 import com.jelly.zzirit.global.security.util.JwtUtil;
@@ -36,9 +37,12 @@ public class TimeDealControllerTest {
 	@Autowired
 	JwtUtil jwtUtil;
 
+	@Autowired
+	private TimeDealService timeDealService;
+
 	@Test
 	void 타임딜_등록_성공() throws Exception {
-		// given
+		// Given
 		Long userId = 1L;
 		Role role = Role.ROLE_ADMIN;
 		String accessToken = jwtUtil.createJwt("access", userId, role, 3600); // 1시간 유효한 access token
@@ -70,9 +74,41 @@ public class TimeDealControllerTest {
 	}
 
 	@Test
-	@DisplayName("타임딜 모달 상품 정보 조회 - 성공")
-	void getTimeDealModalItems_success() throws Exception {
-		// given
+	@DisplayName("현재 진행중인 타임딜 조회 성공")
+	void 현재_진행중인_타임딜_조회_성공() throws Exception {
+		// Given
+		Long userId = 1L;
+		Role role = Role.ROLE_ADMIN;
+		String accessToken = jwtUtil.createJwt("access", userId, role, 3600); // 1시간 유효한 access token
+
+		// 테스트용 타임딜 데이터 생성
+		TimeDealCreateRequest request = new TimeDealCreateRequest(
+			"테스트 타임딜",
+			LocalDateTime.now().plusHours(1),
+			LocalDateTime.now().plusHours(2),
+			20,
+			List.of(
+				new TimeDealCreateItemDetail(1L, 3),
+				new TimeDealCreateItemDetail(2L, 3)
+			)
+		);
+
+		// ONGOING 상태의 타임딜 생성
+		timeDealService.createOngoingTimeDealForTest(request);
+
+		// When & Then
+		mockMvc.perform(get("/api/time-deal/now")
+				.cookie(new Cookie("access", accessToken)))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.result.timeDealId").isNumber())
+			.andExpect(jsonPath("$.result.title").isString())
+			.andExpect(jsonPath("$.result.items").isArray());
+	}
+
+	@Test
+	@DisplayName("타임딜 모달 상품 정보 조회 성공")
+	void 타임딜_모달_상품_정보_조회_성공() throws Exception {
+		// Given
 		Long userId = 1L;
 		Role role = Role.ROLE_ADMIN;
 		String accessToken = jwtUtil.createJwt("access", userId, role, 3600); // 1시간 유효한 access token
@@ -82,7 +118,7 @@ public class TimeDealControllerTest {
 			new TimeDealModalItem(1L, "레노버 노트북 ThinkPad X1 Carbon", 1650000),
 			new TimeDealModalItem(2L, "소니 노트북 VAIO Pro", 1450000)
 		);
-		// when & then
+		// When & Then
 		mockMvc.perform(post("/api/admin/time-deal/modal")
 				.cookie(new Cookie("access", accessToken))
 				.contentType(MediaType.APPLICATION_JSON)
@@ -92,10 +128,10 @@ public class TimeDealControllerTest {
 			.andExpect(jsonPath("$.result[0].itemName").value("레노버 노트북 ThinkPad X1 Carbon"))
 			.andExpect(jsonPath("$.result[0].originalPrice").value(1650000));
 	}
-	
+
 	@Test
-	@DisplayName("타임딜 목록 검색 및 필터 - 성공")
-	void searchTimeDeals_withFilters_success() throws Exception {
+	@DisplayName("타임딜 목록 검색 및 필터링 성공")
+	void 타임딜_목록_검색_및_필터링_성공() throws Exception {
 		Long userId = 1L;
 		Role role = Role.ROLE_ADMIN;
 		String accessToken = jwtUtil.createJwt("access", userId, role, 3600); // 1시간 유효한 access token
@@ -113,4 +149,3 @@ public class TimeDealControllerTest {
 	}
 
 }
-
