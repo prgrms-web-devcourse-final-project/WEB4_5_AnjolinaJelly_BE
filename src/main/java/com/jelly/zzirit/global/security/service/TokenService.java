@@ -64,4 +64,8 @@ public class TokenService {
 		Role role = jwtUtil.getRole(refreshToken);
 		return generateTokensAndSetCookies(response, userId, role);
 	}
+
+	public String generateAccessToken(Long userId, Role role) {
+		return jwtUtil.createJwt(AuthConst.TOKEN_TYPE_ACCESS, userId, role, AuthConst.ACCESS_EXPIRATION);
+	} // 테스트 환경을 위한 메서드
 }

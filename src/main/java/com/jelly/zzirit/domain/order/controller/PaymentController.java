@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jelly.zzirit.domain.order.dto.request.PaymentRequestDto;
+import com.jelly.zzirit.domain.order.service.order.TempOrderService;
 import com.jelly.zzirit.domain.order.service.pay.TossConfirmService;
 import com.jelly.zzirit.domain.order.service.pay.TossPaymentService;
 import com.jelly.zzirit.global.dto.BaseResponse;
@@ -28,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 public class PaymentController {
 
 	private final TossPaymentService tossPaymentService;
+	private final TempOrderService tempOrderService;
 	private final TossConfirmService tossConfirmService;
 
 	@Operation(
@@ -41,8 +43,8 @@ public class PaymentController {
 	}
 
 	@Operation(
-		summary = "결제 성공 콜백",
-		description = "결제 성공 시 Toss 에서 호출하는 콜백입니다. 주문을 확정 처리합니다."
+		summary = "결제 성공",
+		description = "결제 성공 시 주문을 확정 처리합니다."
 	)
 	@GetMapping("/toss/success")
 	public BaseResponse<Empty> confirmPayment(
@@ -55,8 +57,8 @@ public class PaymentController {
 	}
 
 	@Operation(
-		summary = "결제 실패 콜백",
-		description = "결제 실패 또는 사용자 취소 시 Toss 에서 호출하는 콜백입니다."
+		summary = "결제 실패",
+		description = "결제 실패 또는 사용자 취소 시 임시 주문이 삭제됩니다."
 	)
 	@GetMapping("/toss/fail")
 	public BaseResponse<String> failPayment(
@@ -64,6 +66,7 @@ public class PaymentController {
 		@RequestParam(required = false) String message,
 		@RequestParam(required = false) String orderId
 	) {
+		tempOrderService.deleteTempOrder(orderId, code, message);
 		String failReason = String.format("결제 실패 (%s): %s | 주문번호: %s", code, message, orderId);
 		return BaseResponse.error(BaseResponseStatus.TOSS_PAYMENT_REQUEST_FAILED, failReason);
 	}

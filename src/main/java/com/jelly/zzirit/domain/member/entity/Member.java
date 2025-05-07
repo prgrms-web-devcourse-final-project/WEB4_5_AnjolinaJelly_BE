@@ -46,4 +46,9 @@ public class Member extends BaseTime {
 	public void encodePassword(BCryptPasswordEncoder passwordEncoder) {
 		this.password = passwordEncoder.encode(this.password);
 	}
+
+	public void updateAddress(String address, String addressDetail) {
+		this.memberAddress = address;
+		this.memberAddressDetail = addressDetail;
+	}
 }
