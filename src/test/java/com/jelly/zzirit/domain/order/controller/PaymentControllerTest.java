@@ -15,23 +15,20 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.jelly.zzirit.domain.order.service.order.TempOrderService;
 import com.jelly.zzirit.domain.order.service.pay.TossConfirmService;
 import com.jelly.zzirit.domain.order.service.pay.TossPaymentService;
 import com.jelly.zzirit.global.support.TestMemberConfig;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@Import(PaymentControllerTest.TestConfig.class)
+@Import({PaymentController.class, PaymentControllerTest.TestConfig.class})
 class PaymentControllerTest extends TestMemberConfig {
 
-	@Autowired
-	private MockMvc mockMvc;
-
-	@Autowired
-	private TossPaymentService tossPaymentService;
-
-	@Autowired
-	private TossConfirmService tossConfirmService;
+	@Autowired private MockMvc mockMvc;
+	@Autowired private TossPaymentService tossPaymentService;
+	@Autowired private TossConfirmService tossConfirmService;
+	@Autowired private TempOrderService tempOrderService;
 
 	@TestConfiguration
 	static class TestConfig {
@@ -43,6 +40,11 @@ class PaymentControllerTest extends TestMemberConfig {
 		@Bean
 		public TossConfirmService tossConfirmService() {
 			return Mockito.mock(TossConfirmService.class);
+		}
+
+		@Bean
+		public TempOrderService tempOrderService() {
+			return Mockito.mock(TempOrderService.class);
 		}
 	}
 
@@ -98,12 +100,19 @@ class PaymentControllerTest extends TestMemberConfig {
 
 	@Test
 	void 결제실패_콜백_API는_쿠키없어도_에러응답_반환한다() throws Exception {
+		String code = "USER_CANCEL";
+		String message = "사용자 취소";
+		String orderId = "ORDER-123";
+
 		mockMvc.perform(get("/api/payments/toss/fail")
 				.cookie(getAccessTokenCookie())
-				.param("code", "USER_CANCEL")
-				.param("message", "사용자 취소")
-				.param("orderId", "ORDER-123"))
+				.param("code", code)
+				.param("message", message)
+				.param("orderId", orderId))
 			.andExpect(jsonPath("$.success").value(false))
 			.andExpect(jsonPath("$.message").value(containsString("토스 결제 요청에 실패했습니다.")));
+
+		Mockito.verify(tempOrderService)
+			.deleteTempOrder(orderId, code, message);
 	}
 }

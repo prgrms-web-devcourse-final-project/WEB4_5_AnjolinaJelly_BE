@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jelly.zzirit.domain.order.dto.request.PaymentRequestDto;
+import com.jelly.zzirit.domain.order.service.order.TempOrderService;
 import com.jelly.zzirit.domain.order.service.pay.TossConfirmService;
 import com.jelly.zzirit.domain.order.service.pay.TossPaymentService;
 import com.jelly.zzirit.global.dto.BaseResponse;
@@ -28,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 public class PaymentController {
 
 	private final TossPaymentService tossPaymentService;
+	private final TempOrderService tempOrderService;
 	private final TossConfirmService tossConfirmService;
 
 	@Operation(
@@ -56,7 +58,7 @@ public class PaymentController {
 
 	@Operation(
 		summary = "결제 실패",
-		description = "결제 실패 또는 사용자 취소 시 주문이 취소됩니다."
+		description = "결제 실패 또는 사용자 취소 시 임시 주문이 삭제됩니다."
 	)
 	@GetMapping("/toss/fail")
 	public BaseResponse<String> failPayment(
@@ -64,6 +66,7 @@ public class PaymentController {
 		@RequestParam(required = false) String message,
 		@RequestParam(required = false) String orderId
 	) {
+		tempOrderService.deleteTempOrder(orderId, code, message);
 		String failReason = String.format("결제 실패 (%s): %s | 주문번호: %s", code, message, orderId);
 		return BaseResponse.error(BaseResponseStatus.TOSS_PAYMENT_REQUEST_FAILED, failReason);
 	}

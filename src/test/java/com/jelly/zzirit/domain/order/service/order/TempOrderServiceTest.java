@@ -73,7 +73,7 @@ class TempOrderServiceTest {
 			null,
 			null
 		);
-		when(itemRepository.findAllById(anyList())).thenReturn(List.of()); // 아이템 없음
+		when(itemRepository.findAllById(anyList())).thenReturn(List.of());
 
 		// when & then
 		assertThrows(InvalidOrderException.class, () ->
@@ -111,5 +111,38 @@ class TempOrderServiceTest {
 
 		assertThrows(InvalidOrderException.class, () ->
 			tempOrderService.confirmTempOrder("pay_xxx", "ORDER-404", "10000", mock(TossPaymentResponse.class)));
+	}
+
+	@Test
+	void 임시주문이_성공적으로_삭제된다() {
+		Order mockOrder = mock(Order.class);
+
+		when(orderRepository.findByOrderNumber("ORDER-001")).thenReturn(Optional.of(mockOrder));
+		when(mockOrder.isConfirmed()).thenReturn(false);
+		when(paymentRepository.findByOrder(mockOrder)).thenReturn(Optional.empty());
+
+		tempOrderService.deleteTempOrder("ORDER-001", "USER_CANCEL", "사용자 취소");
+
+		verify(paymentRepository).findByOrder(mockOrder);
+		verify(orderRepository).delete(mockOrder);
+	}
+
+	@Test
+	void 삭제하려는_임시주문이_존재하지_않으면_예외() {
+		when(orderRepository.findByOrderNumber("ORDER-404")).thenReturn(Optional.empty());
+
+		assertThrows(InvalidOrderException.class, () ->
+			tempOrderService.deleteTempOrder("ORDER-404", "NOT_FOUND", "존재하지 않는 주문"));
+	}
+
+	@Test
+	void 이미_확정된_주문이면_삭제시_예외발생() {
+		Order confirmedOrder = mock(Order.class);
+
+		when(orderRepository.findByOrderNumber("ORDER-002")).thenReturn(Optional.of(confirmedOrder));
+		when(confirmedOrder.isConfirmed()).thenReturn(true);
+
+		assertThrows(InvalidOrderException.class, () ->
+			tempOrderService.deleteTempOrder("ORDER-002", "ALREADY_CONFIRMED", "이미 확정된 주문"));
 	}
 }

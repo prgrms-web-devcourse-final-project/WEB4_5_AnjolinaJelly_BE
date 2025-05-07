@@ -67,6 +67,12 @@ custom:
 email:
   fake-sending: true
 
+cloud:
+  aws:
+    credentials:
+      access-key: test-access
+      secret-key: test-secret
+
 logging:
   level:
     org:

@@ -105,4 +105,7 @@ public class Order extends BaseTime {
 		this.status = OrderStatus.CANCELLED;
 	}
 
+	public boolean isConfirmed() {
+		return this.status == OrderStatus.PAID || this.status == OrderStatus.COMPLETED;
+	}
 }

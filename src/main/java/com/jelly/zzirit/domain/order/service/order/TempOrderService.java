@@ -26,7 +26,9 @@ import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TempOrderService {
@@ -82,5 +84,21 @@ public class TempOrderService {
 		paymentRepository.save(payment);
 
 		orderService.completeOrder(order, paymentKey);
+	}
+
+	@Transactional
+	public void deleteTempOrder(String orderId, String code, String message) {
+		Order order = orderRepository.findByOrderNumber(orderId)
+			.orElseThrow(() -> new InvalidOrderException(BaseResponseStatus.ORDER_NOT_FOUND));
+
+		if (order.isConfirmed()) {
+			throw new InvalidOrderException(BaseResponseStatus.ALREADY_PROCESSED);
+		}
+
+		log.warn("임시 주문 삭제: 실패코드={}, 메시지={}, 주문번호={}", code, message, orderId);
+
+		paymentRepository.findByOrder(order)
+			.ifPresent(paymentRepository::delete);
+		orderRepository.delete(order);
 	}
 }
