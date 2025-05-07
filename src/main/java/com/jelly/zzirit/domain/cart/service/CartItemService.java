@@ -62,8 +62,8 @@ public class CartItemService {
 			cartItemRepository.save(cartItem);
 		}
 
-		int unitPrice = item.getPrice().intValue();
-		int discountedPrice = unitPrice;
+		int originalPrice = item.getPrice().intValue();
+		int discountedPrice = originalPrice;
 		Integer discountRatio = null;
 
 		boolean isTimeDeal = item.getItemStatus() == ItemStatus.TIME_DEAL;
@@ -79,31 +79,37 @@ public class CartItemService {
 
 		int totalPrice = discountedPrice * cartItem.getQuantity();
 
+		// 재고 확인
+		ItemStock itemStock = itemStockRepository.findByItemId(item.getId())
+			.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND));
+		boolean isSoldOut = itemStock.getQuantity() == 0;
+
 		return new CartItemResponse(
 			cartItem.getId(),
 			item.getId(),
 			item.getName(),
-			item.getImageUrl(),
+			item.getTypeBrand().getType().getName(),
+			item.getTypeBrand().getBrand().getName(),
 			cartItem.getQuantity(),
-			// unitPrice,       // 정가, 현재는 할인 적용 변수에 정가를 반영 중이라 반대로 주석처리
-			discountedPrice,     // TODO: 할인 가격 (FE 협의 후 노출)
+			item.getImageUrl(),
+			originalPrice,
+			discountedPrice,
 			totalPrice,
 			isTimeDeal,
-			discountRatio
+			discountRatio,
+			isSoldOut
 		);
 	}
 
 	@Transactional
 	public void removeItemToCart(Long memberId, Long itemId) {
-		// 1. 회원 장바구니 조회
+
 		Cart cart = cartRepository.findByMemberId(memberId)
 			.orElseThrow(() -> new InvalidUserException(BaseResponseStatus.USER_NOT_FOUND));
 
-		// 2. 장바구니 항목 조회
 		CartItem cartItem = cartItemRepository.findByCartIdAndItemId(cart.getId(), itemId)
 			.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND_IN_CART));
 
-		// 3. 항목 삭제
 		cartItemRepository.delete(cartItem);
 	}
 
