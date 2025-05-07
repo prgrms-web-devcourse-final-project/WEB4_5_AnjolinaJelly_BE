@@ -10,12 +10,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jelly.zzirit.domain.item.dto.timeDeal.request.TimeDealCreateRequest;
+import com.jelly.zzirit.domain.item.dto.timeDeal.response.CurrentTimeDealResponse;
 import com.jelly.zzirit.domain.item.dto.timeDeal.response.SearchTimeDeal;
 import com.jelly.zzirit.domain.item.dto.timeDeal.response.TimeDealCreateResponse;
 import com.jelly.zzirit.domain.item.dto.timeDeal.response.TimeDealModalCreateResponse;
 import com.jelly.zzirit.domain.item.entity.timedeal.TimeDeal;
 import com.jelly.zzirit.domain.item.service.TimeDealService;
-import com.jelly.zzirit.domain.timeDeal.dto.response.CurruntTimeDeal;
 import com.jelly.zzirit.global.dto.BaseResponse;
 import com.jelly.zzirit.global.dto.PageResponse;
 
@@ -46,8 +46,8 @@ public class TimeDealController {
 
 	@GetMapping("/api/time-deal/now")
 	@Operation(summary = "현재 진행 중인 타임딜", description = "현재 진행중인 타임딜 및 타임딜 상품을 조회합니다.")
-	public BaseResponse<CurruntTimeDeal> getCurrentTimeDeals() {
-		CurruntTimeDeal response = timeDealService.getCurrentTimeDeals();
+	public BaseResponse<CurrentTimeDealResponse> getCurrentTimeDeals() {
+		CurrentTimeDealResponse response = timeDealService.getCurrentTimeDeals();
 		return BaseResponse.success(response);
 	}
 

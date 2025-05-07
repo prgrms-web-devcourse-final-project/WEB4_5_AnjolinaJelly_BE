@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.jelly.zzirit.domain.item.dto.timeDeal.request.TimeDealCreateRequest;
+import com.jelly.zzirit.domain.item.dto.timeDeal.response.CurrentTimeDealResponse;
 import com.jelly.zzirit.domain.item.dto.timeDeal.response.SearchTimeDeal;
 import com.jelly.zzirit.domain.item.dto.timeDeal.response.TimeDealCreateResponse;
 import com.jelly.zzirit.domain.item.dto.timeDeal.response.TimeDealModalCreateResponse;
@@ -20,8 +21,6 @@ import com.jelly.zzirit.domain.item.repository.ItemRepository;
 import com.jelly.zzirit.domain.item.repository.ItemStockRepository;
 import com.jelly.zzirit.domain.item.repository.TimeDealItemRepository;
 import com.jelly.zzirit.domain.item.repository.TimeDealRepository;
-import com.jelly.zzirit.domain.timeDeal.dto.response.CurruntTimeDeal;
-import com.jelly.zzirit.domain.timeDeal.dto.response.CurruntTimeDealItem;
 import com.jelly.zzirit.domain.timeDeal.dto.response.SearchTimeDealItem;
 import com.jelly.zzirit.global.dto.PageResponse;
 
@@ -231,14 +230,15 @@ public class TimeDealService {
 	}
 
 	// 진행중인 타임딜 조회
-	public CurruntTimeDeal getCurrentTimeDeals() {
+	public CurrentTimeDealResponse getCurrentTimeDeals() {
 		TimeDeal timeDeal = timeDealRepository.getOngoingTimeDeal().orElseThrow();
 
-		List<CurruntTimeDealItem> items = timeDealItemRepository.findActiveTimeDealItemByItemId(timeDeal.getId())
+		List<CurrentTimeDealResponse.CurrentTimeDealItem> items = timeDealItemRepository.findActiveTimeDealItemByItemId(
+				timeDeal.getId())
 			.stream()
 			.map(item -> {
 				Item normalItem = itemRepository.findById(item.getId()).orElseThrow();
-				return new CurruntTimeDealItem(
+				return new CurrentTimeDealResponse.CurrentTimeDealItem(
 					item.getItem().getId(),
 					normalItem.getImageUrl(),
 					normalItem.getPrice(),
@@ -249,7 +249,7 @@ public class TimeDealService {
 			})
 			.toList();
 
-		return new CurruntTimeDeal(
+		return new CurrentTimeDealResponse(
 			timeDeal.getId(),
 			timeDeal.getName(),
 			timeDeal.getStartTime(),
