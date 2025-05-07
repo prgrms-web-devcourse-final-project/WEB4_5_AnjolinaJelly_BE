@@ -9,9 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.jelly.zzirit.domain.item.dto.timeDeal.request.TimeDealCreateRequest;
 import com.jelly.zzirit.domain.item.dto.timeDeal.response.CurrentTimeDealResponse;
-import com.jelly.zzirit.domain.item.dto.timeDeal.response.SearchTimeDeal;
 import com.jelly.zzirit.domain.item.dto.timeDeal.response.TimeDealCreateResponse;
 import com.jelly.zzirit.domain.item.dto.timeDeal.response.TimeDealModalCreateResponse;
+import com.jelly.zzirit.domain.item.dto.timeDeal.response.TimeDealSearchResponse;
 import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.domain.item.entity.ItemStatus;
 import com.jelly.zzirit.domain.item.entity.stock.ItemStock;
@@ -21,7 +21,6 @@ import com.jelly.zzirit.domain.item.repository.ItemRepository;
 import com.jelly.zzirit.domain.item.repository.ItemStockRepository;
 import com.jelly.zzirit.domain.item.repository.TimeDealItemRepository;
 import com.jelly.zzirit.domain.item.repository.TimeDealRepository;
-import com.jelly.zzirit.domain.timeDeal.dto.response.SearchTimeDealItem;
 import com.jelly.zzirit.global.dto.PageResponse;
 
 import lombok.RequiredArgsConstructor;
@@ -107,7 +106,7 @@ public class TimeDealService {
 	}
 
 	// 타임틸 관리자 조회
-	public PageResponse<SearchTimeDeal> getTimeDeals(
+	public PageResponse<TimeDealSearchResponse> getTimeDeals(
 		String timeDealName,
 		Long timeDealId,
 		String timeDealItemName,
@@ -116,7 +115,7 @@ public class TimeDealService {
 		int page,
 		int size
 	) {
-		List<SearchTimeDeal> result = new ArrayList<>();
+		List<TimeDealSearchResponse> result = new ArrayList<>();
 		List<TimeDeal> timeDeals;
 		List<TimeDealItem> timeDealItems = new ArrayList<>();
 
@@ -133,7 +132,7 @@ public class TimeDealService {
 
 				// 타임딜에 포함된 아이템 리스트 조회 후 반환 형식 변환
 				List<TimeDealItem> tdItems = timeDealItemRepository.findAllByTimeDeal(timeDeal);
-				List<SearchTimeDealItem> items = tdItems.stream()
+				List<TimeDealSearchResponse.TimeDealSearchItem> items = tdItems.stream()
 					.map(this::toSearchTimeDealItem)
 					.toList();
 				result.add(toSearchTimeDeal(timeDeal, items));
@@ -150,7 +149,7 @@ public class TimeDealService {
 
 				// 타임딜에 포함된 아이템 리스트 조회 후 반환 형식 변환
 				List<TimeDealItem> tdItems = timeDealItemRepository.findAllByTimeDeal(timeDeal);
-				List<SearchTimeDealItem> items = tdItems.stream()
+				List<TimeDealSearchResponse.TimeDealSearchItem> items = tdItems.stream()
 					.map(this::toSearchTimeDealItem)
 					.toList();
 				result.add(toSearchTimeDeal(timeDeal, items));
@@ -171,7 +170,7 @@ public class TimeDealService {
 					return;
 
 				// 검색한 아이템과 해당 타임딜 정보로 반환 형식 변환
-				List<SearchTimeDealItem> items = List.of(toSearchTimeDealItem(timeDealItem));
+				List<TimeDealSearchResponse.TimeDealSearchItem> items = List.of(toSearchTimeDealItem(timeDealItem));
 				result.add(toSearchTimeDeal(timeDeal, items));
 			});
 		}
@@ -182,7 +181,7 @@ public class TimeDealService {
 			if (timeDealItem != null) {
 				TimeDeal timeDeal = timeDealItem.getTimeDeal();
 				if (status == null || timeDeal.getStatus() == status) {
-					List<SearchTimeDealItem> items = List.of(toSearchTimeDealItem(timeDealItem));
+					List<TimeDealSearchResponse.TimeDealSearchItem> items = List.of(toSearchTimeDealItem(timeDealItem));
 					result.add(toSearchTimeDeal(timeDeal, items));
 				}
 			}
@@ -191,7 +190,7 @@ public class TimeDealService {
 		// 페이징 처리
 		int start = page * size;
 		int end = Math.min(start + size, result.size());
-		List<SearchTimeDeal> pagedResult = result.subList(start, end);
+		List<TimeDealSearchResponse> pagedResult = result.subList(start, end);
 
 		return new PageResponse<>(
 			pagedResult,
@@ -204,11 +203,11 @@ public class TimeDealService {
 	}
 
 	// 타임딜 아이템을 응답 형식으로 변환
-	private SearchTimeDealItem toSearchTimeDealItem(TimeDealItem timeDealItem) {
+	private TimeDealSearchResponse.TimeDealSearchItem toSearchTimeDealItem(TimeDealItem timeDealItem) {
 		int quantity = itemStockRepository.findByItemId(timeDealItem.getItem().getId())
 			.map(ItemStock::getQuantity)
 			.orElse(0);
-		return new SearchTimeDealItem(
+		return new TimeDealSearchResponse.TimeDealSearchItem(
 			timeDealItem.getId(),
 			timeDealItem.getItem().getName(),
 			quantity,
@@ -217,8 +216,9 @@ public class TimeDealService {
 		);
 	}
 
-	private SearchTimeDeal toSearchTimeDeal(TimeDeal timeDeal, List<SearchTimeDealItem> items) {
-		return new SearchTimeDeal(
+	private TimeDealSearchResponse toSearchTimeDeal(TimeDeal timeDeal,
+		List<TimeDealSearchResponse.TimeDealSearchItem> items) {
+		return new TimeDealSearchResponse(
 			timeDeal.getId(),
 			timeDeal.getName(),
 			timeDeal.getStartTime(),

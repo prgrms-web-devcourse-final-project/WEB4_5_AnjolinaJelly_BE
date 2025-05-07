@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.jelly.zzirit.domain.item.dto.timeDeal.request.TimeDealCreateRequest;
 import com.jelly.zzirit.domain.item.dto.timeDeal.response.CurrentTimeDealResponse;
-import com.jelly.zzirit.domain.item.dto.timeDeal.response.SearchTimeDeal;
 import com.jelly.zzirit.domain.item.dto.timeDeal.response.TimeDealCreateResponse;
 import com.jelly.zzirit.domain.item.dto.timeDeal.response.TimeDealModalCreateResponse;
+import com.jelly.zzirit.domain.item.dto.timeDeal.response.TimeDealSearchResponse;
 import com.jelly.zzirit.domain.item.entity.timedeal.TimeDeal;
 import com.jelly.zzirit.domain.item.service.TimeDealService;
 import com.jelly.zzirit.global.dto.BaseResponse;
@@ -53,7 +53,7 @@ public class TimeDealController {
 
 	@GetMapping("/api/time-deal/search")
 	@Operation(summary = "(관리자 페이지)타임딜 목록 조회", description = "관리자 페이지에서 타임딜 목록을 조회합니다.")
-	public BaseResponse<PageResponse<SearchTimeDeal>> searchTimeDeals(
+	public BaseResponse<PageResponse<TimeDealSearchResponse>> searchTimeDeals(
 		@RequestParam(required = false) String timeDealName,
 		@RequestParam(required = false) Long timeDealId,
 		@RequestParam(required = false) String timeDealItemName,
@@ -62,7 +62,7 @@ public class TimeDealController {
 		@RequestParam(defaultValue = "0") int page,
 		@RequestParam(defaultValue = "10") int size
 	) {
-		PageResponse<SearchTimeDeal> result = timeDealService.getTimeDeals(
+		PageResponse<TimeDealSearchResponse> result = timeDealService.getTimeDeals(
 			timeDealName, timeDealId, timeDealItemName, timeDealItemId, status, page, size
 		);
 		return BaseResponse.success(result);
