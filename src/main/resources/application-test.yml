@@ -58,7 +58,6 @@ custom:
     domain: localhost
     back-url: http://localhost:8080
     front-url: http://localhost:3000
-    allowed-origins: https://zzirit.shop,https://www.zzirit.shop
   file:
     upload-dir: uploads/
   upload:
@@ -76,4 +75,4 @@ logging:
 
 toss:
   payments:
-    secret-key: test_sk_26DlbXAaV06zWDPZljpb8qY50Q9R
+    secret-key: dummy
