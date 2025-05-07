@@ -7,8 +7,8 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.jelly.zzirit.domain.item.dto.timeDeal.TimeDealCreateItem;
 import com.jelly.zzirit.domain.item.dto.timeDeal.TimeDealModalItem;
+import com.jelly.zzirit.domain.item.dto.timeDeal.request.TimeDealCreateRequest;
 import com.jelly.zzirit.domain.item.dto.timeDeal.response.SearchTimeDeal;
 import com.jelly.zzirit.domain.item.dto.timeDeal.response.TimeDealCreateResponse;
 import com.jelly.zzirit.domain.item.entity.Item;
@@ -20,7 +20,6 @@ import com.jelly.zzirit.domain.item.repository.ItemRepository;
 import com.jelly.zzirit.domain.item.repository.ItemStockRepository;
 import com.jelly.zzirit.domain.item.repository.TimeDealItemRepository;
 import com.jelly.zzirit.domain.item.repository.TimeDealRepository;
-import com.jelly.zzirit.domain.timeDeal.dto.request.TimeDealCreateRequest;
 import com.jelly.zzirit.domain.timeDeal.dto.response.CurruntTimeDeal;
 import com.jelly.zzirit.domain.timeDeal.dto.response.CurruntTimeDealItem;
 import com.jelly.zzirit.domain.timeDeal.dto.response.SearchTimeDealItem;
@@ -80,14 +79,14 @@ public class TimeDealService {
 		});
 
 		// 응답
-		List<TimeDealCreateItem> responseItems =
+		List<TimeDealCreateResponse.TimeDealCreateItem> responseItems =
 			timeDealItemRepository.findAllByTimeDeal(timeDeal).stream()
 				.map(tdi -> {
 					Long itemId = tdi.getItem().getId();
 					int quantity = itemStockRepository.findByItemId(itemId)
 						.map(ItemStock::getQuantity)
 						.orElse(0);
-					return new TimeDealCreateItem(itemId, quantity);
+					return new TimeDealCreateResponse.TimeDealCreateItem(itemId, quantity);
 				}).toList();
 
 		return new TimeDealCreateResponse(
