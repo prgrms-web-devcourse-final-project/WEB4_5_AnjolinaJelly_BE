@@ -31,6 +31,3 @@ jobs:
 
             cd ~/WEB4_5_AnjolinaJelly_BE
             docker-compose -f docker-compose.dev.yaml up -d
-
-            pkill -f 'zzirit-0.0.1-SNAPSHOT.jar' || true
-            rm -f ./src/main/resources/zzirit-0.0.1-SNAPSHOT.jar
