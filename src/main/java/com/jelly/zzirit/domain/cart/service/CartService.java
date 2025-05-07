@@ -48,7 +48,7 @@ public class CartService {
 			.map(cartItem -> {
 				Item item = cartItem.getItem();
 				int quantity = cartItem.getQuantity();
-				int unitPrice = item.getPrice().intValue();
+				int originalPrice = item.getPrice().intValue();
 
 				// 재고 확인
 				ItemStock itemStock = itemStockRepository.findByItemId(item.getId())
@@ -58,7 +58,7 @@ public class CartService {
 				// 타임딜 여부
 				boolean isTimeDeal = item.getItemStatus() == ItemStatus.TIME_DEAL;
 				Integer discountRatio = null;
-				int discountedPrice = unitPrice;
+				int discountedPrice = originalPrice;
 
 				// 타임딜 적용
 				if (isTimeDeal) {
@@ -78,27 +78,29 @@ public class CartService {
 					cartItem.getId(),
 					item.getId(),
 					item.getName(),
-					item.getImageUrl(),
+					item.getTypeBrand().getType().getName(),
+					item.getTypeBrand().getBrand().getName(),
 					quantity,
-					// unitPrice,       // 정가, 현재는 할인 적용 변수에 정가를 반영 중이라 반대로 주석처리
-					discountedPrice,     // TODO: 할인 가격 (FE 협의 후 노출)
+					item.getImageUrl(),
+					originalPrice,
+					discountedPrice,
 					totalPrice,
 					isTimeDeal,
-					discountRatio
-					// , isSoldOut        // TODO: 품절 여부 (FE 협의 후 노출)
+					discountRatio,
+					isSoldOut
 				);
 			})
 			.toList();
 
 		// 전체 수량 및 금액 집계
-		int totalQuantity = itemResponses.stream()
+		int cartTotalQuantity = itemResponses.stream()
 			.mapToInt(CartItemResponse::getQuantity)
 			.sum();
 
-		int totalAmount = itemResponses.stream()
+		int cartTotalPrice = itemResponses.stream()
 			.mapToInt(CartItemResponse::getTotalPrice)
 			.sum();
 
-		return new CartResponse(cart.getId(), itemResponses, totalQuantity, totalAmount);
+		return new CartResponse(cart.getId(), itemResponses, cartTotalQuantity, cartTotalPrice);
 	}
 }
