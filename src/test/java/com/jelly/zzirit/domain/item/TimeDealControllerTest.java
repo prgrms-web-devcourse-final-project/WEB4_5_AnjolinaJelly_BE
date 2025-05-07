@@ -22,6 +22,7 @@ import com.jelly.zzirit.domain.item.service.TimeDealService;
 import com.jelly.zzirit.domain.member.entity.authenum.Role;
 import com.jelly.zzirit.domain.timeDeal.dto.request.TimeDealCreateRequest;
 import com.jelly.zzirit.global.security.util.JwtUtil;
+import com.jelly.zzirit.testutil.TimeDealTestHelper;
 
 import jakarta.servlet.http.Cookie;
 
@@ -40,7 +41,7 @@ public class TimeDealControllerTest {
 	JwtUtil jwtUtil;
 
 	@Autowired
-	private TimeDealService timeDealService;
+	TimeDealTestHelper timeDealTestHelper;
 
 	@Test
 	void 타임딜_등록_성공() throws Exception {
@@ -96,7 +97,7 @@ public class TimeDealControllerTest {
 		);
 
 		// ONGOING 상태의 타임딜 생성
-		timeDealService.createOngoingTimeDealForTest(request);
+		timeDealTestHelper.createOngoingTimeDeal(request);
 
 		// When & Then
 		mockMvc.perform(get("/api/time-deal/now")
@@ -149,5 +150,4 @@ public class TimeDealControllerTest {
 			.andExpect(jsonPath("$.result.content").isArray())
 			.andExpect(jsonPath("$.result.content.length()").isNumber());
 	}
-
 }
