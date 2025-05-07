@@ -17,10 +17,8 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jelly.zzirit.domain.item.dto.timeDeal.TimeDealModalItem;
-import com.jelly.zzirit.domain.item.dto.timeDeal.request.TimeDealCreateItemDetail;
-import com.jelly.zzirit.domain.item.service.TimeDealService;
+import com.jelly.zzirit.domain.item.dto.timeDeal.request.TimeDealCreateRequest;
 import com.jelly.zzirit.domain.member.entity.authenum.Role;
-import com.jelly.zzirit.domain.timeDeal.dto.request.TimeDealCreateRequest;
 import com.jelly.zzirit.global.security.util.JwtUtil;
 import com.jelly.zzirit.testutil.TimeDealTestHelper;
 
@@ -56,10 +54,10 @@ public class TimeDealControllerTest {
 			LocalDateTime.of(2025, 5, 11, 10, 0),
 			10,
 			List.of(
-				new TimeDealCreateItemDetail(1L, 5),
-				new TimeDealCreateItemDetail(2L, 5),
-				new TimeDealCreateItemDetail(3L, 5),
-				new TimeDealCreateItemDetail(4L, 5)
+				new TimeDealCreateRequest.TimeDealCreateItemDetail(1L, 5),
+				new TimeDealCreateRequest.TimeDealCreateItemDetail(2L, 5),
+				new TimeDealCreateRequest.TimeDealCreateItemDetail(3L, 5),
+				new TimeDealCreateRequest.TimeDealCreateItemDetail(4L, 5)
 			)
 		);
 
@@ -91,8 +89,8 @@ public class TimeDealControllerTest {
 			LocalDateTime.now().plusHours(2),
 			20,
 			List.of(
-				new TimeDealCreateItemDetail(1L, 3),
-				new TimeDealCreateItemDetail(2L, 3)
+				new TimeDealCreateRequest.TimeDealCreateItemDetail(1L, 3),
+				new TimeDealCreateRequest.TimeDealCreateItemDetail(2L, 3)
 			)
 		);
 

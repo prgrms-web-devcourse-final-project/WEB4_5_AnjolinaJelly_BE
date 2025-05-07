@@ -3,10 +3,10 @@ package com.jelly.zzirit.testutil;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.jelly.zzirit.domain.item.dto.timeDeal.request.TimeDealCreateRequest;
 import com.jelly.zzirit.domain.item.dto.timeDeal.response.TimeDealCreateResponse;
 import com.jelly.zzirit.domain.item.entity.timedeal.TimeDeal;
 import com.jelly.zzirit.domain.item.service.TimeDealService;
-import com.jelly.zzirit.domain.timeDeal.dto.request.TimeDealCreateRequest;
 
 import jakarta.persistence.EntityManager;
 

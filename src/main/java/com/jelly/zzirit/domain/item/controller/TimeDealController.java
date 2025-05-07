@@ -10,11 +10,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jelly.zzirit.domain.item.dto.timeDeal.TimeDealModalItem;
+import com.jelly.zzirit.domain.item.dto.timeDeal.request.TimeDealCreateRequest;
 import com.jelly.zzirit.domain.item.dto.timeDeal.response.SearchTimeDeal;
 import com.jelly.zzirit.domain.item.dto.timeDeal.response.TimeDealCreateResponse;
 import com.jelly.zzirit.domain.item.entity.timedeal.TimeDeal;
 import com.jelly.zzirit.domain.item.service.TimeDealService;
-import com.jelly.zzirit.domain.timeDeal.dto.request.TimeDealCreateRequest;
 import com.jelly.zzirit.domain.timeDeal.dto.response.CurruntTimeDeal;
 import com.jelly.zzirit.global.dto.BaseResponse;
 import com.jelly.zzirit.global.dto.PageResponse;

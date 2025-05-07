@@ -1,9 +1,7 @@
-package com.jelly.zzirit.domain.timeDeal.dto.request;
+package com.jelly.zzirit.domain.item.dto.timeDeal.request;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
-import com.jelly.zzirit.domain.item.dto.timeDeal.request.TimeDealCreateItemDetail;
 
 public record TimeDealCreateRequest(
 	String title,
@@ -12,4 +10,9 @@ public record TimeDealCreateRequest(
 	int discountRate,
 	List<TimeDealCreateItemDetail> items
 ) {
+	public record TimeDealCreateItemDetail(
+		Long itemId,
+		int quantity
+	) {
+	}
 }
