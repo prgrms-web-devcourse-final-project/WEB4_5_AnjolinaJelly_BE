@@ -42,7 +42,7 @@ public class TimeDealControllerTest {
 
 	@Test
 	void 타임딜_등록_성공() throws Exception {
-		// given
+		// Given
 		Long userId = 1L;
 		Role role = Role.ROLE_ADMIN;
 		String accessToken = jwtUtil.createJwt("access", userId, role, 3600); // 1시간 유효한 access token
@@ -74,9 +74,9 @@ public class TimeDealControllerTest {
 	}
 
 	@Test
-	@DisplayName("현재 진행 중인 타임딜 조회 - 성공")
-	void getCurrentTimeDeals_success() throws Exception {
-		// given
+	@DisplayName("현재 진행중인 타임딜 조회 성공")
+	void 현재_진행중인_타임딜_조회_성공() throws Exception {
+		// Given
 		Long userId = 1L;
 		Role role = Role.ROLE_ADMIN;
 		String accessToken = jwtUtil.createJwt("access", userId, role, 3600); // 1시간 유효한 access token
@@ -96,7 +96,7 @@ public class TimeDealControllerTest {
 		// ONGOING 상태의 타임딜 생성
 		timeDealService.createOngoingTimeDealForTest(request);
 
-		// when & then
+		// When & Then
 		mockMvc.perform(get("/api/time-deal/now")
 				.cookie(new Cookie("access", accessToken)))
 			.andExpect(status().isOk())
@@ -106,9 +106,9 @@ public class TimeDealControllerTest {
 	}
 
 	@Test
-	@DisplayName("타임딜 모달 상품 정보 조회 - 성공")
-	void getTimeDealModalItems_success() throws Exception {
-		// given
+	@DisplayName("타임딜 모달 상품 정보 조회 성공")
+	void 타임딜_모달_상품_정보_조회_성공() throws Exception {
+		// Given
 		Long userId = 1L;
 		Role role = Role.ROLE_ADMIN;
 		String accessToken = jwtUtil.createJwt("access", userId, role, 3600); // 1시간 유효한 access token
@@ -118,7 +118,7 @@ public class TimeDealControllerTest {
 			new TimeDealModalItem(1L, "레노버 노트북 ThinkPad X1 Carbon", 1650000),
 			new TimeDealModalItem(2L, "소니 노트북 VAIO Pro", 1450000)
 		);
-		// when & then
+		// When & Then
 		mockMvc.perform(post("/api/admin/time-deal/modal")
 				.cookie(new Cookie("access", accessToken))
 				.contentType(MediaType.APPLICATION_JSON)
@@ -130,8 +130,8 @@ public class TimeDealControllerTest {
 	}
 
 	@Test
-	@DisplayName("타임딜 목록 검색 및 필터 - 성공")
-	void searchTimeDeals_withFilters_success() throws Exception {
+	@DisplayName("타임딜 목록 검색 및 필터링 성공")
+	void 타임딜_목록_검색_및_필터링_성공() throws Exception {
 		Long userId = 1L;
 		Role role = Role.ROLE_ADMIN;
 		String accessToken = jwtUtil.createJwt("access", userId, role, 3600); // 1시간 유효한 access token
