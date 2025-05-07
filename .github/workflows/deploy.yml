@@ -1,40 +1,11 @@
-name: Test and Deploy to EC2
+name: Deploy to EC2
 
 on:
   push:
-    branches: feat/101/chaeeun
+    branches: feat/101/chaeeun # 결국 여기는 main 브랜치로 바뀌어야 해요!
 
 jobs:
-#  test:
-#    runs-on: ubuntu-latest
-#
-#    steps:
-#      - name: Checkout source
-#        uses: actions/checkout@v3
-#
-#      - name: Set up JDK
-#        uses: actions/setup-java@v3
-#        with:
-#          distribution: 'temurin'  # Eclipse Temurin 배포판 사용
-#          java-version: '17'       # Java 버전 (프로젝트에 맞게 조정)
-#          cache: gradle            # Gradle 캐싱 활성화
-#
-#      - name: Run tests
-#        run: ./gradlew test
-
-#      - name: Generate test report
-#        if: always()               # 테스트 실패해도 리포트 생성
-#        run: ./gradlew jacocoTestReport
-
-#      - name: Upload test results
-#        if: always()
-#        uses: actions/upload-artifact@v3
-#        with:
-#          name: test-results
-#          path: build/reports/tests/
-
   deploy:
-#    needs: test                    # test 작업이 성공한 후에만 실행
     runs-on: ubuntu-latest
 
     steps:
@@ -65,6 +36,7 @@ jobs:
             ps aux | grep 'zzirit-0.0.1-SNAPSHOT.jar' | grep -v grep | awk '{print $2}' | xargs -r kill -9
             
             ./gradlew build # -x test
+#           테스트코드 빼고 빌드하면 잘 되는데, 테스트 포함하면 db 연결 오류 생김            
             mv ./build/libs/zzirit-0.0.1-SNAPSHOT.jar ./src/main/resources/
             
             cd ./src/main/resources
