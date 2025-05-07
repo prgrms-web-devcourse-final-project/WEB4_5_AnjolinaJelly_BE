@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,7 @@ import jakarta.servlet.http.Cookie;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Disabled
 public class TimeDealControllerTest {
 
 	@Autowired

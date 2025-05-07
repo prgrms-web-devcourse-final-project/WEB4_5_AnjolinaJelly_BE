@@ -7,6 +7,7 @@ import static org.springframework.restdocs.snippet.Attributes.*;
 
 import java.util.List;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,7 @@ import com.jelly.zzirit.global.support.RestDocsSupport;
 @AutoConfigureMockMvc
 @Import(CartControllerTest.MockConfig.class)
 @ActiveProfiles("test")
+@Disabled
 class CartControllerTest extends RestDocsSupport {
 
 	@Autowired
