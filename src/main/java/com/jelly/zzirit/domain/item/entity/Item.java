@@ -8,6 +8,8 @@ import com.jelly.zzirit.global.entity.BaseTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -36,6 +38,7 @@ public class Item extends BaseTime {
 	private BigDecimal price;
 
 	@Column(name = "item_status", nullable = false)
+	@Enumerated(EnumType.STRING)
 	private ItemStatus itemStatus;
 
 	@ManyToOne(fetch = FetchType.LAZY)

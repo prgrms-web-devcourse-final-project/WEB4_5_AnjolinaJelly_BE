@@ -9,6 +9,9 @@ import com.jelly.zzirit.domain.adminItem.service.S3Service;
 import com.jelly.zzirit.domain.item.repository.ItemRepository;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,6 +29,7 @@ import com.jelly.zzirit.domain.adminItem.dto.response.AdminItemResponse;
 import com.jelly.zzirit.domain.adminItem.dto.response.ImageUploadResponse;
 import com.jelly.zzirit.global.dto.BaseResponse;
 import com.jelly.zzirit.global.dto.Empty;
+import com.jelly.zzirit.global.dto.PageResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -47,11 +51,14 @@ public class AdminItemController {
 	 */
 	@Operation(summary = "관리자 상품 조회 & 검색", description = "관리자가 id/이름으로 상품 목록을 조회합니다.")
 	@GetMapping
-	public BaseResponse<List<AdminItemResponse>> getItems(
+	public BaseResponse<PageResponse<AdminItemResponse>> getItems(
 		@RequestParam(required = false) String name,
-		@RequestParam(required = false) Long itemId
+		@RequestParam(required = false) Long itemId,
+		@RequestParam(defaultValue = "0") int page,
+		@RequestParam(defaultValue = "10") int size
 	) {
-		return BaseResponse.success(queryAdminItemService.getItems(name, itemId));
+		Pageable pageable = PageRequest.of(page, size);
+		return BaseResponse.success(queryAdminItemService.getItems(name, itemId, pageable));
 	}
 
 	/**
