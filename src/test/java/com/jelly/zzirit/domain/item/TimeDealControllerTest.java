@@ -16,8 +16,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jelly.zzirit.domain.item.dto.timeDeal.TimeDealModalItem;
 import com.jelly.zzirit.domain.item.dto.timeDeal.request.TimeDealCreateRequest;
+import com.jelly.zzirit.domain.item.dto.timeDeal.response.TimeDealModalCreateResponse;
 import com.jelly.zzirit.domain.member.entity.authenum.Role;
 import com.jelly.zzirit.global.security.util.JwtUtil;
 import com.jelly.zzirit.testutil.TimeDealTestHelper;
@@ -115,9 +115,9 @@ public class TimeDealControllerTest {
 		String accessToken = jwtUtil.createJwt("access", userId, role, 3600); // 1시간 유효한 access token
 
 		List<Long> itemIds = List.of(1L, 2L);
-		List<TimeDealModalItem> responseItems = List.of(
-			new TimeDealModalItem(1L, "레노버 노트북 ThinkPad X1 Carbon", 1650000),
-			new TimeDealModalItem(2L, "소니 노트북 VAIO Pro", 1450000)
+		List<TimeDealModalCreateResponse> responseItems = List.of(
+			new TimeDealModalCreateResponse(1L, "레노버 노트북 ThinkPad X1 Carbon", 1650000),
+			new TimeDealModalCreateResponse(2L, "소니 노트북 VAIO Pro", 1450000)
 		);
 		// When & Then
 		mockMvc.perform(post("/api/admin/time-deal/modal")

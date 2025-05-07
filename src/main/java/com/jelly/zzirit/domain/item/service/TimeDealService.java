@@ -7,10 +7,10 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.jelly.zzirit.domain.item.dto.timeDeal.TimeDealModalItem;
 import com.jelly.zzirit.domain.item.dto.timeDeal.request.TimeDealCreateRequest;
 import com.jelly.zzirit.domain.item.dto.timeDeal.response.SearchTimeDeal;
 import com.jelly.zzirit.domain.item.dto.timeDeal.response.TimeDealCreateResponse;
+import com.jelly.zzirit.domain.item.dto.timeDeal.response.TimeDealModalCreateResponse;
 import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.domain.item.entity.ItemStatus;
 import com.jelly.zzirit.domain.item.entity.stock.ItemStock;
@@ -100,9 +100,9 @@ public class TimeDealService {
 	}
 
 	// 타임딜 등록 모달 생성
-	public List<TimeDealModalItem> getModalItems(List<Long> itemIds) {
+	public List<TimeDealModalCreateResponse> getModalItems(List<Long> itemIds) {
 		return itemRepository.findAllById(itemIds).stream()
-			.map(item -> new TimeDealModalItem(item.getId(), item.getName(),
+			.map(item -> new TimeDealModalCreateResponse(item.getId(), item.getName(),
 				new BigDecimal(String.valueOf(item.getPrice())).intValue()))
 			.toList();
 	}

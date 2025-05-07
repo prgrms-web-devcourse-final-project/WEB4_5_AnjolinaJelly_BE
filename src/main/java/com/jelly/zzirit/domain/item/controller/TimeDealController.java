@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.jelly.zzirit.domain.item.dto.timeDeal.TimeDealModalItem;
 import com.jelly.zzirit.domain.item.dto.timeDeal.request.TimeDealCreateRequest;
 import com.jelly.zzirit.domain.item.dto.timeDeal.response.SearchTimeDeal;
 import com.jelly.zzirit.domain.item.dto.timeDeal.response.TimeDealCreateResponse;
+import com.jelly.zzirit.domain.item.dto.timeDeal.response.TimeDealModalCreateResponse;
 import com.jelly.zzirit.domain.item.entity.timedeal.TimeDeal;
 import com.jelly.zzirit.domain.item.service.TimeDealService;
 import com.jelly.zzirit.domain.timeDeal.dto.response.CurruntTimeDeal;
@@ -39,8 +39,8 @@ public class TimeDealController {
 
 	@PostMapping("/api/admin/time-deal/modal")
 	@Operation(summary = "타임딜 생성 모달 상품 조회")
-	public BaseResponse<List<TimeDealModalItem>> getTimeDealModalItems(@RequestBody List<Long> itemIds) {
-		List<TimeDealModalItem> result = timeDealService.getModalItems(itemIds);
+	public BaseResponse<List<TimeDealModalCreateResponse>> getTimeDealModalItems(@RequestBody List<Long> itemIds) {
+		List<TimeDealModalCreateResponse> result = timeDealService.getModalItems(itemIds);
 		return BaseResponse.success(result);
 	}
 
