@@ -15,8 +15,11 @@ public record ItemResponse(
 	String type,
 	String brand,
 	Integer quantity,
-	BigDecimal price,
+	String imageUrl,
+	BigDecimal originalPrice,
+	BigDecimal discountedPrice,
 	ItemStatus timeDealStatus,
+	Integer discountRatio,
 	LocalDateTime endTimeDeal
 ) {
 
@@ -27,8 +30,11 @@ public record ItemResponse(
 			timeDealItem.getItem().getTypeBrand().getType().getName(),
 			timeDealItem.getItem().getTypeBrand().getBrand().getName(),
 			quantity,
+			timeDealItem.getItem().getImageUrl(),
+			timeDealItem.getItem().getPrice(),
 			timeDealItem.getPrice(),
 			timeDealItem.getItem().getItemStatus(),
+			timeDealItem.getTimeDeal().getDiscountRatio(),
 			timeDealItem.getTimeDeal().getEndTime()
 		);
 	}
@@ -40,8 +46,11 @@ public record ItemResponse(
 			item.getTypeBrand().getType().getName(),
 			item.getTypeBrand().getBrand().getName(),
 			quantity,
+			item.getImageUrl(),
 			item.getPrice(),
+			BigDecimal.ZERO,
 			item.getItemStatus(),
+			0,
 			null
 		);
 	}
