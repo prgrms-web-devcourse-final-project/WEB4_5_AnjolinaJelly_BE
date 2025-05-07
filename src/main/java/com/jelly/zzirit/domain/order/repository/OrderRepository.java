@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import com.jelly.zzirit.domain.order.entity.Order;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -26,4 +27,12 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     );
 
     Optional<Order> findByOrderNumber(String orderNumber);
+
+    @Query("SELECT o FROM Order o " +
+           "JOIN FETCH o.payment " +
+           "WHERE o.id = :orderId")
+    Optional<Order> findByIdWithPayment(@Param("orderId") Long orderId);
+
+    List<Order> findAllByStatusAndCreatedAtBefore(Order.OrderStatus orderStatus, LocalDateTime deadline);
+
 }
