@@ -69,7 +69,7 @@ public class TimeDealControllerTest {
 					.content(objectMapper.writeValueAsString(request))
 			)
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.result.title").value("노트북 타임딜"))
+			.andExpect(jsonPath("$.result.timeDealName").value("노트북 타임딜"))
 			.andExpect(jsonPath("$.result.items").isArray())
 			.andExpect(jsonPath("$.result.items.length()").value(4));
 	}
@@ -102,7 +102,7 @@ public class TimeDealControllerTest {
 				.cookie(new Cookie("access", accessToken)))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.result.timeDealId").isNumber())
-			.andExpect(jsonPath("$.result.title").isString())
+			.andExpect(jsonPath("$.result.timeDealName").isString())
 			.andExpect(jsonPath("$.result.items").isArray());
 	}
 
