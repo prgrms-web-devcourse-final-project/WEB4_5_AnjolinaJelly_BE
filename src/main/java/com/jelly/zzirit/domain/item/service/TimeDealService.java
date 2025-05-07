@@ -260,4 +260,25 @@ public class TimeDealService {
 			items
 		);
 	}
+
+	// 테스트용 진행중 타임딜 생성 메서드
+	@Transactional
+	public TimeDealCreateResponse createOngoingTimeDealForTest(TimeDealCreateRequest request) {
+
+		TimeDealCreateRequest modified = new TimeDealCreateRequest(
+			request.title(),
+			request.startTime(),
+			request.endTime(),
+			request.discountRate(),
+			request.items()
+		);
+
+		TimeDealCreateResponse response = createTimeDeal(modified);
+
+		// 타임딜 상태를 강제로 ONGOING으로 변경
+		TimeDeal timeDeal = timeDealRepository.findById(response.timeDealId).orElseThrow();
+		timeDeal.updateStatus(TimeDeal.TimeDealStatus.ONGOING);
+
+		return response;
+	}
 }
