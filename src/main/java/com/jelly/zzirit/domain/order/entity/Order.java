@@ -2,6 +2,7 @@ package com.jelly.zzirit.domain.order.entity;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,23 +11,13 @@ import com.jelly.zzirit.domain.member.entity.Member;
 import com.jelly.zzirit.domain.order.dto.request.PaymentRequestDto;
 import com.jelly.zzirit.global.entity.BaseTime;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
+import jakarta.persistence.*;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
+
+import static com.jelly.zzirit.global.dto.BaseResponseStatus.EXPIRED_CANCEL_TIME;
+import static com.jelly.zzirit.global.dto.BaseResponseStatus.NOT_PAID_ORDER;
 
 @Entity
 @Getter
@@ -95,4 +86,23 @@ public class Order extends BaseTime {
 	public void addOrderItem(OrderItem orderItem) {
 		orderItems.add(orderItem);
 	}
+
+	public boolean isOwnedBy(Long memberId) {
+		return this.getMember().getId().equals(memberId);
+	}
+
+	public void checkCancellation() {
+		if (status != OrderStatus.PAID) { // 결제 완료 상태인 주문만 취소 가능
+			throw new InvalidOrderException(NOT_PAID_ORDER);
+		}
+
+		if (this.getCreatedAt().isBefore(LocalDateTime.now().minusHours(24))) { // 24시간 이내의 주문만 취소 가능
+			throw new InvalidOrderException(EXPIRED_CANCEL_TIME);
+		}
+	}
+
+	public void cancel() {
+		this.status = OrderStatus.CANCELLED;
+	}
+
 }
