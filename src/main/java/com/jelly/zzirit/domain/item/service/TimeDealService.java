@@ -7,11 +7,11 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.jelly.zzirit.domain.item.dto.timeDeal.request.TimeDealCreateRequest;
-import com.jelly.zzirit.domain.item.dto.timeDeal.response.CurrentTimeDealResponse;
-import com.jelly.zzirit.domain.item.dto.timeDeal.response.TimeDealCreateResponse;
-import com.jelly.zzirit.domain.item.dto.timeDeal.response.TimeDealModalCreateResponse;
-import com.jelly.zzirit.domain.item.dto.timeDeal.response.TimeDealSearchResponse;
+import com.jelly.zzirit.domain.item.dto.request.TimeDealCreateRequest;
+import com.jelly.zzirit.domain.item.dto.response.timeDeal.CurrentTimeDealResponse;
+import com.jelly.zzirit.domain.item.dto.response.timeDeal.TimeDealCreateResponse;
+import com.jelly.zzirit.domain.item.dto.response.timeDeal.TimeDealModalCreateResponse;
+import com.jelly.zzirit.domain.item.dto.response.timeDeal.TimeDealSearchResponse;
 import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.domain.item.entity.ItemStatus;
 import com.jelly.zzirit.domain.item.entity.stock.ItemStock;

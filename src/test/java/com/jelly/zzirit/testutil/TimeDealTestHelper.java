@@ -3,8 +3,8 @@ package com.jelly.zzirit.testutil;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.jelly.zzirit.domain.item.dto.timeDeal.request.TimeDealCreateRequest;
-import com.jelly.zzirit.domain.item.dto.timeDeal.response.TimeDealCreateResponse;
+import com.jelly.zzirit.domain.item.dto.request.TimeDealCreateRequest;
+import com.jelly.zzirit.domain.item.dto.response.timeDeal.TimeDealCreateResponse;
 import com.jelly.zzirit.domain.item.entity.timedeal.TimeDeal;
 import com.jelly.zzirit.domain.item.service.TimeDealService;
 
@@ -24,7 +24,7 @@ public class TimeDealTestHelper {
 	@Transactional
 	public TimeDealCreateResponse createOngoingTimeDeal(TimeDealCreateRequest request) {
 		TimeDealCreateResponse response = timeDealService.createTimeDeal(request);
-		TimeDeal timeDeal = em.find(TimeDeal.class, response.timeDealId);
+		TimeDeal timeDeal = em.find(TimeDeal.class, response.timeDealId());
 		timeDeal.updateStatus(TimeDeal.TimeDealStatus.ONGOING);
 		return response;
 	}

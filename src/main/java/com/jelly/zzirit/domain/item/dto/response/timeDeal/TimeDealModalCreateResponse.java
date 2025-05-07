@@ -1,4 +1,4 @@
-package com.jelly.zzirit.domain.item.dto.timeDeal.response;
+package com.jelly.zzirit.domain.item.dto.response.timeDeal;
 
 public record TimeDealModalCreateResponse(
 	Long itemId,

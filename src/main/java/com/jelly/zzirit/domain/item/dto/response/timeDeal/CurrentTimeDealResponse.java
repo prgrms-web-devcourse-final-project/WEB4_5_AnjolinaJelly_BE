@@ -1,4 +1,4 @@
-package com.jelly.zzirit.domain.item.dto.timeDeal.response;
+package com.jelly.zzirit.domain.item.dto.response.timeDeal;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

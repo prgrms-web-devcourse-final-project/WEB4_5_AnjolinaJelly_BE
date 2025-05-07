@@ -1,4 +1,4 @@
-package com.jelly.zzirit.domain.item.dto.timeDeal.request;
+package com.jelly.zzirit.domain.item.dto.request;
 
 import java.time.LocalDateTime;
 import java.util.List;
