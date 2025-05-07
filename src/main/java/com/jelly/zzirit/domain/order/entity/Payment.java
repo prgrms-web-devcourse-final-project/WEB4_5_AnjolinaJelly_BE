@@ -50,7 +50,16 @@ public class Payment extends BaseTime {
 			.build();
 	}
 
+	public void markCancelled() {
+		paymentStatus = PaymentStatus.CANCELLED;
+	}
+
+	public void markFailed() {
+		paymentStatus = PaymentStatus.FAILED;
+	}
+
 	public void changeStatus(PaymentStatus newStatus) {
 		this.paymentStatus = newStatus;
 	}
+
 }
