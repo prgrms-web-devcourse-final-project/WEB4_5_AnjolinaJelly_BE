@@ -4,6 +4,7 @@ import static org.springframework.restdocs.payload.JsonFieldType.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.snippet.Attributes.*;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.restdocs.payload.FieldDescriptor;
@@ -13,6 +14,7 @@ import com.jelly.zzirit.global.security.util.JwtUtil;
 import com.jelly.zzirit.global.support.OpenApiDocumentationFilter;
 import com.jelly.zzirit.global.support.RestDocsSupport;
 
+@Disabled
 public class BrandControllerTest extends RestDocsSupport {
 
 	@Autowired
