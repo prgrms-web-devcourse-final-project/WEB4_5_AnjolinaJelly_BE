@@ -26,12 +26,12 @@ jobs:
 #        if: always()               # 테스트 실패해도 리포트 생성
 #        run: ./gradlew jacocoTestReport
 
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: test-results
-          path: build/reports/tests/
+#      - name: Upload test results
+#        if: always()
+#        uses: actions/upload-artifact@v3
+#        with:
+#          name: test-results
+#          path: build/reports/tests/
 
   deploy:
     needs: test                    # test 작업이 성공한 후에만 실행
