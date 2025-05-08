@@ -33,7 +33,7 @@ public class ItemController {
 	@GetMapping("/search")
 	@Operation(summary = "상품 조회 및 검색", description = "상품을 조회하고 검색합니다.")
 	public BaseResponse<PageResponse<SimpleItemResponse>> search(
-		@RequestParam(required = false) List<String> type,
+		@RequestParam(required = false) List<String> types,
 		@RequestParam(required = false) List<String> brands,
 		@RequestParam(required = false) String keyword,
 		@RequestParam(defaultValue = "priceAsc") String sort,
@@ -43,7 +43,7 @@ public class ItemController {
 		Direction direction = sort.equals("priceDesc") ? Direction.DESC : Direction.ASC;
 		Pageable pageable = PageRequest.of(page, size, Sort.by(direction, "price"));
 		return BaseResponse.success(
-			queryItemService.search(type, brands, keyword, sort, pageable)
+			queryItemService.search(types, brands, keyword, sort, pageable)
 		);
 	}
 

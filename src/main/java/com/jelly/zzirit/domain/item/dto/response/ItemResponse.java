@@ -18,7 +18,7 @@ public record ItemResponse(
 	String imageUrl,
 	BigDecimal originalPrice,
 	BigDecimal discountedPrice,
-	ItemStatus timeDealStatus,
+	ItemStatus itemStatus,
 	Integer discountRatio,
 	LocalDateTime endTimeDeal
 ) {
