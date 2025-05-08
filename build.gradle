@@ -90,6 +90,10 @@ test {
     finalizedBy 'jacocoTestReport'
 }
 
+tasks.withType(JavaCompile).configureEach {
+	options.compilerArgs += '-parameters'
+}
+
 jacocoTestReport {
     reports {
         html.required = true
