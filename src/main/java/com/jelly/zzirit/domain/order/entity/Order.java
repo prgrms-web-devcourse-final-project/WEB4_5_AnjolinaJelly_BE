@@ -67,18 +67,6 @@ public class Order extends BaseTime {
 		return String.format("ORD%s-%06d", date, sequence);
 	}
 
-	public static Order tempOf(Member member, String orderNumber, PaymentRequestDto dto) {
-		return Order.builder()
-			.member(member)
-			.orderNumber(orderNumber)
-			.totalPrice(dto.totalAmount())
-			.status(OrderStatus.PENDING)
-			.shippingRequest(dto.shippingRequest())
-			.address(dto.address())
-			.addressDetail(dto.addressDetail())
-			.build();
-	}
-
 	public void changeStatus(OrderStatus newStatus) {
 		this.status = newStatus;
 	}

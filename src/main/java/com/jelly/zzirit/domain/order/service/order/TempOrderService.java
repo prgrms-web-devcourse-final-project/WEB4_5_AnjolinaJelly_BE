@@ -1,24 +1,14 @@
 package com.jelly.zzirit.domain.order.service.order;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.jelly.zzirit.domain.item.entity.Item;
-import com.jelly.zzirit.domain.item.repository.ItemRepository;
 import com.jelly.zzirit.domain.member.entity.Member;
-import com.jelly.zzirit.domain.order.dto.request.OrderItemRequestDto;
 import com.jelly.zzirit.domain.order.dto.request.PaymentRequestDto;
 import com.jelly.zzirit.domain.order.dto.response.TossPaymentResponse;
 import com.jelly.zzirit.domain.order.entity.Order;
-import com.jelly.zzirit.domain.order.entity.OrderItem;
 import com.jelly.zzirit.domain.order.entity.Payment;
-import com.jelly.zzirit.domain.order.repository.OrderItemRepository;
+import com.jelly.zzirit.domain.order.mapper.OrderMapper;
 import com.jelly.zzirit.domain.order.repository.OrderRepository;
 import com.jelly.zzirit.domain.order.repository.PaymentRepository;
 import com.jelly.zzirit.domain.order.service.pay.TossPaymentValidation;
@@ -34,60 +24,33 @@ import lombok.extern.slf4j.Slf4j;
 public class TempOrderService {
 
 	private final OrderRepository orderRepository;
-	private final OrderItemRepository orderItemRepository;
-	private final ItemRepository itemRepository;
 	private final PaymentRepository paymentRepository;
 	private final OrderService orderService;
+	private final OrderMapper orderMapper;
 
 	@Transactional
 	public Order createTempOrder(PaymentRequestDto dto, Member member, String orderNumber) {
-
-		Order order = Order.tempOf(member, orderNumber, dto);
-		orderRepository.save(order);
-
-		List<Long> itemIds = dto.orderItems().stream()
-			.map(OrderItemRequestDto::itemId)
-			.toList();
-
-		Map<Long, Item> itemMap = itemRepository.findAllById(itemIds).stream()
-			.collect(Collectors.toMap(Item::getId, Function.identity()));
-
-		List<OrderItem> orderItems = dto.orderItems().stream()
-			.map(itemDto -> {
-				Item item = Optional.ofNullable(itemMap.get(itemDto.itemId()))
-					.orElseThrow(() -> new InvalidOrderException(BaseResponseStatus.ITEM_NOT_FOUND));
-
-				OrderItem orderItem = OrderItem.of(order, item, itemDto.quantity(), itemDto.price());
-				order.addOrderItem(orderItem);
-				return orderItem;
-			})
-			.toList();
-
-		orderItemRepository.saveAll(orderItems);
-
-		return order;
-	}
+		Order tempOrder = orderMapper.mapToTempOrder(dto, member, orderNumber);
+		orderMapper.mapToOrderItems(tempOrder, dto.orderItems());
+		orderRepository.save(tempOrder);
+		return tempOrder;
+	} //임시 주문 생성
 
 	@Transactional
-	public void confirmTempOrder(
-		String paymentKey,
-		String orderNumber,
-		String amount,
-		TossPaymentResponse paymentInfo
-	) {
-		Order order = orderRepository.findByOrderNumber(orderNumber)
+	public void confirmTempOrder(TossPaymentResponse paymentInfo) {
+		Order order = orderRepository.findByOrderNumber(paymentInfo.getOrderId())
 			.orElseThrow(() -> new InvalidOrderException(BaseResponseStatus.ORDER_NOT_FOUND));
 
-		TossPaymentValidation.validateAll(order, paymentInfo, amount);
+		TossPaymentValidation.validateAll(order, paymentInfo, paymentInfo.getTotalAmount().toPlainString());
 
 		Payment payment = Payment.of(order, paymentInfo.getPaymentKey(), paymentInfo.getMethod());
 		paymentRepository.save(payment);
 
-		orderService.completeOrder(order, paymentKey);
-	}
+		orderService.completeOrder(order, paymentInfo.getPaymentKey());
+	} // 결제 성공 시 주문 확정
 
 	@Transactional
-	public void deleteTempOrder(String orderId, String code, String message) {
+	public void deleteTempOrder(String orderId) {
 		Order order = orderRepository.findByOrderNumber(orderId)
 			.orElseThrow(() -> new InvalidOrderException(BaseResponseStatus.ORDER_NOT_FOUND));
 
@@ -95,10 +58,7 @@ public class TempOrderService {
 			throw new InvalidOrderException(BaseResponseStatus.ALREADY_PROCESSED);
 		}
 
-		log.warn("임시 주문 삭제: 실패코드={}, 메시지={}, 주문번호={}", code, message, orderId);
-
-		paymentRepository.findByOrder(order)
-			.ifPresent(paymentRepository::delete);
+		paymentRepository.findByOrder(order).ifPresent(paymentRepository::delete);
 		orderRepository.delete(order);
-	}
+	} // 결제 실패 또는 취소 시 임시 주문 제거
 }
