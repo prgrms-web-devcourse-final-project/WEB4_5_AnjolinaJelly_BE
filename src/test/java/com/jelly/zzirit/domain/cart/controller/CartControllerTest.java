@@ -26,13 +26,11 @@ import com.jelly.zzirit.domain.cart.service.CartService;
 import com.jelly.zzirit.domain.member.entity.authenum.Role;
 import com.jelly.zzirit.global.security.util.JwtUtil;
 import com.jelly.zzirit.global.support.OpenApiDocumentationFilter;
-import com.jelly.zzirit.global.support.RestDocsSupport;
+import com.jelly.zzirit.global.support.AcceptanceTest;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @Import(CartControllerTest.MockConfig.class)
-@Disabled
-class CartControllerTest extends RestDocsSupport {
+class CartControllerTest extends AcceptanceTest {
 
 	@Autowired
 	private JwtUtil jwtUtil;
@@ -60,10 +58,6 @@ class CartControllerTest extends RestDocsSupport {
 	@Test
 	void 장바구니_조회() {
 		// given
-		Long userId = 1L;
-		Role role = Role.ROLE_USER;
-		String accessToken = jwtUtil.createJwt("access", userId, role, 3600);
-
 		CartItemResponse item = new CartItemResponse(
 			101L,
 			5L,
@@ -87,11 +81,11 @@ class CartControllerTest extends RestDocsSupport {
 			2700000
 		);
 
-		when(cartService.getMyCart(userId)).thenReturn(mockResponse);
+		when(cartService.getMyCart(1L)).thenReturn(mockResponse);
 
 		// when & then
 		this.spec
-			.cookie("access", accessToken)
+			.cookie(getCookie())
 			.filter(OpenApiDocumentationFilter.ofWithResponseFields(
 				"내 장바구니 조회",
 				new FieldDescriptor[] {
