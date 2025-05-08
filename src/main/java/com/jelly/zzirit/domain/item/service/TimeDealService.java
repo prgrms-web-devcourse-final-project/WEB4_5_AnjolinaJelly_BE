@@ -187,6 +187,26 @@ public class TimeDealService {
 			}
 		}
 
+		// 5. 검색 옵션이 모두 다 null일 때 -> 모든 타임딜 반환
+		if (timeDealName == null && timeDealId == null && timeDealItemId == null && timeDealItemName == null) {
+
+			// 모든 타임딜 리스트 db 조회
+			timeDeals = timeDealRepository.findAll();
+
+			//타임딜 상태 필터링
+			timeDeals.forEach(timeDeal -> {
+				if (status != null && timeDeal.getStatus() != status)
+					return;
+
+				// 타임딜에 포함된 아이템 리스트 조회 후 반환 형식 변환
+				List<TimeDealItem> tdItems = timeDealItemRepository.findAllByTimeDeal(timeDeal);
+				List<TimeDealSearchResponse.TimeDealSearchItem> items = tdItems.stream()
+					.map(this::toSearchTimeDealItem)
+					.toList();
+				result.add(toSearchTimeDeal(timeDeal, items));
+			});
+		}
+
 		// 페이징 처리
 		int start = page * size;
 		int end = Math.min(start + size, result.size());
