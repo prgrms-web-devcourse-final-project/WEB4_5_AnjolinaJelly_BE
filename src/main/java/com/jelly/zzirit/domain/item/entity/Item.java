@@ -2,7 +2,7 @@ package com.jelly.zzirit.domain.item.entity;
 
 import java.math.BigDecimal;
 
-import com.jelly.zzirit.domain.adminItem.dto.request.ItemCreateRequest;
+import com.jelly.zzirit.domain.admin.dto.request.ItemCreateRequest;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.dto.Empty;
 import com.jelly.zzirit.global.entity.BaseTime;

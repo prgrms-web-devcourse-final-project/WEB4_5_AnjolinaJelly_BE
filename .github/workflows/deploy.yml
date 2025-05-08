@@ -2,7 +2,7 @@ name: Deploy to EC2
 
 on:
   push:
-    branches: feat/101/chaeeun # 나중에 main으로 바꿔야함
+    branches: main # 나중에 main으로 바꿔야함
 
 jobs:
   deploy:

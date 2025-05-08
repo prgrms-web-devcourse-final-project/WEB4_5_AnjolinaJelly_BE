@@ -1,4 +1,4 @@
-package com.jelly.zzirit.domain.adminItem.controller;
+package com.jelly.zzirit.domain.admin.controller;
 
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.snippet.Attributes.*;
@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.restdocs.payload.FieldDescriptor;
 
 import com.jelly.zzirit.domain.member.entity.authenum.Role;

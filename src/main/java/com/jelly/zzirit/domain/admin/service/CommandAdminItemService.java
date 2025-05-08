@@ -1,7 +1,7 @@
-package com.jelly.zzirit.domain.adminItem.service;
+package com.jelly.zzirit.domain.admin.service;
 
-import com.jelly.zzirit.domain.adminItem.dto.request.ItemCreateRequest;
-import com.jelly.zzirit.domain.adminItem.dto.request.ItemUpdateRequest;
+import com.jelly.zzirit.domain.admin.dto.request.ItemCreateRequest;
+import com.jelly.zzirit.domain.admin.dto.request.ItemUpdateRequest;
 import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.domain.item.entity.TypeBrand;
 import com.jelly.zzirit.domain.item.entity.stock.ItemStock;

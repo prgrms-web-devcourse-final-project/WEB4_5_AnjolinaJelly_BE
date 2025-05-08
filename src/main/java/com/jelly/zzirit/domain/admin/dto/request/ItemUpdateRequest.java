@@ -1,4 +1,4 @@
-package com.jelly.zzirit.domain.adminItem.dto.request;
+package com.jelly.zzirit.domain.admin.dto.request;
 
 import java.math.BigDecimal;
 

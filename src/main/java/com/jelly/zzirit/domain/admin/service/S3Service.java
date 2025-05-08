@@ -1,4 +1,4 @@
-package com.jelly.zzirit.domain.adminItem.service;
+package com.jelly.zzirit.domain.admin.service;
 
 import java.io.File;
 import java.io.FileOutputStream;
