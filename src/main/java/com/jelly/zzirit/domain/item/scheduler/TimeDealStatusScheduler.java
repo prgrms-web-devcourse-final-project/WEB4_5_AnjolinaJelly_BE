@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.jelly.zzirit.domain.item.entity.timedeal.TimeDeal;
 import com.jelly.zzirit.domain.item.repository.TimeDealRepository;
@@ -19,6 +20,7 @@ public class TimeDealStatusScheduler {
 
 	private final TimeDealRepository timeDealRepository;
 
+	@Transactional
 	@Scheduled(fixedRate = 60_000) // 1분마다 실행
 	public void updateTimeDealStatuses() {
 		LocalDateTime now = LocalDateTime.now();
