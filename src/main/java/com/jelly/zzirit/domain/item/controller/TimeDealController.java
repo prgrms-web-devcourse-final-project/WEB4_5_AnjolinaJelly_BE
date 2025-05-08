@@ -38,7 +38,7 @@ public class TimeDealController {
 	}
 
 	@PostMapping("/api/admin/time-deals/modal")
-	@Operation(summary = "타임딜 생성 모달 상품 조회")
+	@Operation(summary = "타임딜 생성 모달 상품 조회", description = "타임딜 저장을 위한 모달을 생성합니다")
 	public BaseResponse<List<TimeDealModalCreateResponse>> getTimeDealModalItems(@RequestBody List<Long> itemIds) {
 		List<TimeDealModalCreateResponse> result = timeDealService.getModalItems(itemIds);
 		return BaseResponse.success(result);
