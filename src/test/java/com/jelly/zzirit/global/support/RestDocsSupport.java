@@ -12,12 +12,14 @@ import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import com.jelly.zzirit.global.redis.RedisTestContainerConfig;
+
 import io.restassured.specification.RequestSpecification;
 
 @AutoConfigureRestDocs
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ExtendWith({RestDocumentationExtension.class, SpringExtension.class})
-public abstract class RestDocsSupport {
+public abstract class RestDocsSupport extends RedisTestContainerConfig {
 
 	@LocalServerPort
 	int port;

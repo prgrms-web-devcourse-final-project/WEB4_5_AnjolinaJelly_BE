@@ -36,7 +36,6 @@ import jakarta.servlet.http.Cookie;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-@ActiveProfiles("test")
 class CartItemControllerTest extends RestDocsSupport {
 
 	@Autowired

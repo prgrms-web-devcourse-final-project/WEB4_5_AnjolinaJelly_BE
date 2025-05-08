@@ -3,11 +3,11 @@ package com.jelly.zzirit.global.support;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.test.context.ActiveProfiles;
 
 import com.jelly.zzirit.domain.member.entity.Member;
 import com.jelly.zzirit.domain.member.entity.authenum.Role;
 import com.jelly.zzirit.domain.member.repository.MemberRepository;
+import com.jelly.zzirit.global.redis.RedisTestContainerConfig;
 import com.jelly.zzirit.global.security.service.TokenService;
 import com.jelly.zzirit.global.security.util.AuthConst;
 
@@ -15,8 +15,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
 
 @SpringBootTest
-@ActiveProfiles("test")
-public abstract class TestMemberConfig {
+public abstract class TestMemberConfig extends RedisTestContainerConfig {
 
 	@Autowired
 	protected MemberRepository memberRepository;

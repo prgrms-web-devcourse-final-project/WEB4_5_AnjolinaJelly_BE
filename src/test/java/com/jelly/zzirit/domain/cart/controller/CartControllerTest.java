@@ -32,7 +32,6 @@ import com.jelly.zzirit.global.support.RestDocsSupport;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @Import(CartControllerTest.MockConfig.class)
-@ActiveProfiles("test")
 @Disabled
 class CartControllerTest extends RestDocsSupport {
 

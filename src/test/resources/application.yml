@@ -1,0 +1,91 @@
+#application-test.yml
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=MySQL;NON_KEYWORDS=USER
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  mail:
+    host: localhost
+    port: 1025
+    username: dummy
+    password: dummy
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.H2Dialect
+  sql:
+    init:
+      mode: never
+
+  jwt:
+    secret: testtesttesttesttesttesttesttesttesttesttesttesttesttesttest
+
+oauth2:
+  naver:
+    client-id: test-naver-client-id
+    client-secret: test-naver-client-secret
+    redirect-uri: http://localhost:8080/login/oauth2/code/naver
+
+  google:
+    client-id: test-google-client-id
+    client-secret: test-google-client-secret
+    redirect-uri: http://localhost:8080/login/oauth2/code/google
+
+  kakao:
+    client-id: test-kakao-client-id
+    redirect-uri: http://localhost:8080/login/oauth2/code/kakao
+
+custom:
+  site:
+    domain: localhost
+    back-url: http://localhost:8080
+    front-url: http://localhost:3000
+  file:
+    upload-dir: uploads/
+  upload:
+    max-image-size: 5MB
+    max-file-size: 20MB
+
+email:
+  fake-sending: true
+
+cloud:
+  aws:
+    credentials:
+      access-key: test-access
+      secret-key: test-secret
+    s3:
+      bucket: test-bucket
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false
+
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: debug
+
+toss:
+  payments:
+    secret-key: dummy
