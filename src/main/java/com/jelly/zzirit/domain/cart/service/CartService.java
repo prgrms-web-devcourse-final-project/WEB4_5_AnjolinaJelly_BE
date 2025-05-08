@@ -92,12 +92,14 @@ public class CartService {
 			})
 			.toList();
 
-		// 전체 수량 및 금액 집계
+		// 전체 수량 및 금액 집계 (품절 상품 제외)
 		int cartTotalQuantity = itemResponses.stream()
+			.filter(res -> !res.isSoldOut())
 			.mapToInt(CartItemResponse::getQuantity)
 			.sum();
 
 		int cartTotalPrice = itemResponses.stream()
+			.filter(res -> !res.isSoldOut())
 			.mapToInt(CartItemResponse::getTotalPrice)
 			.sum();
 
