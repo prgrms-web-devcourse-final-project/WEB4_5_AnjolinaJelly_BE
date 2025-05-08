@@ -1,5 +1,7 @@
 package com.jelly.zzirit.domain.adminItem.service;
 
+import java.util.Optional;
+
 import com.jelly.zzirit.domain.adminItem.dto.request.ItemCreateRequest;
 import com.jelly.zzirit.domain.adminItem.dto.request.ItemUpdateRequest;
 import com.jelly.zzirit.domain.item.entity.Item;
@@ -16,8 +18,11 @@ import com.jelly.zzirit.global.exception.custom.InvalidItemException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CommandAdminItemService {
@@ -72,12 +77,28 @@ public class CommandAdminItemService {
     public Empty deleteItem(@NotNull Long itemId) {
         // todo: 삭제 검증 로직 논의 필요 - 이미 판매된 상품은 삭제 불가 등
         // todo: soft delete 사용할지 논의 필요
+
         Item item = itemRepository.findById(itemId)
             .orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND));
+
+        // S3 이미지 삭제 처리
+        String imageUrl = item.getImageUrl();
+        if (imageUrl != null && !imageUrl.isBlank()) {
+            try {
+                s3Service.delete(imageUrl);
+            } catch (Exception e) {
+                log.warn("S3 이미지 삭제 실패: itemId={}, url={}", itemId, imageUrl, e);
+            }
+        } else {
+            log.info("삭제할 이미지 없음: itemId={}", itemId);
+        }
+
+        // 재고 삭제
         ItemStock itemStock = itemStockRepository.findByItemId(itemId)
             .orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_STOCK_NOT_FOUND));
-
         itemStockRepository.delete(itemStock);
+
+        // 상품 삭제
         itemRepository.delete(item);
 
         return Empty.getInstance();
