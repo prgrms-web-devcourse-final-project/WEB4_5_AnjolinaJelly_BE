@@ -1,6 +1,7 @@
 package com.jelly.zzirit.domain.adminItem.service;
 
 import com.jelly.zzirit.domain.adminItem.dto.request.ItemCreateRequest;
+import com.jelly.zzirit.domain.adminItem.dto.request.ItemUpdateRequest;
 import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.domain.item.entity.TypeBrand;
 import com.jelly.zzirit.domain.item.entity.stock.ItemStock;
@@ -49,23 +50,33 @@ public class CommandAdminItemService {
     }
 
     @Transactional
-    public Empty updateItem(@NotNull Long itemId, ItemCreateRequest request) {
+    public Empty updateItem(@NotNull Long itemId, ItemUpdateRequest request) {
 
         // 상품 조회, dto 보고 타입과 브랜드 조회
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND));
+
+        String imageUrl = item.getImageUrl();
+
         TypeBrand typeBrand = typeBrandRepository.findByTypeIdAndBrandId(request.typeId(), request.brandId())
-                .orElseThrow(() -> new InvalidItemException(BaseResponseStatus.TYPE_BRAND_NOT_FOUND)); // todo: 예외 처리 괜춘?
+                .orElseThrow(() -> new InvalidItemException(BaseResponseStatus.TYPE_BRAND_NOT_FOUND));
 
-        // 상품 업데이트
-        item.update(request, typeBrand);
+        ItemCreateRequest patchedRequest = new ItemCreateRequest(
+            request.name(),
+            request.stockQuantity(),
+            request.price(),
+            request.typeId(),
+            request.brandId(),
+            imageUrl
+        );
 
-        // 상품 재고 조회
-        ItemStock itemStock = itemStockRepository.findByItemId(itemId)
-            .orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_STOCK_NOT_FOUND));
+        // 상품 정보 업데이트
+        item.update(patchedRequest, typeBrand);
 
         // 상품 재고 업데이트
-        itemStock.update(request, item);
+        ItemStock itemStock = itemStockRepository.findByItemId(itemId)
+            .orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_STOCK_NOT_FOUND));
+        itemStock.update(patchedRequest, item);
 
         return Empty.getInstance();
     }
