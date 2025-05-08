@@ -35,6 +35,4 @@ networks:
 
 volumes:
   zzirit_mysql_data:
-  zzirit_mysql_test_data:
   zzirit_redis_data:
-  zzirit_redis_test_data:
