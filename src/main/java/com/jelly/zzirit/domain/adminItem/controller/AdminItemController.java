@@ -86,11 +86,14 @@ public class AdminItemController {
 	/**
 	 * (관리자) 상품 수정
 	 */
-	@Operation(summary = "관리자 상품 수정", description = "관리자가 id로 상품을 수정합니다.")
+	@Operation(summary = "관리자 상품 수정", description = "관리자가 id로 상품(재고, 가격)을 수정합니다.")
 	@PutMapping("/{itemId}")
-	public BaseResponse<Empty> updateItem(@PathVariable @NotNull Long itemId, @RequestBody @Valid ItemUpdateRequest request) {
+	public BaseResponse<Empty> updateItem(
+		@PathVariable @NotNull Long itemId,
+		@RequestBody @Valid ItemUpdateRequest request
+	) {
 		return BaseResponse.success(
-				commandAdminItemService.updateItem(itemId, request)
+			commandAdminItemService.updateItem(itemId, request)
 		);
 	}
 

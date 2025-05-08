@@ -3,8 +3,10 @@ package com.jelly.zzirit.domain.item.entity;
 import java.math.BigDecimal;
 
 import com.jelly.zzirit.domain.adminItem.dto.request.ItemCreateRequest;
+import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.dto.Empty;
 import com.jelly.zzirit.global.entity.BaseTime;
+import com.jelly.zzirit.global.exception.custom.InvalidItemException;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -50,6 +52,15 @@ public class Item extends BaseTime {
 		this.name = request.name();
 		this.price = request.price(); // todo: bigdecimal로 변경 필요
 		this.typeBrand = typeBrand;
+
+		return Empty.getInstance();
+	}
+
+	public Empty changePrice(BigDecimal newPrice) {
+		if (newPrice == null || newPrice.compareTo(BigDecimal.ZERO) < 0) {
+			throw new InvalidItemException(BaseResponseStatus.INVALID_PRICE);
+		}
+		this.price = newPrice;
 
 		return Empty.getInstance();
 	}
