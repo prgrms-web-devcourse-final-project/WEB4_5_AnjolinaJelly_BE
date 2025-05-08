@@ -17,7 +17,6 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class TypeBrand extends BaseTime {
 
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -27,5 +26,10 @@ public class TypeBrand extends BaseTime {
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "brand_id")
 	private Brand brand;
+
+	public TypeBrand(Type type, Brand brand) {
+		this.type = type;
+		this.brand = brand;
+	}
 }
 
