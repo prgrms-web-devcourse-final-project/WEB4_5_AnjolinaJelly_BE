@@ -126,16 +126,7 @@ public class TimeDealService {
 			timeDeals = timeDealRepository.findByNameContaining(timeDealName);
 
 			timeDeals.forEach(timeDeal -> {
-				// 타임딜 상태 필터링
-				if (status != null && timeDeal.getStatus() != status)
-					return;
-
-				// 타임딜에 포함된 아이템 리스트 조회 후 반환 형식 변환
-				List<TimeDealItem> tdItems = timeDealItemRepository.findAllByTimeDeal(timeDeal);
-				List<TimeDealSearchResponse.TimeDealSearchItem> items = tdItems.stream()
-					.map(this::toSearchTimeDealItem)
-					.toList();
-				result.add(toSearchTimeDeal(timeDeal, items));
+				addFilteredTimeDealToResult(timeDeal, result, status);
 			});
 		}
 
@@ -144,15 +135,8 @@ public class TimeDealService {
 
 			TimeDeal timeDeal = timeDealRepository.findById(timeDealId).orElse(null);
 
-			// 타임딜 상태 필터링
-			if (timeDeal != null && (status == null || timeDeal.getStatus() == status)) {
-
-				// 타임딜에 포함된 아이템 리스트 조회 후 반환 형식 변환
-				List<TimeDealItem> tdItems = timeDealItemRepository.findAllByTimeDeal(timeDeal);
-				List<TimeDealSearchResponse.TimeDealSearchItem> items = tdItems.stream()
-					.map(this::toSearchTimeDealItem)
-					.toList();
-				result.add(toSearchTimeDeal(timeDeal, items));
+			if (timeDeal != null) {
+				addFilteredTimeDealToResult(timeDeal, result, status);
 			}
 		}
 
@@ -179,11 +163,7 @@ public class TimeDealService {
 		if (timeDealItemId != null) {
 			TimeDealItem timeDealItem = timeDealItemRepository.findTimeDealItemById(timeDealItemId);
 			if (timeDealItem != null) {
-				TimeDeal timeDeal = timeDealItem.getTimeDeal();
-				if (status == null || timeDeal.getStatus() == status) {
-					List<TimeDealSearchResponse.TimeDealSearchItem> items = List.of(toSearchTimeDealItem(timeDealItem));
-					result.add(toSearchTimeDeal(timeDeal, items));
-				}
+				addFilteredTimeDealToResult(timeDealItem.getTimeDeal(), result, status);
 			}
 		}
 
@@ -195,15 +175,7 @@ public class TimeDealService {
 
 			//타임딜 상태 필터링
 			timeDeals.forEach(timeDeal -> {
-				if (status != null && timeDeal.getStatus() != status)
-					return;
-
-				// 타임딜에 포함된 아이템 리스트 조회 후 반환 형식 변환
-				List<TimeDealItem> tdItems = timeDealItemRepository.findAllByTimeDeal(timeDeal);
-				List<TimeDealSearchResponse.TimeDealSearchItem> items = tdItems.stream()
-					.map(this::toSearchTimeDealItem)
-					.toList();
-				result.add(toSearchTimeDeal(timeDeal, items));
+				addFilteredTimeDealToResult(timeDeal, result, status);
 			});
 		}
 
@@ -220,6 +192,19 @@ public class TimeDealService {
 			(int)Math.ceil((double)result.size() / size),
 			end >= result.size()
 		);
+	}
+
+	// 타임딜 상태 조건(진행 예정, 진행중, 종료)을 만족하는 경우, 타임딜과 관련된 아이템 정보를 응답 리스트에 추가합니다.
+	private void addFilteredTimeDealToResult(TimeDeal timeDeal, List<TimeDealSearchResponse> result,
+		TimeDeal.TimeDealStatus status) {
+		if (status != null && timeDeal.getStatus() != status)
+			return;
+
+		List<TimeDealItem> tdItems = timeDealItemRepository.findAllByTimeDeal(timeDeal);
+		List<TimeDealSearchResponse.TimeDealSearchItem> items = tdItems.stream()
+			.map(this::toSearchTimeDealItem)
+			.toList();
+		result.add(toSearchTimeDeal(timeDeal, items));
 	}
 
 	// 타임딜 아이템을 응답 형식으로 변환
