@@ -12,7 +12,6 @@ import org.springframework.test.context.ActiveProfiles;
 
 import com.jelly.zzirit.global.redis.RedisService;
 
-@ActiveProfiles("test")
 class EmailVerificationServiceTest {
 
 	@Mock

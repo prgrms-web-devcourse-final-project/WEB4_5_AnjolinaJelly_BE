@@ -15,7 +15,6 @@ import org.springframework.test.context.ActiveProfiles;
 
 import com.jelly.zzirit.global.exception.custom.InvalidUserException;
 
-@ActiveProfiles("test")
 class EmailServiceTest {
 
 	@Mock
