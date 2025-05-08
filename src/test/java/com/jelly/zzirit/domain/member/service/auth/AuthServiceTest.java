@@ -21,7 +21,6 @@ import com.jelly.zzirit.domain.member.util.PasswordManager;
 import com.jelly.zzirit.global.exception.custom.InvalidUserException;
 import com.jelly.zzirit.global.redis.RedisService;
 
-@ActiveProfiles("test")
 class AuthServiceTest {
 
 	@Mock

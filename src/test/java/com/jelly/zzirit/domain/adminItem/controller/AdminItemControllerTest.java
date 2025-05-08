@@ -1,6 +1,7 @@
 package com.jelly.zzirit.domain.adminItem.controller;
 
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.snippet.Attributes.*;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -8,19 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.restdocs.payload.FieldDescriptor;
-import org.springframework.test.context.ActiveProfiles;
-import static org.springframework.restdocs.snippet.Attributes.key;
+
 import com.jelly.zzirit.domain.member.entity.authenum.Role;
 import com.jelly.zzirit.global.security.util.JwtUtil;
 import com.jelly.zzirit.global.support.OpenApiDocumentationFilter;
 import com.jelly.zzirit.global.support.RestDocsSupport;
 
-// SpringBootTest 환경 설정
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-// MockMvc 자동 설정
 @AutoConfigureMockMvc
-// 테스트용 설정 파일 사용 (application-test.yml)
-@ActiveProfiles("test")
 @Disabled
 class AdminItemControllerTest extends RestDocsSupport {
 
