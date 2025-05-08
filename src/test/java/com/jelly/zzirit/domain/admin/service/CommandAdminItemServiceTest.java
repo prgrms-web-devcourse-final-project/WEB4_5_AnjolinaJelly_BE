@@ -152,4 +152,53 @@ public class CommandAdminItemServiceTest {
         verify(itemStock).changeQuantity(50);              // 수량 변경 확인
         assertSame(Empty.getInstance(), result);           // 반환 값 확인
     }
+
+    @Test
+    void 상품이_없으면_예외를_던진다() {
+        // given
+        Long itemId = 2L;
+
+        when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
+
+        // when & then
+        InvalidItemException exception = assertThrows(InvalidItemException.class,
+                () -> commandAdminItemService.deleteItem(itemId));
+
+        assertEquals(BaseResponseStatus.ITEM_NOT_FOUND, exception.getStatus());
+    }
+
+    @Test
+    void 재고가_없으면_예외를_던진다() {
+        // given
+        Long itemId = 3L;
+        Item item = mock(Item.class);
+
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+        when(itemStockRepository.findByItemId(itemId)).thenReturn(Optional.empty());
+
+        // when & then
+        InvalidItemException exception = assertThrows(InvalidItemException.class,
+                () -> commandAdminItemService.deleteItem(itemId));
+
+        assertEquals(BaseResponseStatus.ITEM_STOCK_NOT_FOUND, exception.getStatus());
+    }
+
+    @Test
+    void 정상적으로_상품과_재고가_삭제된다() {
+        // given
+        Long itemId = 1L;
+        Item item = mock(Item.class);
+        ItemStock itemStock = mock(ItemStock.class);
+
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+        when(itemStockRepository.findByItemId(itemId)).thenReturn(Optional.of(itemStock));
+
+        // when
+        Empty result = commandAdminItemService.deleteItem(itemId);
+
+        // then
+        verify(itemStockRepository).delete(itemStock); // 재고 삭제 호출 확인
+        verify(itemRepository).delete(item);           // 상품 삭제 호출 확인
+        assertSame(Empty.getInstance(), result);       // 반환값 검증
+    }
 }
