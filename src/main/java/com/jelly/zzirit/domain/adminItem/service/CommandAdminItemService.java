@@ -1,6 +1,7 @@
 package com.jelly.zzirit.domain.adminItem.service;
 
 import com.jelly.zzirit.domain.adminItem.dto.request.ItemCreateRequest;
+import com.jelly.zzirit.domain.adminItem.dto.request.ItemUpdateRequest;
 import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.domain.item.entity.TypeBrand;
 import com.jelly.zzirit.domain.item.entity.stock.ItemStock;
@@ -49,23 +50,20 @@ public class CommandAdminItemService {
     }
 
     @Transactional
-    public Empty updateItem(@NotNull Long itemId, ItemCreateRequest request) {
-
-        // 상품 조회, dto 보고 타입과 브랜드 조회
+    public Empty updateItem(@NotNull Long itemId, ItemUpdateRequest request) {
         Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND));
-        TypeBrand typeBrand = typeBrandRepository.findByTypeIdAndBrandId(request.typeId(), request.brandId())
-                .orElseThrow(() -> new InvalidItemException(BaseResponseStatus.TYPE_BRAND_NOT_FOUND)); // todo: 예외 처리 괜춘?
+            .orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND));
 
-        // 상품 업데이트
-        item.update(request, typeBrand);
-
-        // 상품 재고 조회
         ItemStock itemStock = itemStockRepository.findByItemId(itemId)
             .orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_STOCK_NOT_FOUND));
 
-        // 상품 재고 업데이트
-        itemStock.update(request, item);
+        if (request.price() != null) {
+            item.changePrice(request.price());
+        }
+
+        if (request.stockQuantity() != null) {
+            itemStock.changeQuantity(request.stockQuantity());
+        }
 
         return Empty.getInstance();
     }
