@@ -2,6 +2,7 @@ package com.jelly.zzirit.domain.cart.controller;
 
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
+import static org.springframework.restdocs.snippet.Attributes.*;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,16 +11,16 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.restdocs.payload.FieldDescriptor;
 import org.springframework.restdocs.request.ParameterDescriptor;
 import org.springframework.test.context.ActiveProfiles;
-import static org.springframework.restdocs.snippet.Attributes.key;
+
 import com.jelly.zzirit.domain.member.entity.authenum.Role;
 import com.jelly.zzirit.global.security.util.JwtUtil;
+import com.jelly.zzirit.global.accptance.AcceptanceTest;
 import com.jelly.zzirit.global.support.OpenApiDocumentationFilter;
-import com.jelly.zzirit.global.support.RestDocsSupport;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-class CartControllerTest extends RestDocsSupport {
+class CartControllerTest extends AcceptanceTest {
 
 	@Autowired
 	private JwtUtil jwtUtil;

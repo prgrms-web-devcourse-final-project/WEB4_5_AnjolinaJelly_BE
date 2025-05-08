@@ -10,10 +10,10 @@ import org.springframework.restdocs.payload.FieldDescriptor;
 
 import com.jelly.zzirit.domain.member.entity.authenum.Role;
 import com.jelly.zzirit.global.security.util.JwtUtil;
+import com.jelly.zzirit.global.accptance.AcceptanceTest;
 import com.jelly.zzirit.global.support.OpenApiDocumentationFilter;
-import com.jelly.zzirit.global.support.RestDocsSupport;
 
-public class BrandControllerTest extends RestDocsSupport {
+public class BrandControllerTest extends AcceptanceTest {
 
 	@Autowired
 	private JwtUtil jwtUtil;
