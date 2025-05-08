@@ -56,6 +56,24 @@ public class RefundService {
 		}
 	}
 
+	private void requestTossRefund(String paymentKey, BigDecimal amount) {
+		String url = "https://api.tosspayments.com/v1/payments/" + paymentKey + "/cancel";
+
+		HttpHeaders headers = getHeaders();
+
+		Map<String, Object> body = Map.of(
+			"cancelReason", "결제 후 주문 처리 실패로 인한 자동 환불",
+			"cancelAmount", amount
+		);
+
+		HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
+		ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, request, String.class);
+
+		if (!response.getStatusCode().is2xxSuccessful()) {
+			throw new InvalidOrderException(BaseResponseStatus.TOSS_REFUND_FAILED);
+		}
+	}
+
 	/**
 	 * 주문 취소 요청에 따른 결제 취소
 	 * @param orderId 취소할 주문의 아이디
@@ -87,26 +105,6 @@ public class RefundService {
 		}
 	}
 
-	private void requestTossRefund(String paymentKey, BigDecimal amount) {
-		String url = "https://api.tosspayments.com/v1/payments/" + paymentKey + "/cancel";
-
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		headers.setBasicAuth(secretKey);
-
-		Map<String, Object> body = Map.of(
-			"cancelReason", "결제 후 주문 처리 실패로 인한 자동 환불",
-			"cancelAmount", amount
-		);
-
-		HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
-		ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, request, String.class);
-
-		if (!response.getStatusCode().is2xxSuccessful()) {
-			throw new InvalidOrderException(BaseResponseStatus.TOSS_REFUND_FAILED);
-		}
-	}
-
 	private HttpHeaders getHeaders() {
 		HttpHeaders headers = new HttpHeaders();
 		String encodedKey = Base64.getEncoder().encodeToString((secretKey + ":").getBytes(StandardCharsets.UTF_8));
@@ -125,5 +123,4 @@ public class RefundService {
 
 		return body;
 	}
-
 }

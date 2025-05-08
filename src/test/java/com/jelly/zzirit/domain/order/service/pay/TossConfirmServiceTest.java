@@ -56,7 +56,7 @@ class TossConfirmServiceTest {
 		tossConfirmService.confirmPayment(paymentKey, orderId, amount);
 
 		// then
-		verify(tempOrderService).confirmTempOrder(paymentKey, orderId, amount, mockResponse);
+		verify(tempOrderService).confirmTempOrder(mockResponse);
 	}
 
 	@Test
