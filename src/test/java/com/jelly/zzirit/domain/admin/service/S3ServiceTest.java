@@ -1,15 +1,7 @@
-package com.jelly.zzirit.domain.adminItem.service;
+package com.jelly.zzirit.domain.admin.service;
 
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.util.ResourceUtils;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

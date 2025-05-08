@@ -1,4 +1,4 @@
-package com.jelly.zzirit.domain.adminItem.dto.response;
+package com.jelly.zzirit.domain.admin.dto.response;
 
 import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.domain.item.entity.stock.ItemStock;

@@ -1,6 +1,6 @@
-package com.jelly.zzirit.domain.adminItem.service;
+package com.jelly.zzirit.domain.admin.service;
 
-import com.jelly.zzirit.domain.adminItem.dto.response.AdminItemResponse;
+import com.jelly.zzirit.domain.admin.dto.response.AdminItemResponse;
 import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.domain.item.entity.stock.ItemStock;
 import com.jelly.zzirit.domain.item.repository.ItemStockRepository;
