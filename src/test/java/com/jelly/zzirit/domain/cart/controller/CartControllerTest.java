@@ -18,7 +18,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.restdocs.payload.FieldDescriptor;
-import org.springframework.test.context.ActiveProfiles;
 
 import com.jelly.zzirit.domain.cart.dto.response.CartItemResponse;
 import com.jelly.zzirit.domain.cart.dto.response.CartResponse;
