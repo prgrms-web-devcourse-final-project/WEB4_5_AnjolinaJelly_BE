@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 public record ItemCreateRequest (
     @NotBlank String name, // validity check
     @PositiveOrZero int stockQuantity,
-    @PositiveOrZero int price,
+    @PositiveOrZero BigDecimal price,
     @NotNull Long typeId,
     @NotNull Long brandId,
     @NotBlank String imageUrl
@@ -20,7 +20,7 @@ public record ItemCreateRequest (
         return Item.builder()
                 .name(name)
                 .imageUrl(imageUrl)
-                .price(BigDecimal.valueOf(price)) // todo: int->bigdecimal로 변경 필요
+                .price(price) // todo: int->bigdecimal로 변경 필요
                 .typeBrand(typeBrand)
                 .itemStatus(ItemStatus.NONE) // todo: item status 업데이트 로직 추가
                 .build();

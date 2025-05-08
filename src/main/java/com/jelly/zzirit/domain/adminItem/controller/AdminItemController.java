@@ -38,7 +38,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/admin/item")
+@RequestMapping("/api/admin/items")
 @RequiredArgsConstructor
 @Tag(name = "관리자 상품 API", description = "관리자 상품 기능을 제공합니다.")
 public class AdminItemController {
