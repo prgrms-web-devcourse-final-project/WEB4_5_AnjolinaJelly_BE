@@ -6,7 +6,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +18,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jelly.zzirit.domain.item.dto.request.TimeDealCreateRequest;
 import com.jelly.zzirit.domain.item.dto.response.timeDeal.TimeDealModalCreateResponse;
+import com.jelly.zzirit.domain.item.repository.ItemStockRepository;
+import com.jelly.zzirit.domain.item.repository.TimeDealItemRepository;
+import com.jelly.zzirit.domain.item.repository.TimeDealRepository;
 import com.jelly.zzirit.domain.member.entity.authenum.Role;
 import com.jelly.zzirit.global.security.util.JwtUtil;
 import com.jelly.zzirit.testutil.TimeDealTestHelper;
@@ -26,7 +29,6 @@ import jakarta.servlet.http.Cookie;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@Disabled
 public class TimeDealControllerTest {
 
 	@Autowired
@@ -40,6 +42,22 @@ public class TimeDealControllerTest {
 
 	@Autowired
 	TimeDealTestHelper timeDealTestHelper;
+
+	@Autowired
+	private TimeDealItemRepository timeDealItemRepository;
+
+	@Autowired
+	private TimeDealRepository timeDealRepository;
+
+	@Autowired
+	private ItemStockRepository itemStockRepository;
+
+	@BeforeEach
+	void cleanUp() {
+		timeDealItemRepository.deleteAllInBatch();
+		timeDealRepository.deleteAllInBatch();
+		itemStockRepository.deleteAllInBatch();
+	}   // 재고 삭제
 
 	@Test
 	void 타임딜_등록_성공() throws Exception {
