@@ -34,6 +34,6 @@ public class QueryTypeServiceTest {
 		List<TypeResponse> 응답 = queryTypeService.getAll();
 
 		// then
-		assertThat(응답.size()).isEqualTo(mockTypes.size());
+		assertThat(응답).hasSize(mockTypes.size());
 	}
 }

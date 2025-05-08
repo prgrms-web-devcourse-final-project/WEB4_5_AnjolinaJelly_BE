@@ -38,7 +38,7 @@ public class BrandControllerTest extends AcceptanceTest {
 	private TypeRepository typeRepository;
 
 	@Test
-	void 상품_종류로_브랜드_조회_API() {
+	void 상품_종류로_브랜드_조회하면_200() {
 		// when
 		Type 노트북 = typeRepository.save(노트북());
 		Brand 삼성 = brandRepository.save(삼성());
@@ -64,11 +64,6 @@ public class BrandControllerTest extends AcceptanceTest {
 		return OpenApiDocumentationFilter.ofWithResponseFields(
 			"상품 종류로 브랜드 조회",
 			new FieldDescriptor[] {
-				fieldWithPath("success").description("요청 성공 여부")
-					.attributes(
-					key("title").value("BrandResponse"),   // 스키마 이름
-					key("tags").value("brand")             // Swagger 그룹
-				),
 				fieldWithPath("success").description("요청 성공 여부").type(BOOLEAN),
 				fieldWithPath("code").description("응답 코드").type(NUMBER),
 				fieldWithPath("httpStatus").description("HTTP 상태").type(NUMBER),

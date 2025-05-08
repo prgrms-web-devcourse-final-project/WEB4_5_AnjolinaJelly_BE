@@ -3,10 +3,8 @@ package com.jelly.zzirit.domain.item.dto.response;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import com.jelly.zzirit.domain.item.entity.Brand;
 import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.domain.item.entity.ItemStatus;
-import com.jelly.zzirit.domain.item.entity.Type;
 import com.jelly.zzirit.domain.item.entity.timedeal.TimeDealItem;
 
 public record ItemResponse(

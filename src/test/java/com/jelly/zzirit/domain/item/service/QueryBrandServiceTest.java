@@ -1,6 +1,7 @@
 package com.jelly.zzirit.domain.item.service;
 
 import static com.jelly.zzirit.domain.item.domain.fixture.BrandFixture.*;
+import static com.jelly.zzirit.domain.item.domain.fixture.TypeBrandFixture.*;
 import static com.jelly.zzirit.domain.item.domain.fixture.TypeFixture.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
@@ -38,13 +39,13 @@ public class QueryBrandServiceTest {
 		Brand brand1 = 삼성();
 		Brand brand2 = 브랜드_생성("LG");
 
-		List<TypeBrand> mockBrands = List.of(new TypeBrand(type, brand1), new TypeBrand(type, brand2));
+		List<TypeBrand> mockBrands = List.of(타입_브랜드_생성(type, brand1), 타입_브랜드_생성(type, brand2));
 		given(typeBrandRepository.findByTypeId(1L)).willReturn(mockBrands);
 
 		// when
 		List<BrandResponse> 응답 = queryBrandService.getByType(1L);
 
 		// then
-		assertThat(응답.size()).isEqualTo(2);
+		assertThat(응답).hasSize(2);
 	}
 }

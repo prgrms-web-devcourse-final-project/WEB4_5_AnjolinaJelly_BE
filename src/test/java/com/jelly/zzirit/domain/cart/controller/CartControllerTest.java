@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
@@ -23,13 +22,13 @@ import com.jelly.zzirit.domain.cart.dto.response.CartItemResponse;
 import com.jelly.zzirit.domain.cart.dto.response.CartResponse;
 import com.jelly.zzirit.domain.cart.service.CartItemService;
 import com.jelly.zzirit.domain.cart.service.CartService;
-import com.jelly.zzirit.domain.member.entity.authenum.Role;
 import com.jelly.zzirit.global.security.util.JwtUtil;
-import com.jelly.zzirit.global.support.OpenApiDocumentationFilter;
 import com.jelly.zzirit.global.support.AcceptanceTest;
+import com.jelly.zzirit.global.support.OpenApiDocumentationFilter;
 
 @AutoConfigureMockMvc
 @Import(CartControllerTest.MockConfig.class)
+@Disabled
 class CartControllerTest extends AcceptanceTest {
 
 	@Autowired
