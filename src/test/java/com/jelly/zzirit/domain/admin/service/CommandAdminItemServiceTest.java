@@ -38,7 +38,7 @@ public class CommandAdminItemServiceTest {
     private S3Service s3Service;
 
     @Test
-    void 이미지가_없으면_예외를_던진다() {
+    void 관리자_상품_등록_이미지가_없으면_예외를_던진다() {
         // given: 빈 이미지 URL로 생성 요청을 구성
         ItemCreateRequest request = new ItemCreateRequest(
                 "상품 이름", 30, new BigDecimal("100000"), 1L, 1L, ""
@@ -50,7 +50,7 @@ public class CommandAdminItemServiceTest {
     }
 
     @Test
-    void TypeBrand가_없으면_예외를_던진다() {
+    void 관리자_상품_등록_TypeBrand가_없으면_예외를_던진다() {
         // given: 정상적인 이미지와 요청 데이터 구성
         ItemCreateRequest request = new ItemCreateRequest(
                 "상품 이름", 30, new BigDecimal("100000"), 1L, 1L, "http://image.com/item.jpg"
@@ -66,7 +66,7 @@ public class CommandAdminItemServiceTest {
     }
 
     @Test
-    void 정상적인_요청이면_Item과_Stock을_저장하고_Empty를_반환한다() {
+    void 관리자_상품_등록_정상적인_요청이면_Item과_Stock을_저장하고_Empty를_반환한다() {
         // given: 가짜 TypeBrand 객체 생성
         TypeBrand typeBrand = mock(TypeBrand.class);
 
@@ -97,7 +97,7 @@ public class CommandAdminItemServiceTest {
     }
 
     @Test
-    void 상품이_존재하지_않으면_예외를_던진다() {
+    void 관리자_상품_수정_상품이_존재하지_않으면_예외를_던진다() {
         // given
         Long itemId = 1L;
         ItemUpdateRequest request = new ItemUpdateRequest(10, new BigDecimal("10000"));
@@ -112,7 +112,7 @@ public class CommandAdminItemServiceTest {
     }
 
     @Test
-    void 재고가_존재하지_않으면_예외를_던진다() {
+    void 관리자_상품_수정_재고가_존재하지_않으면_예외를_던진다() {
         // given
         Long itemId = 1L;
         Item item = mock(Item.class);
@@ -129,7 +129,7 @@ public class CommandAdminItemServiceTest {
     }
 
     @Test
-    void 정상적으로_상품과_재고가_수정된다() {
+    void 관리자_상품_수정_정상적으로_상품과_재고가_수정된다() {
         // given
         Long itemId = 1L;
         Item item = mock(Item.class);           // 상품 mock
@@ -154,7 +154,7 @@ public class CommandAdminItemServiceTest {
     }
 
     @Test
-    void 상품이_없으면_예외를_던진다() {
+    void 관리자_상품_삭제_상품이_없으면_예외를_던진다() {
         // given
         Long itemId = 2L;
 
@@ -168,7 +168,7 @@ public class CommandAdminItemServiceTest {
     }
 
     @Test
-    void 재고가_없으면_예외를_던진다() {
+    void 관리자_상품_삭제_재고가_없으면_예외를_던진다() {
         // given
         Long itemId = 3L;
         Item item = mock(Item.class);
@@ -184,7 +184,7 @@ public class CommandAdminItemServiceTest {
     }
 
     @Test
-    void 정상적으로_상품과_재고가_삭제된다() {
+    void 관리자_상품_삭제_정상적으로_상품과_재고가_삭제된다() {
         // given
         Long itemId = 1L;
         Item item = mock(Item.class);
@@ -200,5 +200,55 @@ public class CommandAdminItemServiceTest {
         verify(itemStockRepository).delete(itemStock); // 재고 삭제 호출 확인
         verify(itemRepository).delete(item);           // 상품 삭제 호출 확인
         assertSame(Empty.getInstance(), result);       // 반환값 검증
+    }
+
+    @Test
+    void 관리자_상품_이미지수정_상품이_없으면_예외를_던진다() {
+        // given
+        Long itemId = 3L;
+        when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
+
+        // when & then
+        InvalidItemException exception = assertThrows(InvalidItemException.class,
+                () -> commandAdminItemService.updateImageUrl(itemId, "https://s3.new.img"));
+
+        assertEquals(BaseResponseStatus.ITEM_NOT_FOUND, exception.getStatus());
+    }
+
+    @Test
+    void 관리자_상품_이미지수정_기존이미지와_같으면_S3삭제없이_이미지만_설정한다() {
+        // given
+        Long itemId = 2L;
+        String sameUrl = "https://s3.bucket/image.jpg";
+
+        Item item = mock(Item.class);
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+        when(item.getImageUrl()).thenReturn(sameUrl);
+
+        // when
+        commandAdminItemService.updateImageUrl(itemId, sameUrl);
+
+        // then
+        verify(s3Service, never()).delete(any());  // ❌ 삭제 X
+        verify(item).setImageUrl(sameUrl);         // ✅ 그대로 설정은 함
+    }
+
+    @Test
+    void 관리자_상품_이미지수정_기존이미지와_다르면_S3에서_삭제하고_새이미지로_변경한다() {
+        // given
+        Long itemId = 1L;
+        String oldUrl = "https://s3.bucket/old-image.jpg";
+        String newUrl = "https://s3.bucket/new-image.jpg";
+
+        Item item = mock(Item.class);
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+        when(item.getImageUrl()).thenReturn(oldUrl);
+
+        // when
+        commandAdminItemService.updateImageUrl(itemId, newUrl);
+
+        // then
+        verify(s3Service).delete(oldUrl);          // ✅ S3에서 삭제
+        verify(item).setImageUrl(newUrl);          // ✅ 이미지 URL 변경
     }
 }
