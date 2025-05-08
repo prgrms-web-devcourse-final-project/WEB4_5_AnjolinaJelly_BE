@@ -1,6 +1,7 @@
 package com.jelly.zzirit.domain.admin.service;
 
 import com.jelly.zzirit.domain.admin.dto.request.ItemCreateRequest;
+import com.jelly.zzirit.domain.admin.dto.request.ItemUpdateRequest;
 import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.domain.item.entity.TypeBrand;
 import com.jelly.zzirit.domain.item.entity.stock.ItemStock;
@@ -93,5 +94,62 @@ public class CommandAdminItemServiceTest {
         verify(itemRepository).save(item);              // 상품 저장 확인
         verify(itemStockRepository).save(itemStock);    // 재고 저장 확인
         assertSame(Empty.getInstance(), result);        // 반환값이 Empty 싱글턴인지 확인
+    }
+
+    @Test
+    void 상품이_존재하지_않으면_예외를_던진다() {
+        // given
+        Long itemId = 1L;
+        ItemUpdateRequest request = new ItemUpdateRequest(10, new BigDecimal("10000"));
+
+        when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
+
+        // when & then
+        InvalidItemException exception = assertThrows(InvalidItemException.class,
+                () -> commandAdminItemService.updateItem(itemId, request));
+
+        assertEquals(BaseResponseStatus.ITEM_NOT_FOUND, exception.getStatus());
+    }
+
+    @Test
+    void 재고가_존재하지_않으면_예외를_던진다() {
+        // given
+        Long itemId = 1L;
+        Item item = mock(Item.class);
+        ItemUpdateRequest request = new ItemUpdateRequest(30, new BigDecimal("15000"));
+
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+        when(itemStockRepository.findByItemId(itemId)).thenReturn(Optional.empty());
+
+        // when & then
+        InvalidItemException exception = assertThrows(InvalidItemException.class,
+                () -> commandAdminItemService.updateItem(itemId, request));
+
+        assertEquals(BaseResponseStatus.ITEM_STOCK_NOT_FOUND, exception.getStatus());
+    }
+
+    @Test
+    void 정상적으로_상품과_재고가_수정된다() {
+        // given
+        Long itemId = 1L;
+        Item item = mock(Item.class);           // 상품 mock
+        ItemStock itemStock = mock(ItemStock.class); // 재고 mock
+
+        // 요청: 가격, 재고 수정
+        ItemUpdateRequest request = new ItemUpdateRequest(
+                50, new BigDecimal("20000")
+        );
+
+        // mock 객체 반환 설정
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+        when(itemStockRepository.findByItemId(itemId)).thenReturn(Optional.of(itemStock));
+
+        // when
+        Empty result = commandAdminItemService.updateItem(itemId, request);
+
+        // then
+        verify(item).changePrice(new BigDecimal("20000")); // 가격 변경 확인
+        verify(itemStock).changeQuantity(50);              // 수량 변경 확인
+        assertSame(Empty.getInstance(), result);           // 반환 값 확인
     }
 }
