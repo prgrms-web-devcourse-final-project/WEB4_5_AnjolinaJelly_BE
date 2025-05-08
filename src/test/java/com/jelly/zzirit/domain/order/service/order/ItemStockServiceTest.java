@@ -12,11 +12,12 @@ import com.jelly.zzirit.domain.item.entity.stock.ItemStock;
 import com.jelly.zzirit.domain.item.repository.ItemStockRepository;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
+import com.jelly.zzirit.global.redis.RedisTestContainerConfig;
 
 @SpringBootTest
 @ActiveProfiles("test")
 @Commit
-class ItemStockServiceIntegrationTest {
+class ItemStockServiceTest extends RedisTestContainerConfig {
 
 	@Autowired
 	private ItemStockService itemStockService;
