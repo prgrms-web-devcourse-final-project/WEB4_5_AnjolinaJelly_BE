@@ -39,7 +39,7 @@ public class TossConfirmService {
 	public void confirmPayment(String paymentKey, String orderNumber, String amount) {
 		confirmToToss(paymentKey, orderNumber, amount);
 		TossPaymentResponse paymentInfo = fetchPaymentInfo(paymentKey);
-		tempOrderService.confirmTempOrder(paymentKey, orderNumber, amount, paymentInfo);
+		tempOrderService.confirmTempOrder(paymentInfo);
 	}
 
 	private TossPaymentResponse fetchPaymentInfo(String paymentKey) {
