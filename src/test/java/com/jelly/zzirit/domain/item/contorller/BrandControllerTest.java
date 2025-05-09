@@ -1,5 +1,6 @@
 package com.jelly.zzirit.domain.item.contorller;
 
+import static com.epages.restdocs.apispec.RestAssuredRestDocumentationWrapper.*;
 import static com.jelly.zzirit.domain.item.domain.fixture.BrandFixture.*;
 import static com.jelly.zzirit.domain.item.domain.fixture.TypeBrandFixture.*;
 import static com.jelly.zzirit.domain.item.domain.fixture.TypeFixture.*;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.restdocs.payload.FieldDescriptor;
 
+import com.epages.restdocs.apispec.RestAssuredRestDocumentationWrapper;
 import com.jelly.zzirit.domain.item.entity.Brand;
 import com.jelly.zzirit.domain.item.entity.Type;
 import com.jelly.zzirit.domain.item.repository.BrandRepository;
@@ -61,16 +63,19 @@ public class BrandControllerTest extends AcceptanceTest {
 	}
 
 	private Filter 성공_API_문서_생성() {
-		return OpenApiDocumentationFilter.ofWithResponseFields(
+		return document(
 			"상품 종류로 브랜드 조회",
-			new FieldDescriptor[] {
+			resourceDetails()
+				.summary("상품 종류로 브랜드 조회하기")
+				.description("상품 종류 Id로 브랜드를 조회합니다."),
+			responseFields(
 				fieldWithPath("success").description("요청 성공 여부").type(BOOLEAN),
 				fieldWithPath("code").description("응답 코드").type(NUMBER),
 				fieldWithPath("httpStatus").description("HTTP 상태").type(NUMBER),
 				fieldWithPath("message").description("응답 메시지").type(STRING),
 				fieldWithPath("result[].brandId").description("브랜드 ID").type(NUMBER),
 				fieldWithPath("result[].name").description("브랜드 이름").type(STRING)
-			}
+			)
 		);
 	}
 }
