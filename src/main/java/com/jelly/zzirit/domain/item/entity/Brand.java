@@ -18,4 +18,7 @@ public class Brand extends BaseTime {
 	@Column(name = "name", nullable = false, length = 100)
 	private String name;
 
+	public Brand(String name) {
+		this.name = name;
+	}
 }

@@ -15,9 +15,9 @@ public record SimpleItemResponse(
 	String imageUrl,
 	BigDecimal originalPrice,
 	BigDecimal discountedPrice,
-	ItemStatus timeDealStatus,
+	ItemStatus itemStatus,
 	Integer discountRatio,
-	LocalDateTime endTime
+	LocalDateTime endTimeDeal
 ) {
 
 	public static SimpleItemResponse from(TimeDealItem timeDealItem) {
