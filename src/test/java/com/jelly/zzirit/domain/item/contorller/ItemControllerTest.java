@@ -146,7 +146,7 @@ public class ItemControllerTest extends AcceptanceTest {
 	}
 
 	@Nested
-	@DisplayName("식품 상세 조회 API")
+	@DisplayName("상품 상세 조회 API")
 	class getItem {
 
 		@Test
@@ -174,7 +174,7 @@ public class ItemControllerTest extends AcceptanceTest {
 
 		private RestDocumentationFilter 상세_조회_성공_API_문서_생성() {
 			return document(
-				"식품 상세 조회 API",
+				"상품 상세 조회 API",
 				resourceDetails()
 					.summary("상품 상세 조회하기")
 					.description("상품 상세를 조회합니다."),
