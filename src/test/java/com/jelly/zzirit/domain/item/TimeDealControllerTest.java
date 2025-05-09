@@ -19,13 +19,14 @@ import com.jelly.zzirit.domain.item.dto.request.TimeDealCreateRequest;
 import com.jelly.zzirit.domain.item.dto.response.timeDeal.TimeDealModalCreateResponse;
 import com.jelly.zzirit.domain.member.entity.authenum.Role;
 import com.jelly.zzirit.global.security.util.JwtUtil;
+import com.jelly.zzirit.global.support.AcceptanceTest;
 import com.jelly.zzirit.testutil.TimeDealTestHelper;
 
 import jakarta.servlet.http.Cookie;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class TimeDealControllerTest {
+public class TimeDealControllerTest extends AcceptanceTest {
 
 	@Autowired
 	private MockMvc mockMvc;
