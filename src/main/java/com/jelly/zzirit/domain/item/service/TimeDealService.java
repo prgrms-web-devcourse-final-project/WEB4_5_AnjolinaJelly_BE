@@ -1,6 +1,7 @@
 package com.jelly.zzirit.domain.item.service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -165,5 +166,25 @@ public class TimeDealService {
 				);
 			})
 			.toList();
+	}
+
+	@Transactional
+	public List<TimeDeal> convertTimeDealStatusScheduledToOngoing(LocalDateTime now) {
+		// 시작 시간이 지났지만 아직 시작되지 않은 타임딜 (SCHEDULED → ONGOING)
+		List<TimeDeal> toStartDeals = timeDealRepository.findAllByStatusAndStartTimeLessThanEqual(
+			TimeDeal.TimeDealStatus.SCHEDULED, now);
+		toStartDeals.forEach(deal -> deal.updateStatus(TimeDeal.TimeDealStatus.ONGOING));
+
+		return toStartDeals;
+	}
+
+	@Transactional
+	public List<TimeDeal> converTimeDealStatusOngoingToEnded(LocalDateTime now) {
+		// 종료 시간이 지난 타임딜 (ONGOING → ENDED)
+		List<TimeDeal> toEndDeals = timeDealRepository.findAllByStatusAndEndTimeBefore(TimeDeal.TimeDealStatus.ONGOING,
+			now);
+		toEndDeals.forEach(deal -> deal.updateStatus(TimeDeal.TimeDealStatus.ENDED));
+
+		return toEndDeals;
 	}
 }
