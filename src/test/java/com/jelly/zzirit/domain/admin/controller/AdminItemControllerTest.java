@@ -1,4 +1,4 @@
-package com.jelly.zzirit.domain.adminItem.controller;
+package com.jelly.zzirit.domain.admin.controller;
 
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.snippet.Attributes.*;

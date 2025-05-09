@@ -1,4 +1,4 @@
-package com.jelly.zzirit.domain.adminItem.service;
+package com.jelly.zzirit.domain.admin.service;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -99,7 +99,19 @@ public class S3Service {
 
 	public void delete(String imageUrl) {
 		String key = extractKeyFromUrl(imageUrl);
-		s3Client.deleteObject(bucket, key);
+
+		try {
+			if (!s3Client.doesObjectExist(bucket, key)) {
+				log.info("S3에 존재하지 않는 이미지: {}", imageUrl);
+				return;
+			}
+
+			s3Client.deleteObject(bucket, key);
+			log.info("S3 이미지 삭제 성공: {}", imageUrl);
+
+		} catch (Exception e) {
+			log.warn("S3 이미지 삭제 실패: {}", imageUrl, e);
+		}
 	}
 
 	private String extractKeyFromUrl(String url) {

@@ -1,6 +1,6 @@
 package com.jelly.zzirit.domain.item.entity.stock;
 
-import com.jelly.zzirit.domain.adminItem.dto.request.ItemCreateRequest;
+import com.jelly.zzirit.domain.admin.dto.request.ItemCreateRequest;
 import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.dto.Empty;

@@ -1,13 +1,11 @@
-package com.jelly.zzirit.domain.adminItem.controller;
+package com.jelly.zzirit.domain.admin.controller;
 
 import java.io.IOException;
-import java.util.List;
 
-import com.jelly.zzirit.domain.adminItem.dto.request.ItemUpdateRequest;
-import com.jelly.zzirit.domain.adminItem.service.CommandAdminItemService;
-import com.jelly.zzirit.domain.adminItem.service.QueryAdminItemService;
-import com.jelly.zzirit.domain.adminItem.service.S3Service;
-import com.jelly.zzirit.domain.item.repository.ItemRepository;
+import com.jelly.zzirit.domain.admin.dto.request.ItemUpdateRequest;
+import com.jelly.zzirit.domain.admin.service.CommandAdminItemService;
+import com.jelly.zzirit.domain.admin.service.QueryAdminItemService;
+import com.jelly.zzirit.domain.admin.service.S3Service;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
@@ -25,9 +23,9 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.jelly.zzirit.domain.adminItem.dto.request.ItemCreateRequest;
-import com.jelly.zzirit.domain.adminItem.dto.response.AdminItemResponse;
-import com.jelly.zzirit.domain.adminItem.dto.response.ImageUploadResponse;
+import com.jelly.zzirit.domain.admin.dto.request.ItemCreateRequest;
+import com.jelly.zzirit.domain.admin.dto.response.AdminItemResponse;
+import com.jelly.zzirit.domain.admin.dto.response.ImageUploadResponse;
 import com.jelly.zzirit.global.dto.BaseResponse;
 import com.jelly.zzirit.global.dto.Empty;
 import com.jelly.zzirit.global.dto.PageResponse;
