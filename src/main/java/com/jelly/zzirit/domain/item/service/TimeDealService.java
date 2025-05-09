@@ -136,33 +136,34 @@ public class TimeDealService {
 	}
 
 	// 진행중인 타임딜 조회
-	public CurrentTimeDealResponse getCurrentTimeDeals() {
-		TimeDeal timeDeal = timeDealRepository.getOngoingTimeDeal().orElseThrow();
-
-		List<CurrentTimeDealResponse.CurrentTimeDealItem> items = timeDealItemRepository.findActiveTimeDealItemByItemId(
-				timeDeal.getId())
-			.stream()
-			.map(item -> {
-				Item normalItem = itemRepository.findById(item.getId()).orElseThrow();
-				return new CurrentTimeDealResponse.CurrentTimeDealItem(
-					item.getItem().getId(),
-					normalItem.getImageUrl(),
-					normalItem.getPrice(),
-					item.getPrice(),
-					normalItem.getTypeBrand().getType(),
-					normalItem.getTypeBrand().getBrand()
+	public List<CurrentTimeDealResponse> getCurrentTimeDeals() {
+		return timeDealRepository.getOngoingTimeDeal().stream()
+			.map(timeDeal -> {
+				List<CurrentTimeDealResponse.CurrentTimeDealItem> items =
+					timeDealItemRepository.findAllByTimeDeal(timeDeal).stream()
+						.map(tdi -> {
+							Item item = itemRepository.findById(tdi.getItem().getId())
+								.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 아이템입니다.")); // 수정 예정
+							return new CurrentTimeDealResponse.CurrentTimeDealItem(
+								item.getId(),
+								item.getImageUrl(),
+								item.getPrice(),
+								tdi.getPrice(),
+								item.getTypeBrand().getType().getName(),
+								item.getTypeBrand().getBrand().getName()
+							);
+						})
+						.toList();
+				return new CurrentTimeDealResponse(
+					timeDeal.getId(),
+					timeDeal.getName(),
+					timeDeal.getStartTime(),
+					timeDeal.getEndTime(),
+					timeDeal.getDiscountRatio(),
+					timeDeal.getStatus(),
+					items
 				);
 			})
 			.toList();
-
-		return new CurrentTimeDealResponse(
-			timeDeal.getId(),
-			timeDeal.getName(),
-			timeDeal.getStartTime(),
-			timeDeal.getEndTime(),
-			timeDeal.getDiscountRatio(),
-			timeDeal.getStatus(),
-			items
-		);
 	}
 }
