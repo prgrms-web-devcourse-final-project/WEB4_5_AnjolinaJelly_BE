@@ -43,7 +43,7 @@ public class TimeDealService {
 		// 1. 요청 정보로 타임딜을 먼저 저장합니다.(타임딜 아이템 제외)
 		TimeDeal timeDeal = timeDealRepository.save(
 			new TimeDeal(
-				request.title(),
+				request.timeDealName(),
 				TimeDeal.TimeDealStatus.SCHEDULED,    // 생성시 동시에 계획됨 상태 설정. 만약 등록 시점이 타임딜 진행시 점이라면?
 				request.startTime(),
 				request.endTime(),

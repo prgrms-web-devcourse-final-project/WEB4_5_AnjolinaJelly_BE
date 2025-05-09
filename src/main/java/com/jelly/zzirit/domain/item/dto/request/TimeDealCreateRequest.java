@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record TimeDealCreateRequest(
-	String title,
+	String timeDealName,
 	LocalDateTime startTime,
 	LocalDateTime endTime,
 	int discountRatio,
