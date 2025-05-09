@@ -20,7 +20,6 @@ import org.springframework.http.MediaType;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.restdocs.payload.FieldDescriptor;
 import org.springframework.restdocs.request.ParameterDescriptor;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,14 +30,13 @@ import com.jelly.zzirit.domain.cart.service.CartService;
 import com.jelly.zzirit.domain.member.entity.authenum.Role;
 import com.jelly.zzirit.global.security.util.JwtUtil;
 import com.jelly.zzirit.global.support.OpenApiDocumentationFilter;
-import com.jelly.zzirit.global.support.RestDocsSupport;
+import com.jelly.zzirit.global.support.AcceptanceTest;
 
 import jakarta.servlet.http.Cookie;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @Disabled
-class CartItemControllerTest extends RestDocsSupport {
+class CartItemControllerTest extends AcceptanceTest {
 
 	@Autowired
 	private JwtUtil jwtUtil;
