@@ -114,7 +114,7 @@ public class CartItemService {
 	}
 
 	@Transactional
-	public CartResponse modifyQuantity(Long memberId, Long itemId, int delta) {
+	public CartItemResponse modifyQuantity(Long memberId, Long itemId, int delta) {
 
 		Cart cart = cartRepository.findByMemberId(memberId)
 			.orElseThrow(() -> new InvalidUserException(BaseResponseStatus.USER_NOT_FOUND));
@@ -123,22 +123,52 @@ public class CartItemService {
 			.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND_IN_CART));
 
 		int newQuantity = cartItem.getQuantity() + delta;
-
 		if (newQuantity <= 0) {
-			throw new InvalidItemException(BaseResponseStatus.VALIDATION_FAILED); // 수량 0 이하 불가
+			throw new InvalidItemException(BaseResponseStatus.INVALID_CART_QUANTITY);
 		}
+
+		Item item = cartItem.getItem();
 
 		ItemStock itemStock = itemStockRepository.findByItemId(itemId)
 			.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_STOCK_NOT_FOUND));
-
 		if (newQuantity > itemStock.getQuantity()) {
-			throw new InvalidItemException(BaseResponseStatus.OUT_OF_STOCK); // 재고 초과
+			throw new InvalidItemException(BaseResponseStatus.CART_QUANTITY_EXCEEDS_STOCK);
 		}
 
 		cartItem.setQuantity(newQuantity);
 
-		// 수량 조정 후 전체 장바구니 응답 반환
-		return cartService.getMyCart(memberId);
+		int originalPrice = item.getPrice().intValue();
+		int discountedPrice = originalPrice;
+		Integer discountRatio = null;
+		boolean isTimeDeal = item.getItemStatus() == ItemStatus.TIME_DEAL;
+
+		if (isTimeDeal) {
+			TimeDealItem timeDealItem = timeDealItemRepository.findActiveTimeDealItemByItemId(item.getId())
+				.orElse(null);
+			if (timeDealItem != null) {
+				discountedPrice = timeDealItem.getPrice().intValue();
+				discountRatio = timeDealItem.getTimeDeal().getDiscountRatio();
+			}
+		}
+
+		int totalPrice = discountedPrice * newQuantity;
+		boolean isSoldOut = itemStock.getQuantity() == 0;
+
+		return new CartItemResponse(
+			cartItem.getId(),
+			item.getId(),
+			item.getName(),
+			item.getTypeBrand().getType().getName(),
+			item.getTypeBrand().getBrand().getName(),
+			newQuantity,
+			item.getImageUrl(),
+			originalPrice,
+			discountedPrice,
+			totalPrice,
+			isTimeDeal,
+			discountRatio,
+			isSoldOut
+		);
 	}
 
 }
