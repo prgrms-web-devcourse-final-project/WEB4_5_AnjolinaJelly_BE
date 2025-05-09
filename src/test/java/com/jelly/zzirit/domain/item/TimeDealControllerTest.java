@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,15 +19,13 @@ import com.jelly.zzirit.domain.item.dto.request.TimeDealCreateRequest;
 import com.jelly.zzirit.domain.item.dto.response.timeDeal.TimeDealModalCreateResponse;
 import com.jelly.zzirit.domain.member.entity.authenum.Role;
 import com.jelly.zzirit.global.security.util.JwtUtil;
-import com.jelly.zzirit.global.support.AcceptanceTest;
 import com.jelly.zzirit.testutil.TimeDealTestHelper;
 
 import jakarta.servlet.http.Cookie;
 
-@SpringBootTest
 @AutoConfigureMockMvc
-@ActiveProfiles("test")
-public class TimeDealControllerTest extends AcceptanceTest {
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+public class TimeDealControllerTest {
 
 	@Autowired
 	private MockMvc mockMvc;
