@@ -1,7 +1,6 @@
 package com.jelly.zzirit.global.support;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.jelly.zzirit.domain.member.entity.Member;
@@ -14,7 +13,6 @@ import com.jelly.zzirit.global.security.util.AuthConst;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
 
-@SpringBootTest
 public abstract class TestMemberConfig extends RedisTestContainerConfig {
 
 	@Autowired

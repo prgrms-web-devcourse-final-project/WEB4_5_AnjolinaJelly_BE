@@ -1,10 +1,6 @@
 package com.jelly.zzirit.domain.order.dto.request;
 
-import java.math.BigDecimal;
-
-public record OrderItemCreateRequest(
+public record OrderItemRequestDto(
 	Long itemId,
-	Integer quantity,
-	String itemName,
-	BigDecimal price
+	int quantity
 ) {}

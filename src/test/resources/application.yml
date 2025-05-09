@@ -29,9 +29,6 @@ spring:
     init:
       mode: never
 
-  jwt:
-    secret: testtesttesttesttesttesttesttesttesttesttesttesttesttesttest
-
 oauth2:
   naver:
     client-id: test-naver-client-id

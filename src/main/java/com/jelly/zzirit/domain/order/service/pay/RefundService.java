@@ -19,6 +19,7 @@ import org.springframework.web.client.*;
 
 import com.jelly.zzirit.domain.order.entity.Payment;
 import com.jelly.zzirit.domain.order.repository.PaymentRepository;
+import com.jelly.zzirit.domain.order.service.order.DiscordNotifier;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
 
@@ -32,6 +33,7 @@ public class RefundService {
 
 	private final RestTemplate restTemplate;
 	private final PaymentRepository paymentRepository;
+	private final DiscordNotifier discordNotifier;
 
 	@Value("${toss.payments.secret-key}")
 	private String secretKey;
@@ -51,6 +53,7 @@ public class RefundService {
 //			log.info("자동 환불 완료: paymentKey={}, orderNumber={}", paymentKey, order.getOrderNumber());
 		} catch (Exception e) {
 			log.error("자동 환불 실패: paymentKey={}, amount={}, message={}", paymentKey, amount, e.getMessage(), e);
+			sendRefundFailureNotification(paymentKey, amount, e);
 			throw new InvalidOrderException(BaseResponseStatus.ORDER_REFUND_FAILED);
 		}
 	}
@@ -70,6 +73,19 @@ public class RefundService {
 
 		if (!response.getStatusCode().is2xxSuccessful()) {
 			throw new InvalidOrderException(BaseResponseStatus.TOSS_REFUND_FAILED);
+		}
+	}
+
+	private void sendRefundFailureNotification(String paymentKey, BigDecimal amount, Exception e) {
+		try {
+			String orderNumber = paymentRepository.findByPaymentKey(paymentKey)
+				.map(Payment::getOrder)
+				.map(Order::getOrderNumber)
+				.orElse("UNKNOWN");
+
+			discordNotifier.notifyRefundFailure(orderNumber, paymentKey, amount, e.getMessage());
+		} catch (Exception ex) {
+			log.error("디스코드 알림 실패 (중첩 예외): {}", ex.getMessage(), ex);
 		}
 	}
 
