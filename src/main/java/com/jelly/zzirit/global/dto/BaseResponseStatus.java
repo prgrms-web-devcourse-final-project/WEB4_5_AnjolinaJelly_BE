@@ -102,7 +102,11 @@ public enum BaseResponseStatus {
 	IMAGE_REQUIRED(false, 60006, "상품 이미지가 없습니다.", HttpStatus.NOT_FOUND),
 	INVALID_IMAGE_URL(false, 60007, "잘못된 이미지 URL 형식입니다.", HttpStatus.BAD_REQUEST),
 	INVALID_PRICE(false, 60008, "상품 가격은 0 이상이어야 합니다.", HttpStatus.BAD_REQUEST),
-	INVALID_STOCK(false, 60009, "상품 재고는 0 이상이어야 합니다.", HttpStatus.BAD_REQUEST);
+	INVALID_STOCK(false, 60009, "상품 재고는 0 이상이어야 합니다.", HttpStatus.BAD_REQUEST),
+
+	// 장바구니 수량 조정 관련
+	INVALID_CART_QUANTITY(false, 60010, "장바구니 수량은 1개 이상이어야 합니다.", HttpStatus.BAD_REQUEST),
+	CART_QUANTITY_EXCEEDS_STOCK(false, 60011, "장바구니 수량이 재고를 초과할 수 없습니다.", HttpStatus.BAD_REQUEST);
 
 	private final boolean isSuccess;
 	private final int code;
