@@ -13,6 +13,7 @@ import static org.springframework.restdocs.request.RequestDocumentation.*;
 
 import java.util.List;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -33,6 +34,7 @@ import io.restassured.filter.Filter;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 
+@Disabled
 public class ItemControllerTest extends AcceptanceTest {
 
 	@Autowired

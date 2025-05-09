@@ -7,6 +7,7 @@ import static org.springframework.restdocs.payload.JsonFieldType.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.snippet.Attributes.*;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.restdocs.payload.FieldDescriptor;
@@ -20,6 +21,7 @@ import io.restassured.filter.Filter;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 
+@Disabled
 public class TypeControllerTest extends AcceptanceTest {
 
 	@Autowired

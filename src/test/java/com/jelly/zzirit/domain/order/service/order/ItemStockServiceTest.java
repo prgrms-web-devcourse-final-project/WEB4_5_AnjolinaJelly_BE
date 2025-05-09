@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.Commit;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -13,9 +14,11 @@ import com.jelly.zzirit.domain.item.repository.ItemStockRepository;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
 import com.jelly.zzirit.global.redis.RedisTestContainerConfig;
+import com.jelly.zzirit.global.redis.TestRedisTemplateConfig;
 
 @SpringBootTest
 @ActiveProfiles("test")
+@Import(TestRedisTemplateConfig.class)
 @Commit
 class ItemStockServiceTest extends RedisTestContainerConfig {
 

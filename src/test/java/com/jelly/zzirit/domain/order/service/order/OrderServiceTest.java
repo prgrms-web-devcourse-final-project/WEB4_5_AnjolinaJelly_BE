@@ -52,6 +52,6 @@ class OrderServiceTest {
 		commandOrderService.completeOrder(order, paymentKey);
 
 		// then
-		verify(refundService).refundImmediately(paymentKey, totalPrice);
+		verify(refundService).refund(paymentKey, totalPrice, "주문 처리 실패로 인한 자동 환불");
 	}
 }

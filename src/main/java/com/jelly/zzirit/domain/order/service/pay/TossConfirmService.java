@@ -42,20 +42,6 @@ public class TossConfirmService {
 		tempOrderService.confirmTempOrder(paymentInfo);
 	}
 
-	private TossPaymentResponse fetchPaymentInfo(String paymentKey) {
-		String url = "https://api.tosspayments.com/v1/payments/" + paymentKey;
-		HttpHeaders headers = createHeaders();
-		HttpEntity<Void> entity = new HttpEntity<>(headers);
-
-		try {
-			ResponseEntity<String> response = restTemplate.exchange(
-				url, HttpMethod.GET, entity, String.class);
-			return objectMapper.readValue(response.getBody(), TossPaymentResponse.class);
-		} catch (Exception e) {
-			throw new InvalidOrderException(BaseResponseStatus.TOSS_PAYMENT_VERIFY_FAILED);
-		}
-	}
-
 	private void confirmToToss(String paymentKey, String orderId, String amount) {
 		String url = "https://api.tosspayments.com/v1/payments/confirm";
 		HttpHeaders headers = createHeaders();
@@ -72,6 +58,20 @@ public class TossConfirmService {
 			restTemplate.postForEntity(url, entity, String.class);
 		} catch (HttpClientErrorException e) {
 			throw new InvalidOrderException(BaseResponseStatus.TOSS_CONFIRM_FAILED);
+		}
+	}
+
+	private TossPaymentResponse fetchPaymentInfo(String paymentKey) {
+		String url = "https://api.tosspayments.com/v1/payments/" + paymentKey;
+		HttpHeaders headers = createHeaders();
+		HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+		try {
+			ResponseEntity<String> response = restTemplate.exchange(
+				url, HttpMethod.GET, entity, String.class);
+			return objectMapper.readValue(response.getBody(), TossPaymentResponse.class);
+		} catch (Exception e) {
+			throw new InvalidOrderException(BaseResponseStatus.TOSS_PAYMENT_VERIFY_FAILED);
 		}
 	}
 
