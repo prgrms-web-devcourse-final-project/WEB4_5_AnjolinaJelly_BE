@@ -1,6 +1,5 @@
 package com.jelly.zzirit.global.support;
 
-import static io.restassured.RestAssured.*;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
 import static org.springframework.restdocs.restassured.RestAssuredRestDocumentation.*;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.*;
