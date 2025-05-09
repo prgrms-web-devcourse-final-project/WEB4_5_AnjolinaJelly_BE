@@ -21,6 +21,7 @@ import org.springframework.web.client.RestTemplate;
 import com.jelly.zzirit.domain.order.entity.Order;
 import com.jelly.zzirit.domain.order.entity.Payment;
 import com.jelly.zzirit.domain.order.repository.PaymentRepository;
+import com.jelly.zzirit.domain.order.service.order.DiscordNotifier;
 import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
 
 @ExtendWith(MockitoExtension.class)
@@ -29,9 +30,9 @@ class RefundServiceTest {
 	@InjectMocks
 	private RefundService refundService;
 
-	@Mock
-	private RestTemplate restTemplate;
+	@Mock private RestTemplate restTemplate;
 	@Mock private PaymentRepository paymentRepository;
+	@Mock private DiscordNotifier discordNotifier;
 
 	@BeforeEach
 	void setup() throws Exception {
@@ -40,30 +41,30 @@ class RefundServiceTest {
 		secretKeyField.set(refundService, "test_sk_26DlbXAaV06zWDPZljpb8qY50Q9R");
 	}
 
-//	@Test
-//	void 정상환불이면_상태변경과_로그가_발생한다() {
-//		// given
-//		String paymentKey = "pay_123";
-//		BigDecimal amount = new BigDecimal("10000");
-//
-//		Order order = mock(Order.class);
-//		Payment payment = mock(Payment.class);
-//
-//		// 여기서 명확히 연결
-//		// when(payment.getOrder()).thenReturn(order);
-//		when(paymentRepository.findByPaymentKey(paymentKey)).thenReturn(Optional.of(payment));
-//
-//		ResponseEntity<String> mockResponse = ResponseEntity.ok("OK");
-//		when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(), eq(String.class)))
-//			.thenReturn(mockResponse);
-//
-//		// when
-//		refundService.refundImmediately(paymentKey, amount);
-//
-//		// then
-//		verify(order).changeStatus(Order.OrderStatus.FAILED);
-//		verify(payment).changeStatus(Payment.PaymentStatus.FAILED);
-//	}
+	@Test
+	void 정상환불이면_상태변경과_로그가_발생한다() {
+		// given
+		String paymentKey = "pay_123";
+		BigDecimal amount = new BigDecimal("10000");
+		String reason = "테스트 환불 사유";
+
+		Order order = mock(Order.class);
+		Payment payment = mock(Payment.class);
+
+		when(payment.getOrder()).thenReturn(order);
+		when(paymentRepository.findByPaymentKey(paymentKey)).thenReturn(Optional.of(payment));
+
+		ResponseEntity<String> mockResponse = ResponseEntity.ok("OK");
+		when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(), eq(String.class)))
+			.thenReturn(mockResponse);
+
+		// when
+		refundService.refund(paymentKey, amount, reason);
+
+		// then
+		verify(order).changeStatus(Order.OrderStatus.FAILED);
+		verify(payment).changeStatus(Payment.PaymentStatus.FAILED);
+	}
 
 	@Test
 	void 결제정보가_없으면_예외발생() {
@@ -72,27 +73,30 @@ class RefundServiceTest {
 
 		// when & then
 		assertThrows(InvalidOrderException.class, () ->
-			refundService.refundImmediately("missing-key", BigDecimal.TEN));
+			refundService.refund("missing-key", BigDecimal.TEN, "결제 정보 없음"));
 	}
 
-//	@Test
-//	void 환불요청이_실패하면_예외발생() {
-//		// given
-//		String paymentKey = "pay_456";
-//		BigDecimal amount = new BigDecimal("5000");
-//
-//		Order order = mock(Order.class);
-//		Payment payment = mock(Payment.class);
-//
-//		when(paymentRepository.findByPaymentKey(paymentKey)).thenReturn(Optional.of(payment));
-//		// when(payment.getOrder()).thenReturn(order);
-//
-//		ResponseEntity<String> failResponse = new ResponseEntity<>("Fail", HttpStatus.BAD_REQUEST);
-//		when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(), eq(String.class)))
-//			.thenReturn(failResponse);
-//
-//		// when & then
-//		assertThrows(InvalidOrderException.class, () ->
-//			refundService.refundImmediately(paymentKey, amount));
-//	}
+	@Test
+	void 환불요청이_실패하면_예외발생하고_디스코드_알림도_전송된다() {
+		// given
+		String paymentKey = "pay_456";
+		BigDecimal amount = new BigDecimal("5000");
+		String reason = "실패 케이스 테스트";
+
+		Order order = mock(Order.class);
+		Payment payment = mock(Payment.class);
+
+		when(payment.getOrder()).thenReturn(order);
+		when(paymentRepository.findByPaymentKey(paymentKey)).thenReturn(Optional.of(payment));
+
+		ResponseEntity<String> failResponse = new ResponseEntity<>("Fail", HttpStatus.BAD_REQUEST);
+		when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(), eq(String.class)))
+			.thenReturn(failResponse);
+
+		// when & then
+		assertThrows(InvalidOrderException.class, () ->
+			refundService.refund(paymentKey, amount, reason));
+
+		verify(discordNotifier).notifyRefundFailure(eq("UNKNOWN"), eq(paymentKey), eq(amount), anyString());
+	}
 }

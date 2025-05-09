@@ -3,7 +3,6 @@ package com.jelly.zzirit.domain.order.service.pay;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -15,7 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.*;
+import org.springframework.web.client.RestTemplate;
 
 import com.jelly.zzirit.domain.order.entity.Payment;
 import com.jelly.zzirit.domain.order.repository.PaymentRepository;
@@ -39,32 +38,30 @@ public class RefundService {
 	private String secretKey;
 
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public void refundImmediately(String paymentKey, BigDecimal amount) {
+	public void refund(String paymentKey, BigDecimal amount, String reason) {
 		try {
 			Payment payment = paymentRepository.findByPaymentKey(paymentKey)
 				.orElseThrow(() -> new InvalidOrderException(BaseResponseStatus.PAYMENT_NOT_FOUND));
 
-//			Order order = payment.getOrder();
-//			requestTossRefund(paymentKey, amount);
-//
-//			order.changeStatus(Order.OrderStatus.FAILED);
-//			payment.changeStatus(Payment.PaymentStatus.FAILED);
-//
-//			log.info("자동 환불 완료: paymentKey={}, orderNumber={}", paymentKey, order.getOrderNumber());
+			Order order = payment.getOrder();
+			requestTossRefund(paymentKey, amount, reason);
+
+			order.changeStatus(Order.OrderStatus.FAILED);
+			payment.changeStatus(Payment.PaymentStatus.FAILED);
+
+			log.info("환불 완료: paymentKey={}, orderNumber={}, reason={}", paymentKey, order.getOrderNumber(), reason);
 		} catch (Exception e) {
-			log.error("자동 환불 실패: paymentKey={}, amount={}, message={}", paymentKey, amount, e.getMessage(), e);
-			sendRefundFailureNotification(paymentKey, amount, e);
+			notifyDiscordFailure(paymentKey, amount, e);
 			throw new InvalidOrderException(BaseResponseStatus.ORDER_REFUND_FAILED);
 		}
 	}
 
-	private void requestTossRefund(String paymentKey, BigDecimal amount) {
+	private void requestTossRefund(String paymentKey, BigDecimal amount, String reason) {
 		String url = "https://api.tosspayments.com/v1/payments/" + paymentKey + "/cancel";
 
 		HttpHeaders headers = getHeaders();
-
 		Map<String, Object> body = Map.of(
-			"cancelReason", "결제 후 주문 처리 실패로 인한 자동 환불",
+			"cancelReason", reason,
 			"cancelAmount", amount
 		);
 
@@ -72,60 +69,18 @@ public class RefundService {
 		ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, request, String.class);
 
 		if (!response.getStatusCode().is2xxSuccessful()) {
+			log.warn("Toss 환불 API 실패: status={}, body={}", response.getStatusCode(), response.getBody());
 			throw new InvalidOrderException(BaseResponseStatus.TOSS_REFUND_FAILED);
 		}
 	}
 
-	private void sendRefundFailureNotification(String paymentKey, BigDecimal amount, Exception e) {
-		try {
-			String orderNumber = paymentRepository.findByPaymentKey(paymentKey)
-				.map(Payment::getOrder)
-				.map(Order::getOrderNumber)
-				.orElse("UNKNOWN");
+	private void notifyDiscordFailure(String paymentKey, BigDecimal amount, Exception e) {
+		String orderNumber = paymentRepository.findByPaymentKey(paymentKey)
+			.map(Payment::getOrder)
+			.map(Order::getOrderNumber)
+			.orElse("UNKNOWN");
 
-			discordNotifier.notifyRefundFailure(orderNumber, paymentKey, amount, e.getMessage());
-		} catch (Exception ex) {
-			log.error("디스코드 알림 실패 (중첩 예외): {}", ex.getMessage(), ex);
-		}
-	}
-
-	/**
-	 * 주문 취소 요청에 따른 결제 취소
-	 * @param orderId 취소할 주문의 아이디
-	 * @param paymentKey 결제 정보 키
-	 */
-	public boolean tryRefund(Long orderId, String paymentKey) {
-		String url = "https://api.tosspayments.com/v1/payments/" + paymentKey + "/cancel";
-
-		HttpHeaders headers = getHeaders(); // 헤더 생성
-		Map<String, Object> body = getBody(); // 바디 생성
-
-		HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
-
-		try {
-			ResponseEntity<String> response = restTemplate.exchange(
-				url,
-				HttpMethod.POST,
-				request,
-				String.class
-			);
-
-			if (!response.getStatusCode().is2xxSuccessful()) {
-				log.error("환불 실패: orderId={}, status={}, body={}", orderId, response.getStatusCode(), response.getBody());
-				return false;
-			}
-
-			return true;
-		} catch (HttpClientErrorException | HttpServerErrorException e) {
-			log.error("HTTP 오류로 인한 환불 실패: orderId={}, status={}, body={}",
-				orderId, e.getStatusCode(), e.getResponseBodyAsString(), e);
-		} catch (ResourceAccessException e) {
-			log.error("접속 실패로 인한 환불 실패: orderId={}, {}", orderId, e.getMessage(), e);
-		} catch (RestClientException e) {
-			log.error("기타 RestTemplate 오류로 인한 환불 실패: orderId={}, {}", orderId, e.getMessage(), e);
-		}
-
-		return false;
+		discordNotifier.notifyRefundFailure(orderNumber, paymentKey, amount, e.getMessage());
 	}
 
 	private HttpHeaders getHeaders() {
@@ -134,16 +89,6 @@ public class RefundService {
 
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		headers.set("Authorization", "Basic " + encodedKey);
-
 		return headers;
-	}
-
-	private Map<String, Object> getBody() {
-		String cancelReason = "구매자 변심으로 인한 주문 취소";
-		Map<String, Object> body = new HashMap<>();
-
-		body.put("cancelReason", cancelReason);
-
-		return body;
 	}
 }

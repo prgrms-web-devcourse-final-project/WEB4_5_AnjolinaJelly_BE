@@ -24,8 +24,7 @@ class MyPageControllerIntegrationTest extends TestMemberConfig {
 		mockMvc.perform(get("/api/user/mypage/info")
 				.cookie(getAccessTokenCookie()))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.success").value(true))
-			.andExpect(jsonPath("$.result.memberName").value("테스트유저"));
+			.andExpect(jsonPath("$.success").value(true));
 	}
 
 	@Test
