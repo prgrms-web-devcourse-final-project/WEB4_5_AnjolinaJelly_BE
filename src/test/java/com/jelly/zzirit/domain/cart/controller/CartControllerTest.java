@@ -1,95 +1,105 @@
 package com.jelly.zzirit.domain.cart.controller;
 
-import static org.mockito.Mockito.*;
+import static com.jelly.zzirit.domain.item.domain.fixture.BrandFixture.*;
+import static com.jelly.zzirit.domain.item.domain.fixture.ItemFixture.*;
+import static com.jelly.zzirit.domain.item.domain.fixture.ItemStockFixture.*;
+import static com.jelly.zzirit.domain.item.domain.fixture.TypeBrandFixture.*;
+import static com.jelly.zzirit.domain.item.domain.fixture.TypeFixture.*;
+import static io.restassured.RestAssured.*;
 import static org.springframework.restdocs.payload.JsonFieldType.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.restdocs.snippet.Attributes.*;
 
-import java.util.List;
-
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Primary;
 import org.springframework.restdocs.payload.FieldDescriptor;
 
-import com.jelly.zzirit.domain.cart.dto.response.CartItemResponse;
-import com.jelly.zzirit.domain.cart.dto.response.CartResponse;
-import com.jelly.zzirit.domain.cart.service.CartItemService;
-import com.jelly.zzirit.domain.cart.service.CartService;
-import com.jelly.zzirit.global.security.util.JwtUtil;
+import com.jelly.zzirit.domain.cart.entity.Cart;
+import com.jelly.zzirit.domain.cart.entity.CartItem;
+import com.jelly.zzirit.domain.cart.repository.CartItemRepository;
+import com.jelly.zzirit.domain.cart.repository.CartRepository;
+import com.jelly.zzirit.domain.item.entity.Brand;
+import com.jelly.zzirit.domain.item.entity.Item;
+import com.jelly.zzirit.domain.item.entity.Type;
+import com.jelly.zzirit.domain.item.repository.BrandRepository;
+import com.jelly.zzirit.domain.item.repository.ItemRepository;
+import com.jelly.zzirit.domain.item.repository.ItemStockRepository;
+import com.jelly.zzirit.domain.item.repository.TypeBrandRepository;
+import com.jelly.zzirit.domain.item.repository.TypeRepository;
+import com.jelly.zzirit.domain.member.entity.Member;
+import com.jelly.zzirit.domain.member.entity.authenum.Role;
+import com.jelly.zzirit.domain.member.repository.MemberRepository;
 import com.jelly.zzirit.global.support.AcceptanceTest;
 import com.jelly.zzirit.global.support.OpenApiDocumentationFilter;
 
-@AutoConfigureMockMvc
-@Import(CartControllerTest.MockConfig.class)
-@Disabled
 class CartControllerTest extends AcceptanceTest {
 
-	@Autowired
-	private JwtUtil jwtUtil;
 
 	@Autowired
-	private CartService cartService;
+	private CartItemRepository cartItemRepository;
 
 	@Autowired
-	private CartItemService cartItemService;
+	private CartRepository cartRepository;
 
-	@TestConfiguration
-	static class MockConfig {
-		@Bean
-		public CartService cartService() {
-			return Mockito.mock(CartService.class);
-		}
+	@Autowired
+	private MemberRepository memberRepository;
 
-		@Bean
-		@Primary
-		public CartItemService cartItemService() {
-			return Mockito.mock(CartItemService.class);
-		}
-	}
+	@Autowired
+	private ItemRepository itemRepository;
+
+	@Autowired
+	private BrandRepository brandRepository;
+
+	@Autowired
+	private TypeRepository typeRepository;
+
+	@Autowired
+	private TypeBrandRepository typeBrandRepository;
+
+	@Autowired
+	private ItemStockRepository itemStockRepository;
+
 
 	@Test
 	void 장바구니_조회() {
 		// given
-		CartItemResponse item = new CartItemResponse(
-			101L,
-			5L,
-			"iPhone 15",
-			"스마트폰",
-			"Apple",
-			2,
-			"https://dummyimage.com/iphone.jpg",
-			1500000,
-			1350000,
-			2700000,
-			true,
-			10,
-			false
+		Member 유저 = memberRepository.save(
+			Member.builder()
+				.id(1L)
+				.memberEmail("test@gamil.com")
+				.memberName("테스트유저")
+				.password("test1234!")
+				.role(Role.ROLE_USER)
+				.memberAddress("서울")
+				.memberAddressDetail("101동")
+				.build()
 		);
 
-		CartResponse mockResponse = new CartResponse(
-			1001L,
-			List.of(item),
-			2,
-			2700000
-		);
+		Cart 장바구니 = cartRepository.findByMemberId(유저.getId())
+			.orElseGet(() -> cartRepository.save(Cart.builder().member(유저).build()));
 
-		when(cartService.getMyCart(1L)).thenReturn(mockResponse);
+		Type 노트북 = typeRepository.save(노트북());
+		Brand 삼성 = brandRepository.save(삼성());
+		Item 상품 = itemRepository.save(삼성_노트북(
+			typeBrandRepository.save(타입_브랜드_생성(노트북, 삼성))
+		));
+		itemStockRepository.save(풀재고_상품(상품));
+
+		cartItemRepository.save(
+			CartItem
+				.builder()
+				.cart(장바구니)
+				.item(상품)
+				.quantity(1)
+				.build()
+		);
 
 		// when & then
-		this.spec
+		given(spec)
 			.cookie(getCookie())
 			.filter(OpenApiDocumentationFilter.ofWithResponseFields(
 				"내 장바구니 조회",
 				new FieldDescriptor[] {
-					fieldWithPath("success").description("요청 성공 여부").type(BOOLEAN)
-						.attributes(key("title").value("CartResponse"), key("tags").value("cart")),
+					fieldWithPath("success").description("요청 성공 여부").type(BOOLEAN),
 					fieldWithPath("code").description("응답 코드").type(NUMBER),
 					fieldWithPath("httpStatus").description("HTTP 상태 코드").type(NUMBER),
 					fieldWithPath("message").description("응답 메시지").type(STRING),
