@@ -36,3 +36,5 @@ oauth2:
 
   naver:
     redirect-uri: https://api.zzirit.shop/login/oauth2/code/naver
+server:
+  forward-headers-strategy: framework
