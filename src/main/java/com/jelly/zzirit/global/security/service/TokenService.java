@@ -2,7 +2,6 @@ package com.jelly.zzirit.global.security.service;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.jelly.zzirit.domain.member.entity.authenum.Role;
@@ -12,6 +11,7 @@ import com.jelly.zzirit.global.security.model.MemberPrincipal;
 import com.jelly.zzirit.global.security.util.AuthConst;
 import com.jelly.zzirit.global.security.util.CookieUtil;
 import com.jelly.zzirit.global.security.util.JwtUtil;
+import com.jelly.zzirit.global.security.util.RedisBlacklistUtil;
 import com.jelly.zzirit.global.security.util.RedisRefreshTokenUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 public class TokenService {
 
 	private final JwtUtil jwtUtil;
+	private final RedisBlacklistUtil redisBlacklistUtil;
 	private final RedisRefreshTokenUtil redisRefreshTokenUtil;
 
 	public boolean isAccessToken(String token) {
@@ -48,7 +49,6 @@ public class TokenService {
 		response.addCookie(CookieUtil.createCookie(AuthConst.TOKEN_TYPE_ACCESS, newAccessToken, AuthConst.COOKIE_ACCESS_EXPIRATION));
 		response.addCookie(CookieUtil.createCookie(AuthConst.TOKEN_TYPE_REFRESH, newRefreshToken, AuthConst.COOKIE_REFRESH_EXPIRATION));
 
-		SecurityContextHolder.getContext().setAuthentication(getAuthenticationFromToken(newAccessToken));
 		return newAccessToken;
 	}
 
@@ -63,6 +63,33 @@ public class TokenService {
 		Long userId = jwtUtil.getUserId(refreshToken);
 		Role role = jwtUtil.getRole(refreshToken);
 		return generateTokensAndSetCookies(response, userId, role);
+	}
+
+	public void invalidatePreviousTokens(HttpServletRequest request) {
+		String accessToken = CookieUtil.getCookieValue(request, AuthConst.TOKEN_TYPE_ACCESS);
+		invalidateAccessToken(accessToken);
+
+		String refreshToken = CookieUtil.getCookieValue(request, AuthConst.TOKEN_TYPE_REFRESH);
+		invalidateRefreshToken(refreshToken);
+	}
+
+	private void invalidateAccessToken(String accessToken) {
+		if (accessToken == null || jwtUtil.isExpired(accessToken)) return;
+		long ttl = jwtUtil.getExpiration(accessToken);
+		redisBlacklistUtil.addToBlacklist(accessToken, ttl);
+		log.info("기존 access token 블랙리스트 처리 완료");
+	}
+
+	private void invalidateRefreshToken(String refreshToken) {
+		if (refreshToken == null || jwtUtil.isExpired(refreshToken)) return;
+
+		try {
+			Long userId = jwtUtil.getUserId(refreshToken);
+			redisRefreshTokenUtil.deleteRefreshToken(userId);
+			log.info("기존 refresh token 삭제 완료 (userId={})", userId);
+		} catch (Exception e) {
+			log.warn("기존 refresh token 삭제 중 문제 발생: {}", e.getMessage());
+		}
 	}
 
 	public String generateAccessToken(Long userId, Role role) {
