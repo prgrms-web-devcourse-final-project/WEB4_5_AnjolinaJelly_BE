@@ -17,7 +17,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jelly.zzirit.domain.order.dto.response.TossPaymentResponse;
+import com.jelly.zzirit.domain.order.dto.response.PaymentResponse;
 import com.jelly.zzirit.domain.order.service.order.TempOrderService;
 import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
 
@@ -45,11 +45,11 @@ class TossConfirmServiceTest {
 		String responseBody = "{\"status\": \"DONE\"}";
 
 		ResponseEntity<String> mockResponseEntity = ResponseEntity.ok(responseBody);
-		TossPaymentResponse mockResponse = mock(TossPaymentResponse.class);
+		PaymentResponse mockResponse = mock(PaymentResponse.class);
 
 		when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(), eq(String.class)))
 			.thenReturn(mockResponseEntity);
-		when(objectMapper.readValue(responseBody, TossPaymentResponse.class))
+		when(objectMapper.readValue(responseBody, PaymentResponse.class))
 			.thenReturn(mockResponse);
 
 		// when
@@ -69,7 +69,7 @@ class TossConfirmServiceTest {
 		when(restTemplate.exchange(anyString(), eq(HttpMethod.GET), any(), eq(String.class)))
 			.thenReturn(mockResponseEntity);
 
-		when(objectMapper.readValue(anyString(), eq(TossPaymentResponse.class)))
+		when(objectMapper.readValue(anyString(), eq(PaymentResponse.class)))
 			.thenAnswer(invocation -> { throw new IOException("JSON 파싱 실패"); });
 
 		// when & then
