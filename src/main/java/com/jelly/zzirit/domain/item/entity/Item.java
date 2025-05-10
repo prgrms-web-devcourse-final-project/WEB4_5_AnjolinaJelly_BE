@@ -65,5 +65,10 @@ public class Item extends BaseTime {
 		return Empty.getInstance();
 	}
 
-	// todo: timeDealStatus 업데이트 로직 추가해야 함
+	// todo: itemStatus 업데이트 로직 추가해야 함
+	// 임시 테스트 용
+	public Empty changeItemStatus(ItemStatus status) {
+		this.itemStatus = status;
+		return Empty.getInstance();
+	}
 }

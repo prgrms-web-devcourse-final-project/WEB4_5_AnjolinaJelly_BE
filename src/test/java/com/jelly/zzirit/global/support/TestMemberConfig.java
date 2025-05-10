@@ -29,8 +29,17 @@ public abstract class TestMemberConfig extends RedisTestContainerConfig {
 	protected String testAccessToken;
 	protected Long testMemberId;
 
+	protected String adminAccessToken;
+	protected Long adminMemberId;
+
+
 	@PostConstruct
-	public void initTestMember() {
+	public void initTestMember(){
+		initTestUser();
+		initAdminUser();
+	}
+
+	private void initTestUser() {
 		String email = "test@example.com";
 
 		Member member = memberRepository.findByMemberEmail(email)
@@ -47,10 +56,35 @@ public abstract class TestMemberConfig extends RedisTestContainerConfig {
 			});
 
 		this.testMemberId = member.getId();
-		this.testAccessToken = tokenService.generateAccessToken(member.getId(), member.getRole());	}
+		this.testAccessToken = tokenService.generateAccessToken(member.getId(), member.getRole());
+	}
+
+	private void initAdminUser() {
+		String adminEmail = "admin@example.com";
+
+		Member admin = memberRepository.findByMemberEmail(adminEmail)
+				.orElseGet(() -> {
+					Member newAdmin = Member.builder()
+							.memberEmail(adminEmail)
+							.memberName("테스트관리자")
+							.password(passwordEncoder.encode("admin1234!"))
+							.role(Role.ROLE_ADMIN)
+							.memberAddress("서울")
+							.memberAddressDetail("202동")
+							.build();
+					return memberRepository.save(newAdmin);
+				});
+
+		this.adminMemberId = admin.getId();
+		this.adminAccessToken = tokenService.generateAccessToken(admin.getId(), admin.getRole());
+	}
 
 
 	protected Cookie getAccessTokenCookie() {
 		return new Cookie(AuthConst.TOKEN_TYPE_ACCESS, testAccessToken);
+	} // 테스트에서 사용할 AccessToken 쿠키를 반환
+
+	protected Cookie getAdminAccessTokenCookie() {
+		return new Cookie(AuthConst.TOKEN_TYPE_ACCESS, adminAccessToken);
 	} // 테스트에서 사용할 AccessToken 쿠키를 반환
 }

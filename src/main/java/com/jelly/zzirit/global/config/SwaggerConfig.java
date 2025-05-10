@@ -1,7 +1,9 @@
 package com.jelly.zzirit.global.config;
 
 import java.util.Collections;
+import java.util.List;
 
+import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -16,6 +18,9 @@ public class SwaggerConfig {
 
 	@Bean
 	public OpenAPI springShopOpenAPI() {
+		Server server = new Server();
+		server.setUrl("https://api.zzirit.shop");
+
 		return new OpenAPI()
 			.components(new Components().addSecuritySchemes("bearer", this.securityScheme()))
 			.security(Collections.singletonList(this.securityRequirement()))
@@ -23,7 +28,8 @@ public class SwaggerConfig {
 				new Info().title("zzirit API")
 					.description("찌릿 API 명세서")
 					.version("v0.0.1")
-			);
+			)
+			.servers(List.of(server));
 	}
 
 	private SecurityScheme securityScheme() {
