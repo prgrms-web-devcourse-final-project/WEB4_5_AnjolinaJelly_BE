@@ -23,7 +23,7 @@ custom:
   site:
     domain: api.zzirit.shop
     back-url: https://api.zzirit.shop
-    front-url: https://zzirit.vercel.app,https://www.app4.qwas.shop,https://login.aleph.kr
+    front-url: http://localhost:3000,https://zzirit.vercel.app,https://www.app4.qwas.shop,https://login.aleph.kr
   file:
     upload-dir: uploads/
 
@@ -36,3 +36,5 @@ oauth2:
 
   naver:
     redirect-uri: https://api.zzirit.shop/login/oauth2/code/naver
+server:
+  forward-headers-strategy: framework

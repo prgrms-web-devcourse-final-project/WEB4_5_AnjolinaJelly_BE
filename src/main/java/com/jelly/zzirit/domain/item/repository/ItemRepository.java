@@ -11,8 +11,7 @@ import com.jelly.zzirit.global.exception.custom.InvalidItemException;
 import java.util.List;
 
 public interface ItemRepository extends JpaRepository<Item, Long> {
-    @Override
-    List<Item> findAll();
+
     Page<Item> findAllByNameContainingIgnoreCase(String name, Pageable pageable);
 
     default Item getById(Long itemId) {

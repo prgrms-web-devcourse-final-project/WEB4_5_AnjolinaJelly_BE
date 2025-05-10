@@ -1,199 +1,130 @@
 package com.jelly.zzirit.domain.cart.controller;
 
+import static com.jelly.zzirit.domain.item.domain.fixture.BrandFixture.*;
+import static com.jelly.zzirit.domain.item.domain.fixture.ItemFixture.*;
+import static com.jelly.zzirit.domain.item.domain.fixture.ItemStockFixture.*;
+import static com.jelly.zzirit.domain.item.domain.fixture.TypeBrandFixture.*;
+import static com.jelly.zzirit.domain.item.domain.fixture.TypeFixture.*;
+import static io.restassured.RestAssured.*;
+import static org.springframework.restdocs.payload.JsonFieldType.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.restdocs.request.RequestDocumentation.*;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.restdocs.payload.FieldDescriptor;
-import org.springframework.restdocs.request.ParameterDescriptor;
-import org.springframework.test.context.ActiveProfiles;
-import static org.springframework.restdocs.snippet.Attributes.key;
-import com.jelly.zzirit.domain.member.entity.authenum.Role;
-import com.jelly.zzirit.global.security.util.JwtUtil;
-import com.jelly.zzirit.global.support.OpenApiDocumentationFilter;
-import com.jelly.zzirit.global.support.RestDocsSupport;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureMockMvc
-@ActiveProfiles("test")
-class CartControllerTest extends RestDocsSupport {
+import com.jelly.zzirit.domain.cart.entity.Cart;
+import com.jelly.zzirit.domain.cart.entity.CartItem;
+import com.jelly.zzirit.domain.cart.repository.CartItemRepository;
+import com.jelly.zzirit.domain.cart.repository.CartRepository;
+import com.jelly.zzirit.domain.item.entity.Brand;
+import com.jelly.zzirit.domain.item.entity.Item;
+import com.jelly.zzirit.domain.item.entity.Type;
+import com.jelly.zzirit.domain.item.repository.BrandRepository;
+import com.jelly.zzirit.domain.item.repository.ItemRepository;
+import com.jelly.zzirit.domain.item.repository.ItemStockRepository;
+import com.jelly.zzirit.domain.item.repository.TypeBrandRepository;
+import com.jelly.zzirit.domain.item.repository.TypeRepository;
+import com.jelly.zzirit.domain.member.entity.Member;
+import com.jelly.zzirit.domain.member.entity.authenum.Role;
+import com.jelly.zzirit.domain.member.repository.MemberRepository;
+import com.jelly.zzirit.global.support.AcceptanceTest;
+import com.jelly.zzirit.global.support.OpenApiDocumentationFilter;
+
+class CartControllerTest extends AcceptanceTest {
+
 
 	@Autowired
-	private JwtUtil jwtUtil;
+	private CartItemRepository cartItemRepository;
+
+	@Autowired
+	private CartRepository cartRepository;
+
+	@Autowired
+	private MemberRepository memberRepository;
+
+	@Autowired
+	private ItemRepository itemRepository;
+
+	@Autowired
+	private BrandRepository brandRepository;
+
+	@Autowired
+	private TypeRepository typeRepository;
+
+	@Autowired
+	private TypeBrandRepository typeBrandRepository;
+
+	@Autowired
+	private ItemStockRepository itemStockRepository;
+
 
 	@Test
+	void 장바구니_조회() {
+		// given
+		Member 유저 = memberRepository.save(
+			Member.builder()
+				.id(1L)
+				.memberEmail("test@gamil.com")
+				.memberName("테스트유저")
+				.password("test1234!")
+				.role(Role.ROLE_USER)
+				.memberAddress("서울")
+				.memberAddressDetail("101동")
+				.build()
+		);
 
-	void 장바구니_조회_API_문서() {
-		//  테스트용 토큰 생성
-		Long userId = 1L;
-		Role role = Role.ROLE_USER;
-		String accessToken = jwtUtil.createJwt("access", userId, role, 3600); // access token (1시간)
-		System.out.println("accessToken: " + accessToken);
+		Cart 장바구니 = cartRepository.findByMemberId(유저.getId())
+			.orElseGet(() -> cartRepository.save(Cart.builder().member(유저).build()));
 
-		String responseBody = this.spec
-			.header("Authorization", "Bearer " + accessToken)
+		Type 노트북 = typeRepository.save(노트북());
+		Brand 삼성 = brandRepository.save(삼성());
+		Item 상품 = itemRepository.save(삼성_노트북(
+			typeBrandRepository.save(타입_브랜드_생성(노트북, 삼성))
+		));
+		itemStockRepository.save(풀재고_상품(상품));
+
+		cartItemRepository.save(
+			CartItem
+				.builder()
+				.cart(장바구니)
+				.item(상품)
+				.quantity(1)
+				.build()
+		);
+
+		// when & then
+		given(spec)
+			.cookie(getCookie())
 			.filter(OpenApiDocumentationFilter.ofWithResponseFields(
-				"cart-get-my-cart",
+				"내 장바구니 조회",
 				new FieldDescriptor[] {
-					fieldWithPath("success").description("요청 성공 여부")
-						.attributes(
-						key("title").value("CartResponse"),   // 스키마 이름
-						key("tags").value("cart")             // Swagger 그룹
-					),
-					fieldWithPath("code").description("응답 코드"),
-					fieldWithPath("httpStatus").description("HTTP 상태"),
-					fieldWithPath("message").description("응답 메시지"),
-					fieldWithPath("result.cartId").description("장바구니 ID"),
-					fieldWithPath("result.items[].cartItemId").description("장바구니 항목 ID"),
-					fieldWithPath("result.items[].itemId").description("상품 ID"),
-					fieldWithPath("result.items[].itemName").description("상품 이름"),
-					fieldWithPath("result.items[].itemImageUrl").description("상품 이미지 URL"),
-					fieldWithPath("result.items[].quantity").description("수량"),
-					fieldWithPath("result.items[].unitPrice").description("단가"),
-					fieldWithPath("result.items[].totalPrice").description("총 가격"),
-					fieldWithPath("result.items[].timeDeal").description("타임딜 여부"),
-					fieldWithPath("result.items[].discountRatio").description("할인율").optional(),
-					fieldWithPath("result.totalQuantity").description("전체 수량"),
-					fieldWithPath("result.totalAmount").description("총 결제 금액")
+					fieldWithPath("success").description("요청 성공 여부").type(BOOLEAN),
+					fieldWithPath("code").description("응답 코드").type(NUMBER),
+					fieldWithPath("httpStatus").description("HTTP 상태 코드").type(NUMBER),
+					fieldWithPath("message").description("응답 메시지").type(STRING),
+					fieldWithPath("result.cartId").description("장바구니 ID").type(NUMBER),
+					fieldWithPath("result.cartTotalQuantity").description("전체 수량").type(NUMBER),
+					fieldWithPath("result.cartTotalPrice").description("전체 금액").type(NUMBER),
+					fieldWithPath("result.items[].cartItemId").description("장바구니 항목 ID").type(NUMBER),
+					fieldWithPath("result.items[].itemId").description("상품 ID").type(NUMBER),
+					fieldWithPath("result.items[].itemName").description("상품명").type(STRING),
+					fieldWithPath("result.items[].type").description("상품 종류").type(STRING),
+					fieldWithPath("result.items[].brand").description("브랜드명").type(STRING),
+					fieldWithPath("result.items[].quantity").description("수량").type(NUMBER),
+					fieldWithPath("result.items[].imageUrl").description("상품 이미지 URL").type(STRING),
+					fieldWithPath("result.items[].originalPrice").description("상품 정가").type(NUMBER),
+					fieldWithPath("result.items[].discountedPrice").description("할인 적용된 가격").type(NUMBER),
+					fieldWithPath("result.items[].totalPrice").description("총 가격").type(NUMBER),
+					fieldWithPath("result.items[].timeDeal").description("타임딜 상품 여부").type(BOOLEAN),
+					fieldWithPath("result.items[].discountRatio").description("할인율").type(NUMBER).optional(),
+					fieldWithPath("result.items[].soldOut").description("품절 여부").type(BOOLEAN),
 				}
 			))
 			.when()
 			.get("/api/cart/me")
 			.then()
-			.statusCode(200)
-			.extract().asString();
-
-		System.out.println("응답 바디: \n" + responseBody);
-	}
-
-	@Test
-	void 장바구니_상품추가_API_문서() {
-
-		Long userId = 1L;
-		Role role = Role.ROLE_USER;
-		String accessToken = jwtUtil.createJwt("access", userId, role, 3600);
-
-		String requestBody = """
-			{
-				"itemId": 9,
-				"quantity": 2,
-				"timeDeal": true
-			}
-			""";
-
-		this.spec
-			.header("Authorization", "Bearer " + accessToken)
-			.contentType("application/json")
-			.body(requestBody)
-			.filter(OpenApiDocumentationFilter.of(
-				"cart-post-add-item",
-				new FieldDescriptor[] {
-					fieldWithPath("itemId").description("상품 ID")
-						.attributes(
-						key("title").value("CartItemAddRequest"),
-						key("tags").value("cart")
-					),
-					fieldWithPath("quantity").description("수량"),
-					fieldWithPath("timeDeal").description("타임딜 여부")
-				},
-				new FieldDescriptor[] {
-					fieldWithPath("success").description("요청 성공 여부"),
-					fieldWithPath("code").description("응답 코드"),
-					fieldWithPath("httpStatus").description("HTTP 상태"),
-					fieldWithPath("message").description("응답 메시지"),
-					fieldWithPath("result.cartItemId").description("장바구니 항목 ID"),
-					fieldWithPath("result.itemId").description("상품 ID"),
-					fieldWithPath("result.itemName").description("상품 이름"),
-					fieldWithPath("result.itemImageUrl").description("상품 이미지 URL"),
-					fieldWithPath("result.quantity").description("수량"),
-					fieldWithPath("result.unitPrice").description("단가"),
-					fieldWithPath("result.totalPrice").description("총 가격"),
-					fieldWithPath("result.timeDeal").description("타임딜 여부"),
-					fieldWithPath("result.discountRatio").description("할인율").optional()
-				}
-			))
-			.when()
-			.post("/api/cart/items")
-			.then()
-			.statusCode(200);
-	}
-
-	@Test
-	void 장바구니_추가_실패_잘못된_요청_문서() {
-		Long userId = 1L;
-		Role role = Role.ROLE_USER;
-		String accessToken = jwtUtil.createJwt("access", userId, role, 3600);
-
-		String invalidRequestBody = """
-		{
-			"itemId": 9,
-			"quantity": 0,
-			"timeDeal": true
-		}
-		""";
-
-		this.spec
-			.header("Authorization", "Bearer " + accessToken)
-			.contentType("application/json")
-			.body(invalidRequestBody)
-			.filter(OpenApiDocumentationFilter.of(
-				"cart-post-add-item-invalid",
-				new FieldDescriptor[] {
-					fieldWithPath("itemId").description("상품 ID"),
-					fieldWithPath("quantity").description("0 이하 수량"),
-					fieldWithPath("timeDeal").description("타임딜 여부")
-						.attributes(
-						key("title").value("CartItemAddRequest"),
-						key("tags").value("cart")
-					)
-				},
-				new FieldDescriptor[] {
-					fieldWithPath("success").description("false"),
-					fieldWithPath("code").description("에러 코드"),
-					fieldWithPath("httpStatus").description("HTTP 상태"),
-					fieldWithPath("message").description("에러 메시지"),
-					fieldWithPath("result").description("에러 객체 (비어있음)").optional()
-				}
-			))
-			.when()
-			.post("/api/cart/items")
-			.then()
-			.statusCode(400);
-	}
-
-	@Test
-	void 장바구니_상품삭제_API_문서() {
-		Long userId = 1L;
-		Role role = Role.ROLE_USER;
-		String accessToken = jwtUtil.createJwt("access", userId, role, 3600);
-
-		this.spec
-			.header("Authorization", "Bearer " + accessToken)
-			.filter(OpenApiDocumentationFilter.ofWithPathParamsAndResponseFields(
-				"cart-delete-remove-item",
-
-				new ParameterDescriptor[] {
-					parameterWithName("itemId").description("삭제할 상품의 ID")
-				},
-
-				new FieldDescriptor[] {
-					fieldWithPath("success").description("요청 성공 여부")
-						.attributes(
-						key("title").value("Empty"),
-						key("tags").value("cart")
-					),
-					fieldWithPath("code").description("응답 코드"),
-					fieldWithPath("httpStatus").description("HTTP 상태"),
-					fieldWithPath("message").description("응답 메시지"),
-					fieldWithPath("result").description("빈 응답 객체 (Empty)").optional()
-				}
-			))
-			.when()
-			.delete("/api/cart/items/{itemId}", 9L)
-			.then()
+			.log().all()
 			.statusCode(200);
 	}
 }

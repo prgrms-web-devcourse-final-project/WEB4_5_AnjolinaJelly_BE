@@ -20,9 +20,10 @@ import com.jelly.zzirit.domain.order.dto.request.OrderItemRequestDto;
 import com.jelly.zzirit.domain.order.dto.request.PaymentRequestDto;
 import com.jelly.zzirit.domain.order.dto.response.TossPaymentResponse;
 import com.jelly.zzirit.domain.order.entity.Order;
-import com.jelly.zzirit.domain.order.repository.OrderItemRepository;
+import com.jelly.zzirit.domain.order.mapper.OrderMapper;
 import com.jelly.zzirit.domain.order.repository.OrderRepository;
 import com.jelly.zzirit.domain.order.repository.PaymentRepository;
+import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
 
 @ExtendWith(MockitoExtension.class)
@@ -33,33 +34,40 @@ class TempOrderServiceTest {
 
 	@Mock
 	private OrderRepository orderRepository;
-	@Mock private OrderItemRepository orderItemRepository;
-	@Mock private ItemRepository itemRepository;
-	@Mock private PaymentRepository paymentRepository;
-	@Mock private OrderService orderService;
+
+	@Mock
+	private ItemRepository itemRepository;
+
+	@Mock
+	private PaymentRepository paymentRepository;
+
+	@Mock
+	private OrderService orderService;
+
+	@Mock
+	private OrderMapper orderMapper;
 
 	@Test
 	void 정상적으로_임시주문을_생성한다() {
 		// given
 		Member member = mock(Member.class);
 		PaymentRequestDto dto = new PaymentRequestDto(
-			List.of(new OrderItemRequestDto(1L, null, 2, "샘플", new BigDecimal("10000"))),
-			new BigDecimal("20000"),
-			"요청사항",
-			"서울",
-			"101동"
+			List.of(new OrderItemRequestDto(1L, 2, "샘플", new BigDecimal("10000"))),
+			new BigDecimal("20000"), "요청사항", "서울", "101동"
 		);
-		Item item = Item.builder().id(1L).build();
+		Order order = mock(Order.class);
 
-		when(itemRepository.findAllById(anyList())).thenReturn(List.of(item));
+		when(orderMapper.mapToTempOrder(dto, member, "ORDER-001")).thenReturn(order);
+		doNothing().when(orderMapper).mapToOrderItems(order, dto.orderItems());
 
 		// when
-		Order order = tempOrderService.createTempOrder(dto, member, "ORDER-001");
+		Order result = tempOrderService.createTempOrder(dto, member, "ORDER-001");
 
 		// then
-		assertNotNull(order);
-		verify(orderRepository).save(any());
-		verify(orderItemRepository).saveAll(any());
+		assertNotNull(result);
+		verify(orderMapper).mapToTempOrder(dto, member, "ORDER-001");
+		verify(orderMapper).mapToOrderItems(order, dto.orderItems());
+		verify(orderRepository).save(order);
 	}
 
 	@Test
@@ -67,18 +75,20 @@ class TempOrderServiceTest {
 		// given
 		Member member = mock(Member.class);
 		PaymentRequestDto dto = new PaymentRequestDto(
-			List.of(new OrderItemRequestDto(99L, null, 1, "없는상품", new BigDecimal("10000"))),
-			new BigDecimal("10000"),
-			null,
-			null,
-			null
+			List.of(new OrderItemRequestDto(99L, 1, "없는상품", new BigDecimal("10000"))),
+			new BigDecimal("10000"), null, null, null
 		);
-		when(itemRepository.findAllById(anyList())).thenReturn(List.of());
+		Order order = mock(Order.class);
+		when(orderMapper.mapToTempOrder(dto, member, "ORDER-999")).thenReturn(order);
+
+		doThrow(new InvalidOrderException(BaseResponseStatus.ITEM_NOT_FOUND))
+			.when(orderMapper).mapToOrderItems(any(), any());
 
 		// when & then
 		assertThrows(InvalidOrderException.class, () ->
 			tempOrderService.createTempOrder(dto, member, "ORDER-999"));
 	}
+
 
 	@Test
 	void 정상적으로_주문확정을_진행한다() {
@@ -86,31 +96,34 @@ class TempOrderServiceTest {
 		Order order = mock(Order.class);
 		TossPaymentResponse response = mock(TossPaymentResponse.class);
 
+		when(response.getOrderId()).thenReturn("ORDER-001");
+		when(response.getPaymentKey()).thenReturn("pay_123");
+		when(response.getTotalAmount()).thenReturn(new BigDecimal("10000"));
+		when(response.getStatus()).thenReturn("DONE");
+		when(response.getMethod()).thenReturn("카드");
+
 		when(orderRepository.findByOrderNumber("ORDER-001")).thenReturn(Optional.of(order));
 		when(order.getTotalPrice()).thenReturn(new BigDecimal("10000"));
 		when(order.getOrderNumber()).thenReturn("ORDER-001");
 		when(order.getStatus()).thenReturn(Order.OrderStatus.PENDING);
-		when(response.getStatus()).thenReturn("DONE");
-		when(response.getTotalAmount()).thenReturn(new BigDecimal("10000"));
-		when(response.getPaymentKey()).thenReturn("pay_123");
-		when(response.getMethod()).thenReturn("카드");
-		when(response.getOrderId()).thenReturn("ORDER-001");
 
 		// when
-		tempOrderService.confirmTempOrder("pay_123", "ORDER-001", "10000", response);
+		tempOrderService.confirmTempOrder(response);
 
 		// then
 		verify(paymentRepository).save(any());
 		verify(orderService).completeOrder(order, "pay_123");
 	}
 
-
 	@Test
 	void 주문이_없으면_예외가_발생한다() {
-		when(orderRepository.findByOrderNumber(anyString())).thenReturn(Optional.empty());
+		TossPaymentResponse response = mock(TossPaymentResponse.class);
+		when(response.getOrderId()).thenReturn("ORDER-404");
+
+		when(orderRepository.findByOrderNumber("ORDER-404")).thenReturn(Optional.empty());
 
 		assertThrows(InvalidOrderException.class, () ->
-			tempOrderService.confirmTempOrder("pay_xxx", "ORDER-404", "10000", mock(TossPaymentResponse.class)));
+			tempOrderService.confirmTempOrder(response));
 	}
 
 	@Test
@@ -121,7 +134,7 @@ class TempOrderServiceTest {
 		when(mockOrder.isConfirmed()).thenReturn(false);
 		when(paymentRepository.findByOrder(mockOrder)).thenReturn(Optional.empty());
 
-		tempOrderService.deleteTempOrder("ORDER-001", "USER_CANCEL", "사용자 취소");
+		tempOrderService.deleteTempOrder("ORDER-001");
 
 		verify(paymentRepository).findByOrder(mockOrder);
 		verify(orderRepository).delete(mockOrder);
@@ -132,7 +145,7 @@ class TempOrderServiceTest {
 		when(orderRepository.findByOrderNumber("ORDER-404")).thenReturn(Optional.empty());
 
 		assertThrows(InvalidOrderException.class, () ->
-			tempOrderService.deleteTempOrder("ORDER-404", "NOT_FOUND", "존재하지 않는 주문"));
+			tempOrderService.deleteTempOrder("ORDER-404"));
 	}
 
 	@Test
@@ -143,6 +156,6 @@ class TempOrderServiceTest {
 		when(confirmedOrder.isConfirmed()).thenReturn(true);
 
 		assertThrows(InvalidOrderException.class, () ->
-			tempOrderService.deleteTempOrder("ORDER-002", "ALREADY_CONFIRMED", "이미 확정된 주문"));
+			tempOrderService.deleteTempOrder("ORDER-002"));
 	}
 }

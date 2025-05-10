@@ -66,7 +66,7 @@ public class PaymentController {
 		@RequestParam(required = false) String message,
 		@RequestParam(required = false) String orderId
 	) {
-		tempOrderService.deleteTempOrder(orderId, code, message);
+		tempOrderService.deleteTempOrder(orderId);
 		String failReason = String.format("결제 실패 (%s): %s | 주문번호: %s", code, message, orderId);
 		return BaseResponse.error(BaseResponseStatus.TOSS_PAYMENT_REQUEST_FAILED, failReason);
 	}

@@ -16,7 +16,6 @@ import com.jelly.zzirit.global.dto.BaseResponse;
 import com.jelly.zzirit.global.dto.Empty;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -58,14 +57,14 @@ public class CartItemController {
 
 	@Operation(summary = "장바구니 상품 수량 증가", description = "+1 수량 증가")
 	@PostMapping("/{itemId}/increase")
-	public BaseResponse<CartResponse> increaseQuantity(@PathVariable Long itemId) {
+	public BaseResponse<CartItemResponse> increaseQuantity(@PathVariable Long itemId) {
 		Long memberId = AuthMember.getMemberId();
 		return BaseResponse.success(cartItemService.modifyQuantity(memberId, itemId, +1));
 	}
 
 	@Operation(summary = "장바구니 상품 수량 감소", description = "-1 수량 감소")
 	@PostMapping("/{itemId}/decrease")
-	public BaseResponse<CartResponse> decreaseQuantity(@PathVariable Long itemId) {
+	public BaseResponse<CartItemResponse> decreaseQuantity(@PathVariable Long itemId) {
 		Long memberId = AuthMember.getMemberId();
 		return BaseResponse.success(cartItemService.modifyQuantity(memberId, itemId, -1));
 	}

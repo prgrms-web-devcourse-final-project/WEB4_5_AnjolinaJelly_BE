@@ -2,9 +2,11 @@ package com.jelly.zzirit.domain.item.entity;
 
 import java.math.BigDecimal;
 
-import com.jelly.zzirit.domain.adminItem.dto.request.ItemCreateRequest;
+import com.jelly.zzirit.domain.admin.dto.request.ItemCreateRequest;
+import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.dto.Empty;
 import com.jelly.zzirit.global.entity.BaseTime;
+import com.jelly.zzirit.global.exception.custom.InvalidItemException;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -48,11 +50,25 @@ public class Item extends BaseTime {
 	// update함수는 entity 수정 pr 머지 이후에 수정하는 게 좋을 것 같아요!
 	public Empty update(ItemCreateRequest request, TypeBrand typeBrand) {
 		this.name = request.name();
-		this.price = BigDecimal.valueOf(request.price()); // todo: bigdecimal로 변경 필요
+		this.price = request.price(); // todo: bigdecimal로 변경 필요
 		this.typeBrand = typeBrand;
 
 		return Empty.getInstance();
 	}
 
-	// todo: timeDealStatus 업데이트 로직 추가해야 함
+	public Empty changePrice(BigDecimal newPrice) {
+		if (newPrice == null || newPrice.compareTo(BigDecimal.ZERO) < 0) {
+			throw new InvalidItemException(BaseResponseStatus.INVALID_PRICE);
+		}
+		this.price = newPrice;
+
+		return Empty.getInstance();
+	}
+
+	// todo: itemStatus 업데이트 로직 추가해야 함
+	// 임시 테스트 용
+	public Empty changeItemStatus(ItemStatus status) {
+		this.itemStatus = status;
+		return Empty.getInstance();
+	}
 }

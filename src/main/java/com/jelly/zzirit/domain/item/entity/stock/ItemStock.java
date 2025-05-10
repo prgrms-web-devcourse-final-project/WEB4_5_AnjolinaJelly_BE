@@ -1,6 +1,6 @@
 package com.jelly.zzirit.domain.item.entity.stock;
 
-import com.jelly.zzirit.domain.adminItem.dto.request.ItemCreateRequest;
+import com.jelly.zzirit.domain.admin.dto.request.ItemCreateRequest;
 import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.dto.Empty;
@@ -50,5 +50,17 @@ public class ItemStock extends BaseEntity {
 
 	public void addSoldQuantity(int quantity) {
 		this.soldQuantity += quantity;
+	}
+
+	public Empty changeQuantity(int newQuantity) {
+		if (newQuantity < 0) {
+			throw new InvalidItemException(BaseResponseStatus.INVALID_STOCK);
+		}
+		if (this.soldQuantity > newQuantity) {
+			throw new InvalidItemException(BaseResponseStatus.OUT_OF_STOCK);
+		}
+		this.quantity = newQuantity;
+
+		return Empty.getInstance();
 	}
 }

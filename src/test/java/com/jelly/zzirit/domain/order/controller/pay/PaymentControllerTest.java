@@ -114,6 +114,6 @@ class PaymentControllerTest extends TestMemberConfig {
 			.andExpect(jsonPath("$.message").value(containsString("토스 결제 요청에 실패했습니다.")));
 
 		Mockito.verify(tempOrderService)
-			.deleteTempOrder(orderId, code, message);
+			.deleteTempOrder(orderId);
 	}
 }

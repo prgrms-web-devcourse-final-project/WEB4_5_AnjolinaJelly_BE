@@ -7,13 +7,18 @@ import jakarta.persistence.Entity;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
+@SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Brand extends BaseTime {
 
 	@Column(name = "name", nullable = false, length = 100)
 	private String name;
 
+	public Brand(String name) {
+		this.name = name;
+	}
 }
