@@ -1,7 +1,9 @@
 package com.jelly.zzirit.global.config;
 
 import java.util.Collections;
+import java.util.List;
 
+import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
