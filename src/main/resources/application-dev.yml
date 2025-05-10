@@ -25,3 +25,6 @@ oauth2:
     redirect-uri: http://localhost:8080/login/oauth2/code/google
   kakao:
     redirect-uri: http://localhost:8080/login/oauth2/code/kakao
+
+server:
+  forward-headers-strategy: framework
