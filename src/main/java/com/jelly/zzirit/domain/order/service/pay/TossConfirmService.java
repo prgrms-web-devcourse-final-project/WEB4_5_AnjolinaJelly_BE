@@ -16,7 +16,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jelly.zzirit.domain.order.dto.response.TossPaymentResponse;
+import com.jelly.zzirit.domain.order.dto.response.PaymentResponse;
 import com.jelly.zzirit.domain.order.service.order.TempOrderService;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
@@ -38,7 +38,7 @@ public class TossConfirmService {
 
 	public void confirmPayment(String paymentKey, String orderNumber, String amount) {
 		confirmToToss(paymentKey, orderNumber, amount);
-		TossPaymentResponse paymentInfo = fetchPaymentInfo(paymentKey);
+		PaymentResponse paymentInfo = fetchPaymentInfo(paymentKey);
 		tempOrderService.confirmTempOrder(paymentInfo);
 	}
 
@@ -61,7 +61,7 @@ public class TossConfirmService {
 		}
 	}
 
-	private TossPaymentResponse fetchPaymentInfo(String paymentKey) {
+	private PaymentResponse fetchPaymentInfo(String paymentKey) {
 		String url = "https://api.tosspayments.com/v1/payments/" + paymentKey;
 		HttpHeaders headers = createHeaders();
 		HttpEntity<Void> entity = new HttpEntity<>(headers);
@@ -69,7 +69,7 @@ public class TossConfirmService {
 		try {
 			ResponseEntity<String> response = restTemplate.exchange(
 				url, HttpMethod.GET, entity, String.class);
-			return objectMapper.readValue(response.getBody(), TossPaymentResponse.class);
+			return objectMapper.readValue(response.getBody(), PaymentResponse.class);
 		} catch (Exception e) {
 			throw new InvalidOrderException(BaseResponseStatus.TOSS_PAYMENT_VERIFY_FAILED);
 		}

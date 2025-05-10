@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.restdocs.payload.FieldDescriptor;
+import org.springframework.test.context.ActiveProfiles;
 
 import com.epages.restdocs.apispec.RestAssuredRestDocumentationWrapper;
 import com.jelly.zzirit.domain.item.repository.TypeRepository;

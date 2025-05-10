@@ -26,7 +26,6 @@ import io.restassured.filter.Filter;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 
-@AutoConfigureMockMvc
 @Disabled
 public class BrandControllerTest extends AcceptanceTest {
 

@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.jelly.zzirit.domain.member.entity.Member;
-import com.jelly.zzirit.domain.order.dto.request.PaymentRequest;
+import com.jelly.zzirit.domain.order.dto.request.PaymentRequestDto;
 import com.jelly.zzirit.domain.order.dto.response.TossPaymentResponse;
 import com.jelly.zzirit.domain.order.entity.Order;
 import com.jelly.zzirit.domain.order.entity.Payment;
@@ -29,7 +29,7 @@ public class TempOrderService {
 	private final OrderMapper orderMapper;
 
 	@Transactional
-	public Order createTempOrder(PaymentRequest dto, Member member, String orderNumber) {
+	public Order createTempOrder(PaymentRequestDto dto, Member member, String orderNumber) {
 		Order tempOrder = orderMapper.mapToTempOrder(dto, member, orderNumber);
 		orderMapper.mapToOrderItems(tempOrder, dto.orderItems());
 		orderRepository.save(tempOrder);
@@ -37,7 +37,7 @@ public class TempOrderService {
 	} //임시 주문 생성
 
 	@Transactional
-	public void confirmTempOrder(TossPaymentResponse paymentInfo) {
+	public void confirmTempOrder(PaymentResponse paymentInfo) {
 		Order order = orderRepository.findByOrderNumber(paymentInfo.getOrderId())
 			.orElseThrow(() -> new InvalidOrderException(BaseResponseStatus.ORDER_NOT_FOUND));
 
@@ -46,7 +46,7 @@ public class TempOrderService {
 		Payment payment = Payment.of(paymentInfo.getPaymentKey(), paymentInfo.getMethod());
 		paymentRepository.save(payment);
 
-		commandOrderService.completeOrder(order, paymentInfo.getPaymentKey());
+		orderService.completeOrder(order, paymentInfo.getPaymentKey());
 	} // 결제 성공 시 주문 확정
 
 	@Transactional
