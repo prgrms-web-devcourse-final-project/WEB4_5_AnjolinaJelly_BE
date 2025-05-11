@@ -15,6 +15,7 @@ import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.domain.item.entity.ItemStatus;
 import com.jelly.zzirit.domain.item.entity.stock.ItemStock;
 import com.jelly.zzirit.domain.item.entity.timedeal.TimeDealItem;
+import com.jelly.zzirit.domain.item.repository.ItemQueryRepository;
 import com.jelly.zzirit.domain.item.repository.ItemRepository;
 import com.jelly.zzirit.domain.item.repository.ItemStockRepository;
 import com.jelly.zzirit.domain.item.repository.TimeDealItemRepository;
@@ -30,6 +31,7 @@ import lombok.RequiredArgsConstructor;
 public class QueryItemService {
 
 	private final ItemRepository itemRepository;
+	private final ItemQueryRepository itemQueryRepository;
 	private final ItemStockRepository itemStockRepository;
 	private final TimeDealItemRepository timeDealItemRepository;
 
@@ -49,36 +51,17 @@ public class QueryItemService {
 	}
 
 	public PageResponse<SimpleItemResponse> search(List<String> types, List<String> brands, String keyword, String sort, Pageable pageable) {
-		Page<Item> rawItems = (keyword == null || keyword.isBlank())
-			? itemRepository.findAll(PageRequest.of(0, Integer.MAX_VALUE))  // 전체 데이터 조회
-			: itemRepository.findAllByNameContainingIgnoreCase(keyword, PageRequest.of(0, Integer.MAX_VALUE));
-
-		// 타입, 브랜드 필터링
-		List<Item> filtered = rawItems.stream()
-			.filter(item -> types == null || types.isEmpty() || types.contains(item.getTypeBrand().getType().getName()))
-			.filter(item -> brands == null || brands.isEmpty() || brands.contains(item.getTypeBrand().getBrand().getName()))
-			.toList();
-
-		// 정렬
-		List<Item> sorted = switch (sort) {
-			case "priceDesc" -> filtered.stream().sorted(Comparator.comparing(Item::getPrice).reversed()).toList();
-			default -> filtered.stream().sorted(Comparator.comparing(Item::getPrice)).toList();
-		};
-
-		// 페이징
-		int start = (int) pageable.getOffset();
-		int end = Math.min(start + pageable.getPageSize(), sorted.size());
-		List<SimpleItemResponse> pageContent = sorted.subList(start, end).stream()
-			.map(this::toSimpleItemResponse)
-			.toList();
+		Page<Item> items = itemQueryRepository.findItems(types, brands, keyword, sort, pageable);
 
 		return new PageResponse<>(
-			pageContent,
+			items.getContent().stream()
+				.map(SimpleItemResponse::from)
+				.toList(),
 			pageable.getPageNumber(),
 			pageable.getPageSize(),
-			sorted.size(),
-			(int) Math.ceil((double) sorted.size() / pageable.getPageSize()),
-			end == sorted.size()
+			items.getSize(),
+			items.getTotalPages(),
+			items.isLast()
 		);
 	}
 
