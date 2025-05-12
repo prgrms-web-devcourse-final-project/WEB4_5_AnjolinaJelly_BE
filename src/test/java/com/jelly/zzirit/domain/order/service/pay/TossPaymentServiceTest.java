@@ -12,7 +12,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.jelly.zzirit.domain.member.entity.Member;
-import com.jelly.zzirit.domain.order.dto.request.PaymentRequestDto;
+import com.jelly.zzirit.domain.order.dto.request.PaymentRequest;
 import com.jelly.zzirit.domain.order.entity.Order;
 import com.jelly.zzirit.domain.order.service.order.OrderSequenceGenerator;
 import com.jelly.zzirit.domain.order.service.order.TempOrderService;
@@ -35,7 +35,7 @@ class TossPaymentServiceTest {
 		// given
 		Long sequence = 123L;
 		String expectedOrderNumber = Order.generateOrderNumber(sequence);
-		PaymentRequestDto dto = mock(PaymentRequestDto.class);
+		PaymentRequest dto = mock(PaymentRequest.class);
 
 		Member member = mock(Member.class);
 		Order mockOrder = mock(Order.class);

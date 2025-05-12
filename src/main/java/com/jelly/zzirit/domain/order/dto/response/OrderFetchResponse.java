@@ -1,11 +1,11 @@
 package com.jelly.zzirit.domain.order.dto.response;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.jelly.zzirit.domain.order.entity.Order;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.jelly.zzirit.domain.order.entity.Order;
 
 public record OrderFetchResponse(
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy.MM.dd HH:mm:ss")

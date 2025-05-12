@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.jelly.zzirit.domain.cart.dto.response.CartItemResponse;
-import com.jelly.zzirit.domain.cart.dto.response.CartResponse;
+import com.jelly.zzirit.domain.cart.dto.response.CartItemFetchResponse;
+import com.jelly.zzirit.domain.cart.dto.response.CartFetchResponse;
 import com.jelly.zzirit.domain.cart.entity.Cart;
 import com.jelly.zzirit.domain.cart.entity.CartItem;
 import com.jelly.zzirit.domain.cart.repository.CartItemRepository;
@@ -31,7 +31,7 @@ public class CartService {
 	private final TimeDealItemRepository timeDealItemRepository;
 	private final ItemStockRepository itemStockRepository;
 
-	public CartResponse getMyCart(Long memberId) {
+	public CartFetchResponse getMyCart(Long memberId) {
 
 		// 사용자 장바구니 조회
 		Cart cart = cartRepository.findByMemberId(memberId)
@@ -44,7 +44,8 @@ public class CartService {
 		// 장바구니 항목 조회
 		List<CartItem> cartItems = cartItemRepository.findAllByCartId(cart.getId());
 
-		List<CartItemResponse> itemResponses = cartItems.stream()
+		// cartitems를 조인으로 장바구니 조회 없이 바로 들고오기 가능
+		List<CartItemFetchResponse> itemResponses = cartItems.stream()
 			.map(cartItem -> {
 				Item item = cartItem.getItem();
 				int quantity = cartItem.getQuantity();
@@ -74,7 +75,7 @@ public class CartService {
 
 				int totalPrice = discountedPrice * quantity;
 
-				return new CartItemResponse(
+				return new CartItemFetchResponse(
 					cartItem.getId(),
 					item.getId(),
 					item.getName(),
@@ -94,15 +95,15 @@ public class CartService {
 
 		// 전체 수량 및 금액 집계 (품절 상품 제외)
 		int cartTotalQuantity = itemResponses.stream()
-			.filter(res -> !res.isSoldOut())
-			.mapToInt(CartItemResponse::getQuantity)
+			.filter(res -> !res.getIsSoldOut())
+			.mapToInt(CartItemFetchResponse::getQuantity)
 			.sum();
 
 		int cartTotalPrice = itemResponses.stream()
-			.filter(res -> !res.isSoldOut())
-			.mapToInt(CartItemResponse::getTotalPrice)
+			.filter(res -> !res.getIsSoldOut())
+			.mapToInt(CartItemFetchResponse::getTotalPrice)
 			.sum();
 
-		return new CartResponse(cart.getId(), itemResponses, cartTotalQuantity, cartTotalPrice);
+		return new CartFetchResponse(cart.getId(), itemResponses, cartTotalQuantity, cartTotalPrice);
 	}
 }

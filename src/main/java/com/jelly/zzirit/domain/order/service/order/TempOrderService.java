@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.jelly.zzirit.domain.member.entity.Member;
-import com.jelly.zzirit.domain.order.dto.request.PaymentRequestDto;
+import com.jelly.zzirit.domain.order.dto.request.PaymentRequest;
 import com.jelly.zzirit.domain.order.dto.response.TossPaymentResponse;
 import com.jelly.zzirit.domain.order.entity.Order;
 import com.jelly.zzirit.domain.order.entity.Payment;
@@ -25,11 +25,11 @@ public class TempOrderService {
 
 	private final OrderRepository orderRepository;
 	private final PaymentRepository paymentRepository;
-	private final OrderService orderService;
+	private final CommandOrderService commandOrderService;
 	private final OrderMapper orderMapper;
 
 	@Transactional
-	public Order createTempOrder(PaymentRequestDto dto, Member member, String orderNumber) {
+	public Order createTempOrder(PaymentRequest dto, Member member, String orderNumber) {
 		Order tempOrder = orderMapper.mapToTempOrder(dto, member, orderNumber);
 		orderMapper.mapToOrderItems(tempOrder, dto.orderItems());
 		orderRepository.save(tempOrder);
@@ -46,7 +46,7 @@ public class TempOrderService {
 		Payment payment = Payment.of(paymentInfo.getPaymentKey(), paymentInfo.getMethod());
 		paymentRepository.save(payment);
 
-		orderService.completeOrder(order, paymentInfo.getPaymentKey());
+		commandOrderService.completeOrder(order, paymentInfo.getPaymentKey());
 	} // 결제 성공 시 주문 확정
 
 	@Transactional
@@ -58,7 +58,6 @@ public class TempOrderService {
 			throw new InvalidOrderException(BaseResponseStatus.ALREADY_PROCESSED);
 		}
 
-		// paymentRepository.findByOrder(order).ifPresent(paymentRepository::delete);
 		orderRepository.delete(order);
 	} // 결제 실패 또는 취소 시 임시 주문 제거
 }

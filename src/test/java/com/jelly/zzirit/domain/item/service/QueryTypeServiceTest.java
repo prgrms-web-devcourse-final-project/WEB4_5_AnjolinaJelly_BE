@@ -11,7 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.jelly.zzirit.domain.item.dto.response.TypeResponse;
+import com.jelly.zzirit.domain.item.dto.response.TypeFetchResponse;
 import com.jelly.zzirit.domain.item.entity.Type;
 import com.jelly.zzirit.domain.item.repository.TypeRepository;
 
@@ -31,7 +31,7 @@ public class QueryTypeServiceTest {
 		given(typeRepository.findAll()).willReturn(mockTypes);
 
 		// when
-		List<TypeResponse> 응답 = queryTypeService.getAll();
+		List<TypeFetchResponse> 응답 = queryTypeService.getAll();
 
 		// then
 		assertThat(응답).hasSize(mockTypes.size());

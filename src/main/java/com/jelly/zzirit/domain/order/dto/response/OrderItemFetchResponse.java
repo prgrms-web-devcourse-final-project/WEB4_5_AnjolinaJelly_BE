@@ -1,8 +1,8 @@
 package com.jelly.zzirit.domain.order.dto.response;
 
-import com.jelly.zzirit.domain.order.entity.OrderItem;
-
 import java.math.BigDecimal;
+
+import com.jelly.zzirit.domain.order.entity.OrderItem;
 
 public record OrderItemFetchResponse(
     String itemName,

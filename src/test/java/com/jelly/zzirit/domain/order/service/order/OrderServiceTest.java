@@ -1,6 +1,5 @@
 package com.jelly.zzirit.domain.order.service.order;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.math.BigDecimal;
@@ -18,7 +17,7 @@ import com.jelly.zzirit.domain.order.service.pay.RefundService;
 class OrderServiceTest {
 
 	@InjectMocks
-	private OrderService orderService;
+	private CommandOrderService commandOrderService;
 
 	@Mock
 	private OrderManager orderManager;
@@ -31,7 +30,7 @@ class OrderServiceTest {
 		String paymentKey = "pay_001";
 
 		// when
-		orderService.completeOrder(order, paymentKey);
+		commandOrderService.completeOrder(order, paymentKey);
 
 		// then
 		verify(orderManager).process(order);
@@ -50,7 +49,7 @@ class OrderServiceTest {
 		doThrow(new RuntimeException("처리 실패")).when(orderManager).process(order);
 
 		// when
-		orderService.completeOrder(order, paymentKey);
+		commandOrderService.completeOrder(order, paymentKey);
 
 		// then
 		verify(refundService).refundImmediately(paymentKey, totalPrice);

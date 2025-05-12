@@ -2,15 +2,17 @@ package com.jelly.zzirit.global.dataInit;
 
 import java.util.Set;
 
-import com.jelly.zzirit.domain.member.entity.Member;
-import com.jelly.zzirit.domain.member.entity.authenum.Role;
-import com.jelly.zzirit.domain.member.repository.MemberRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+
+import com.jelly.zzirit.domain.member.entity.Member;
+import com.jelly.zzirit.domain.member.entity.authenum.Role;
+import com.jelly.zzirit.domain.member.repository.MemberRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Component

@@ -8,16 +8,13 @@ import static org.mockito.BDDMockito.*;
 
 import java.util.List;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.jelly.zzirit.domain.item.domain.fixture.BrandFixture;
-import com.jelly.zzirit.domain.item.domain.fixture.TypeFixture;
-import com.jelly.zzirit.domain.item.dto.response.BrandResponse;
+import com.jelly.zzirit.domain.item.dto.response.BrandFetchResponse;
 import com.jelly.zzirit.domain.item.entity.Brand;
 import com.jelly.zzirit.domain.item.entity.Type;
 import com.jelly.zzirit.domain.item.entity.TypeBrand;
@@ -43,7 +40,7 @@ public class QueryBrandServiceTest {
 		given(typeBrandRepository.findByTypeId(1L)).willReturn(mockBrands);
 
 		// when
-		List<BrandResponse> 응답 = queryBrandService.getByType(1L);
+		List<BrandFetchResponse> 응답 = queryBrandService.getByType(1L);
 
 		// then
 		assertThat(응답).hasSize(2);

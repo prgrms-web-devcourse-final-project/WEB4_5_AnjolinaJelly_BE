@@ -2,7 +2,7 @@ package com.jelly.zzirit.domain.order.service.pay;
 
 import org.springframework.stereotype.Service;
 
-import com.jelly.zzirit.domain.order.dto.request.PaymentRequestDto;
+import com.jelly.zzirit.domain.order.dto.request.PaymentRequest;
 import com.jelly.zzirit.domain.order.entity.Order;
 import com.jelly.zzirit.domain.order.service.order.OrderSequenceGenerator;
 import com.jelly.zzirit.domain.order.service.order.TempOrderService;
@@ -19,7 +19,7 @@ public class TossPaymentService {
 	private final OrderSequenceGenerator orderSequenceGenerator;
 	private final TempOrderService tempOrderService;
 
-	public String createOrderAndReturnOrderNumber(PaymentRequestDto dto) {
+	public String createOrderAndReturnOrderNumber(PaymentRequest dto) {
 		Long todaySequence = orderSequenceGenerator.getTodaySequence();
 		String orderNumber = Order.generateOrderNumber(todaySequence);
 

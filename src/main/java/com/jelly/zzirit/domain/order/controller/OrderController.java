@@ -1,21 +1,28 @@
 package com.jelly.zzirit.domain.order.controller;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.jelly.zzirit.domain.order.dto.response.OrderFetchResponse;
 import com.jelly.zzirit.domain.order.service.OrderCancellationFacade;
-import com.jelly.zzirit.domain.order.service.QueryOrderService;
+import com.jelly.zzirit.domain.order.service.order.QueryOrderService;
 import com.jelly.zzirit.global.AuthMember;
 import com.jelly.zzirit.global.dto.BaseResponse;
 import com.jelly.zzirit.global.dto.Empty;
 import com.jelly.zzirit.global.dto.PageResponse;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/orders")
+@RequestMapping("/orders")
 @RequiredArgsConstructor
 @Tag(name = "주문 API", description = "주문과 관련된 API를 설명합니다.")
 public class OrderController {
@@ -33,7 +40,7 @@ public class OrderController {
         Pageable pageable = PageRequest.of(page, size);
 
         return BaseResponse.success(PageResponse.from(
-            queryOrderService.findPagedOrders(memberId, pageable)
+          queryOrderService.findPagedOrders(memberId, pageable)
                 .map(OrderFetchResponse::from)
         ));
     }

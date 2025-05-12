@@ -8,8 +8,6 @@ import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.exception.custom.InvalidItemException;
 
-import java.util.List;
-
 public interface ItemRepository extends JpaRepository<Item, Long> {
 
     Page<Item> findAllByNameContainingIgnoreCase(String name, Pageable pageable);

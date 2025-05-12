@@ -1,4 +1,6 @@
-#application-test.yml
+server:
+  servlet:
+    context-path: /api
 
 spring:
   datasource:
