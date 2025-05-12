@@ -37,6 +37,6 @@ public class QueryAdminItemService {
         } else {
             page = itemRepository.findAllItems(pageable);
         }
-        return PageResponse.of(page);
+        return PageResponse.from(page);
     }
 }
