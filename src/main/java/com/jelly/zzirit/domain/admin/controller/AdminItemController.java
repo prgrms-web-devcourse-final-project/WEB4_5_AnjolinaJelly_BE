@@ -48,16 +48,15 @@ public class AdminItemController {
 	/**
 	 * (관리자) 상품 조회 & 검색
 	 */
-	@Operation(summary = "관리자 상품 조회 & 검색", description = "관리자가 id/이름으로 상품 목록을 조회합니다.")
-	@GetMapping
+	@Operation(summary = "관리자 상품 조회 & 검색", description = "관리자가 id/이름으로 상품 목록을 조회합니다.")	@GetMapping
 	public BaseResponse<PageResponse<AdminItemResponse>> getItems(
-		@RequestParam(required = false) String name,
-		@RequestParam(required = false) Long itemId,
-		@RequestParam(defaultValue = "0") int page,
-		@RequestParam(defaultValue = "10") int size
+			@RequestParam(required = false) Long itemId,
+			@RequestParam(required = false) String name,
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size
 	) {
 		Pageable pageable = PageRequest.of(page, size);
-		return BaseResponse.success(queryAdminItemService.getItems(name, itemId, pageable));
+		return BaseResponse.success(queryAdminItemService.getSearchItems(itemId, name, pageable));
 	}
 
 	/**
