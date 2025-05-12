@@ -86,10 +86,10 @@ public class TimeDealService {
 					int quantity = itemStockRepository.findByItemId(itemId)
 						.map(ItemStock::getQuantity)
 						.orElse(0);
-					return new TimeDealCreateResponse.TimeDealCreateItem(itemId, quantity);
+					return TimeDealCreateResponse.TimeDealCreateItem.from(itemId, quantity);
 				}).toList();
 
-		return new TimeDealCreateResponse(
+		return TimeDealCreateResponse.from(
 			timeDeal.getId(),
 			timeDeal.getName(),
 			timeDeal.getStartTime().toString(),
@@ -102,8 +102,7 @@ public class TimeDealService {
 	// 타임딜 등록 모달 생성
 	public List<TimeDealModalCreateResponse> getModalItems(List<Long> itemIds) {
 		return itemRepository.findAllById(itemIds).stream()
-			.map(item -> new TimeDealModalCreateResponse(item.getId(), item.getName(),
-				new BigDecimal(String.valueOf(item.getPrice())).intValue()))
+			.map(item -> TimeDealModalCreateResponse.from(item))
 			.toList();
 	}
 
@@ -117,7 +116,7 @@ public class TimeDealService {
 		int page,
 		int size
 	) {
-		TimeDealSearchCondition condition = new TimeDealSearchCondition(timeDealName, timeDealId, timeDealItemName,
+		TimeDealSearchCondition condition = TimeDealSearchCondition.from(timeDealName, timeDealId, timeDealItemName,
 			timeDealItemId, status);
 		List<TimeDealSearchResponse> result = queryTimeDealService.search(condition);
 
@@ -139,31 +138,19 @@ public class TimeDealService {
 	// 진행중인 타임딜 조회
 	public List<CurrentTimeDealResponse> getCurrentTimeDeals() {
 		return timeDealRepository.getOngoingTimeDeal().stream()
-			.map(timeDeal -> {
-				List<CurrentTimeDealResponse.CurrentTimeDealItem> items =
-					timeDealItemRepository.findAllByTimeDeal(timeDeal).stream()
-						.map(tdi -> {
-							Item item = itemRepository.findById(tdi.getItem().getId())
-								.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 아이템입니다.")); // 수정 예정
-							return new CurrentTimeDealResponse.CurrentTimeDealItem(
-								item.getId(),
-								item.getImageUrl(),
-								item.getPrice(),
-								tdi.getPrice(),
-								item.getTypeBrand().getType().getName(),
-								item.getTypeBrand().getBrand().getName()
-							);
-						})
-						.toList();
-				return new CurrentTimeDealResponse(
-					timeDeal.getId(),
-					timeDeal.getName(),
-					timeDeal.getStartTime(),
-					timeDeal.getEndTime(),
-					timeDeal.getDiscountRatio(),
-					timeDeal.getStatus(),
-					items
-				);
+			.map(timeDeal -> CurrentTimeDealResponse.from(
+				timeDeal,
+				mapToCurrentTimeDealItemList(timeDeal)
+			))
+			.toList();
+	}
+
+	private List<CurrentTimeDealResponse.CurrentTimeDealItem> mapToCurrentTimeDealItemList(TimeDeal timeDeal) {
+		return timeDealItemRepository.findAllByTimeDeal(timeDeal).stream()
+			.map(tdi -> {
+				Item item = itemRepository.findById(tdi.getItem().getId())
+					.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 아이템입니다."));
+				return CurrentTimeDealResponse.CurrentTimeDealItem.from(item, tdi.getPrice());
 			})
 			.toList();
 	}

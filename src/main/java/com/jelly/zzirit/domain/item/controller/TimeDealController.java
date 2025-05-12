@@ -68,4 +68,3 @@ public class TimeDealController {
 		return BaseResponse.success(result);
 	}
 }
-
