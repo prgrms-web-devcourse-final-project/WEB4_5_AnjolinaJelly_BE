@@ -6,14 +6,13 @@ import com.jelly.zzirit.domain.order.service.QueryOrderService;
 import com.jelly.zzirit.global.AuthMember;
 import com.jelly.zzirit.global.dto.BaseResponse;
 import com.jelly.zzirit.global.dto.Empty;
-import com.jelly.zzirit.global.security.model.MemberPrincipal;
+import com.jelly.zzirit.global.dto.PageResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -25,12 +24,18 @@ public class OrderController {
     private final OrderCancellationFacade orderCancellationFacade;
 
     @GetMapping
-    @Operation(summary = "주문 전체 조회 API", description = "전체 주문을 조회합니다.")
-    public BaseResponse<List<OrderFetchResponse>> fetchAllOrders(@AuthenticationPrincipal MemberPrincipal member) {
-        List<OrderFetchResponse> response = queryOrderService.findAllOrders(member.getMemberId())
-            .stream().map(OrderFetchResponse::from).toList();
+    @Operation(summary = "주문 전체 조회 API", description = "전체 주문을 페이징 처리하여 최신순으로 조회합니다.")
+    public BaseResponse<PageResponse<OrderFetchResponse>> fetchAllOrders(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size
+        ) {
+        Long memberId = AuthMember.getMemberId();
+        Pageable pageable = PageRequest.of(page, size);
 
-        return BaseResponse.success(response);
+        return BaseResponse.success(PageResponse.from(
+            queryOrderService.findPagedOrders(memberId, pageable)
+                .map(OrderFetchResponse::from)
+        ));
     }
 
     @DeleteMapping("/{order-id}")
