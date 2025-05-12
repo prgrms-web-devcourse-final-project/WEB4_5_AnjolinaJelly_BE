@@ -18,9 +18,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @RestController
 @RequestMapping("/api/cart/items")
 @RequiredArgsConstructor
@@ -29,42 +27,34 @@ public class CartItemController {
 
 	private final CartItemService cartItemService;
 
-	@Operation(
-		summary = "장바구니에 상품 추가",
-		description = "상품 ID와 수량을 전달받아 장바구니에 항목을 추가합니다.")
+	@Operation(summary = "장바구니에 상품 추가", description = "상품 ID와 수량을 전달받아 장바구니에 항목을 추가합니다.")
 	@PostMapping
 	public BaseResponse<CartItemFetchResponse> addItemToCart(@Valid @RequestBody CartItemCreateRequest request) {
-		Long memberId = AuthMember.getMemberId();
-		log.info("장바구니 추가 요청 - 사용자 ID: {}, itemId: {}", memberId, request.itemId());
-
-		CartItemFetchResponse response = cartItemService.addItemToCart(memberId, request);
-		return BaseResponse.success(response);
+		return BaseResponse.success(
+			cartItemService.addItemToCart(AuthMember.getMemberId(), request)
+		);
 	}
 
-	@Operation(
-		summary = "장바구니 항목 삭제",
-		description = "장바구니에서 항목을 제거합니다."
-	)
-	@DeleteMapping("/{itemId}")
-	public BaseResponse<Empty> removeItemToCart(@PathVariable Long itemId) {
-		Long memberId = AuthMember.getMemberId();
-		log.info("장바구니에서 itemId {} 삭제 요청 - 사용자 ID: {}", itemId, memberId);
-
-		cartItemService.removeItemToCart(memberId, itemId);
+	@Operation(summary = "장바구니 항목 삭제", description = "장바구니에서 항목을 제거합니다.")
+	@DeleteMapping("/{item-id}")
+	public BaseResponse<Empty> removeItemToCart(@PathVariable("item-id") Long itemId) {
+		cartItemService.removeItemToCart(AuthMember.getMemberId(), itemId);
 		return BaseResponse.success();
 	}
 
 	@Operation(summary = "장바구니 상품 수량 증가", description = "+1 수량 증가")
-	@PostMapping("/{itemId}/increase")
-	public BaseResponse<CartItemFetchResponse> increaseQuantity(@PathVariable Long itemId) {
-		Long memberId = AuthMember.getMemberId();
-		return BaseResponse.success(cartItemService.modifyQuantity(memberId, itemId, +1));
+	@PostMapping("/{item-id}/increase")
+	public BaseResponse<CartItemFetchResponse> increaseQuantity(@PathVariable("item-id") Long itemId) {
+		return BaseResponse.success(
+			cartItemService.modifyQuantity(AuthMember.getMemberId(), itemId, +1)
+		);
 	}
 
 	@Operation(summary = "장바구니 상품 수량 감소", description = "-1 수량 감소")
-	@PostMapping("/{itemId}/decrease")
-	public BaseResponse<CartItemFetchResponse> decreaseQuantity(@PathVariable Long itemId) {
-		Long memberId = AuthMember.getMemberId();
-		return BaseResponse.success(cartItemService.modifyQuantity(memberId, itemId, -1));
+	@PostMapping("/{item-id}/decrease")
+	public BaseResponse<CartItemFetchResponse> decreaseQuantity(@PathVariable("item-id") Long itemId) {
+		return BaseResponse.success(
+			cartItemService.modifyQuantity(AuthMember.getMemberId(), itemId, -1)
+		);
 	}
 }
