@@ -112,7 +112,8 @@ jacocoTestReport {
                             "**/config/**",
                             "**/dataInit/**",
                             "**/converter/**",
-                            "**/*Application.*"
+                            '**/repository/**',
+                            "**/*Application*"
                     ])
                 })
         )
