@@ -15,6 +15,18 @@ public record TimeDealSearchResponse(
 	Integer discountRatio,
 	List<TimeDealSearchItem> items
 ) {
+	public static TimeDealSearchResponse from(TimeDeal deal, List<TimeDealSearchItem> items) {
+		return new TimeDealSearchResponse(
+			deal.getId(),
+			deal.getName(),
+			deal.getStartTime(),
+			deal.getEndTime(),
+			deal.getStatus(),
+			deal.getDiscountRatio(),
+			items
+		);
+	}
+
 	public record TimeDealSearchItem(
 		Long itemId,
 		String itemName,
@@ -22,5 +34,9 @@ public record TimeDealSearchResponse(
 		BigDecimal originalPrice,
 		BigDecimal discountedPrice
 	) {
+		public static TimeDealSearchItem from(Long itemId, String itemName, int quantity,
+			BigDecimal originalPrice, BigDecimal discountedPrice) {
+			return new TimeDealSearchItem(itemId, itemName, quantity, originalPrice, discountedPrice);
+		}
 	}
 }

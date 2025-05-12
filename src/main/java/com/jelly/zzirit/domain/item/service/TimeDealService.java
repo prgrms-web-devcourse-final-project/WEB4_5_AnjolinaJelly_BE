@@ -1,6 +1,7 @@
 package com.jelly.zzirit.domain.item.service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -85,10 +86,10 @@ public class TimeDealService {
 					int quantity = itemStockRepository.findByItemId(itemId)
 						.map(ItemStock::getQuantity)
 						.orElse(0);
-					return new TimeDealCreateResponse.TimeDealCreateItem(itemId, quantity);
+					return TimeDealCreateResponse.TimeDealCreateItem.from(itemId, quantity);
 				}).toList();
 
-		return new TimeDealCreateResponse(
+		return TimeDealCreateResponse.from(
 			timeDeal.getId(),
 			timeDeal.getName(),
 			timeDeal.getStartTime().toString(),
@@ -101,8 +102,7 @@ public class TimeDealService {
 	// 타임딜 등록 모달 생성
 	public List<TimeDealModalCreateResponse> getModalItems(List<Long> itemIds) {
 		return itemRepository.findAllById(itemIds).stream()
-			.map(item -> new TimeDealModalCreateResponse(item.getId(), item.getName(),
-				new BigDecimal(String.valueOf(item.getPrice())).intValue()))
+			.map(item -> TimeDealModalCreateResponse.from(item))
 			.toList();
 	}
 
@@ -116,7 +116,7 @@ public class TimeDealService {
 		int page,
 		int size
 	) {
-		TimeDealSearchCondition condition = new TimeDealSearchCondition(timeDealName, timeDealId, timeDealItemName,
+		TimeDealSearchCondition condition = TimeDealSearchCondition.from(timeDealName, timeDealId, timeDealItemName,
 			timeDealItemId, status);
 		List<TimeDealSearchResponse> result = queryTimeDealService.search(condition);
 
@@ -136,33 +136,55 @@ public class TimeDealService {
 	}
 
 	// 진행중인 타임딜 조회
-	public CurrentTimeDealResponse getCurrentTimeDeals() {
-		TimeDeal timeDeal = timeDealRepository.getOngoingTimeDeal().orElseThrow();
-
-		List<CurrentTimeDealResponse.CurrentTimeDealItem> items = timeDealItemRepository.findActiveTimeDealItemByItemId(
-				timeDeal.getId())
-			.stream()
-			.map(item -> {
-				Item normalItem = itemRepository.findById(item.getId()).orElseThrow();
-				return new CurrentTimeDealResponse.CurrentTimeDealItem(
-					item.getItem().getId(),
-					normalItem.getImageUrl(),
-					normalItem.getPrice(),
-					item.getPrice(),
-					normalItem.getTypeBrand().getType(),
-					normalItem.getTypeBrand().getBrand()
-				);
-			})
+	public PageResponse<CurrentTimeDealResponse> getCurrentTimeDeals(int page, int size) {
+		List<CurrentTimeDealResponse> fullList = timeDealRepository.getOngoingTimeDeal().stream()
+			.map(timeDeal -> CurrentTimeDealResponse.from(
+				timeDeal,
+				mapToCurrentTimeDealItemList(timeDeal)
+			))
 			.toList();
 
-		return new CurrentTimeDealResponse(
-			timeDeal.getId(),
-			timeDeal.getName(),
-			timeDeal.getStartTime(),
-			timeDeal.getEndTime(),
-			timeDeal.getDiscountRatio(),
-			timeDeal.getStatus(),
-			items
+		int start = page * size;
+		int end = Math.min(start + size, fullList.size());
+		List<CurrentTimeDealResponse> pagedResult = fullList.subList(start, end);
+
+		return new PageResponse<>(
+			pagedResult,
+			page,
+			size,
+			fullList.size(),
+			(int)Math.ceil((double)fullList.size() / size),
+			end >= fullList.size()
 		);
+	}
+
+	private List<CurrentTimeDealResponse.CurrentTimeDealItem> mapToCurrentTimeDealItemList(TimeDeal timeDeal) {
+		return timeDealItemRepository.findAllByTimeDeal(timeDeal).stream()
+			.map(tdi -> {
+				Item item = itemRepository.findById(tdi.getItem().getId())
+					.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 아이템입니다."));
+				return CurrentTimeDealResponse.CurrentTimeDealItem.from(item, tdi.getPrice());
+			})
+			.toList();
+	}
+
+	@Transactional
+	public int convertTimeDealStatusScheduledToOngoing(LocalDateTime now) {
+		// 시작 시간이 지났지만 아직 시작되지 않은 타임딜 (SCHEDULED → ONGOING)
+		List<TimeDeal> toStartDeals = timeDealRepository.findAllByStatusAndStartTimeLessThanEqual(
+			TimeDeal.TimeDealStatus.SCHEDULED, now);
+		toStartDeals.forEach(deal -> deal.updateStatus(TimeDeal.TimeDealStatus.ONGOING));
+
+		return toStartDeals.size();
+	}
+
+	@Transactional
+	public int converTimeDealStatusOngoingToEnded(LocalDateTime now) {
+		// 종료 시간이 지난 타임딜 (ONGOING → ENDED)
+		List<TimeDeal> toEndDeals = timeDealRepository.findAllByStatusAndEndTimeBefore(TimeDeal.TimeDealStatus.ONGOING,
+			now);
+		toEndDeals.forEach(deal -> deal.updateStatus(TimeDeal.TimeDealStatus.ENDED));
+
+		return toEndDeals.size();
 	}
 }

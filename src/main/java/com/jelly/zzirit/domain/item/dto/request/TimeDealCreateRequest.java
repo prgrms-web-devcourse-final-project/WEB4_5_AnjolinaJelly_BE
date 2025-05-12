@@ -14,5 +14,8 @@ public record TimeDealCreateRequest(
 		Long itemId,
 		int quantity
 	) {
+		public static TimeDealCreateItemDetail from(Long itemId, int quantity) {
+			return new TimeDealCreateItemDetail(itemId, quantity);
+		}
 	}
 }

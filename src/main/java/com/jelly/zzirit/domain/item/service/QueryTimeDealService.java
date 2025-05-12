@@ -81,7 +81,7 @@ public class QueryTimeDealService {
 			.map(q -> q.getQuantity())
 			.orElse(0);
 
-		return new TimeDealSearchResponse.TimeDealSearchItem(
+		return TimeDealSearchResponse.TimeDealSearchItem.from(
 			timeDealItem.getId(),
 			timeDealItem.getItem().getName(),
 			quantity,
@@ -91,14 +91,6 @@ public class QueryTimeDealService {
 	}
 
 	private TimeDealSearchResponse toSearchDeal(TimeDeal deal, List<TimeDealSearchResponse.TimeDealSearchItem> items) {
-		return new TimeDealSearchResponse(
-			deal.getId(),
-			deal.getName(),
-			deal.getStartTime(),
-			deal.getEndTime(),
-			deal.getStatus(),
-			deal.getDiscountRatio(),
-			items
-		);
+		return TimeDealSearchResponse.from(deal, items);
 	}
 }

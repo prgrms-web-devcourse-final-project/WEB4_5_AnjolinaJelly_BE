@@ -93,7 +93,7 @@ public class SecurityConfig {
 					"/favicon.ico"
 				).permitAll()
 				.requestMatchers("/api/admin/item/**").hasRole(Role.ROLE_ADMIN.getKey())
-				.requestMatchers("/api/admin/time-deals/**").permitAll() // 수정 필요
+				.requestMatchers("/api/time-deals/**").permitAll() // 수정 필요
 				.requestMatchers("/api/cart/**").authenticated()
 				.anyRequest().authenticated()
 			);

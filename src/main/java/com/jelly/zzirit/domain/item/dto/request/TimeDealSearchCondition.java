@@ -9,4 +9,8 @@ public record TimeDealSearchCondition(
 	Long timeDealItemId,
 	TimeDeal.TimeDealStatus status
 ) {
+	public static TimeDealSearchCondition from(String timeDealName, Long timeDealId, String timeDealItemName,
+		Long timeDealItemId, TimeDeal.TimeDealStatus status) {
+		return new TimeDealSearchCondition(timeDealName, timeDealId, timeDealItemName, timeDealItemId, status);
+	}
 }
