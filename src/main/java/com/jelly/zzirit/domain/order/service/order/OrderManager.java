@@ -1,9 +1,7 @@
 package com.jelly.zzirit.domain.order.service.order;
 
-import com.jelly.zzirit.domain.order.entity.OrderStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.jelly.zzirit.domain.order.entity.Order;
@@ -18,7 +16,6 @@ public class OrderManager {
 	private final ItemStockService itemStockService;
 
 	@Transactional(
-		propagation = Propagation.REQUIRES_NEW,
 		isolation = Isolation.READ_COMMITTED,
 		timeout = 5
 	)
@@ -27,6 +24,6 @@ public class OrderManager {
 			itemStockService.decrease(orderItem.getItem().getId(), orderItem.getQuantity());
 		}
 
-		order.changeStatus(OrderStatus.COMPLETED);
+		order.changeStatus(Order.OrderStatus.PAID);
 	}
 }

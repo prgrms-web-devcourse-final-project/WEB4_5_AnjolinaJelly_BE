@@ -50,4 +50,7 @@ public class Payment extends BaseTime {
 		paymentStatus = PaymentStatus.FAILED;
 	}
 
+	public void changeStatus(PaymentStatus newStatus) {
+		this.paymentStatus = newStatus;
+	}
 }

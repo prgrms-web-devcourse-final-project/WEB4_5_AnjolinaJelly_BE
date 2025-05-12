@@ -12,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.jelly.zzirit.domain.order.dto.response.TossPaymentResponse;
 import com.jelly.zzirit.domain.order.entity.Order;
+import com.jelly.zzirit.domain.order.util.payment.TossPaymentValidation;
 import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
 
 @ExtendWith(MockitoExtension.class)

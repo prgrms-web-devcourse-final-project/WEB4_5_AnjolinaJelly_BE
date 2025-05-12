@@ -11,7 +11,9 @@ import com.jelly.zzirit.domain.order.entity.Payment;
 import com.jelly.zzirit.domain.order.mapper.OrderMapper;
 import com.jelly.zzirit.domain.order.repository.OrderRepository;
 import com.jelly.zzirit.domain.order.repository.PaymentRepository;
-import com.jelly.zzirit.domain.order.service.pay.TossPaymentValidation;
+import com.jelly.zzirit.domain.order.util.PaymentGatewayResolver;
+import com.jelly.zzirit.domain.order.util.PaymentGateway;
+import com.jelly.zzirit.domain.order.util.PaymentProvider;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
 
@@ -23,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class TempOrderService {
 
+	private final PaymentGatewayResolver paymentGatewayResolver;
 	private final OrderRepository orderRepository;
 	private final PaymentRepository paymentRepository;
 	private final CommandOrderService commandOrderService;
@@ -32,6 +35,8 @@ public class TempOrderService {
 	public Order createTempOrder(PaymentRequestDto dto, Member member, String orderNumber) {
 		Order tempOrder = orderMapper.mapToTempOrder(dto, member, orderNumber);
 		orderMapper.mapToOrderItems(tempOrder, dto.orderItems());
+
+		tempOrder.setProvider(dto.provider());
 		orderRepository.save(tempOrder);
 		return tempOrder;
 	} //임시 주문 생성
@@ -41,10 +46,13 @@ public class TempOrderService {
 		Order order = orderRepository.findByOrderNumber(paymentInfo.getOrderId())
 			.orElseThrow(() -> new InvalidOrderException(BaseResponseStatus.ORDER_NOT_FOUND));
 
-		TossPaymentValidation.validateAll(order, paymentInfo, paymentInfo.getTotalAmount().toPlainString());
+		PaymentProvider provider = order.getProvider();
+		PaymentGateway gateway = paymentGatewayResolver.resolve(provider);
+		gateway.validate(order, paymentInfo, paymentInfo.getTotalAmount().toPlainString());
 
 		Payment payment = Payment.of(paymentInfo.getPaymentKey(), paymentInfo.getMethod());
 		paymentRepository.save(payment);
+		order.addPayment(payment);
 
 		orderService.completeOrder(order, paymentInfo.getPaymentKey());
 	} // 결제 성공 시 주문 확정

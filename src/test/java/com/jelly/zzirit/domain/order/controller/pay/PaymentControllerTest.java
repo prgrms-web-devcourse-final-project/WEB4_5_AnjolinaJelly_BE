@@ -1,10 +1,9 @@
-package com.jelly.zzirit.domain.order.controller.pay;
+package com.jelly.zzirit.domain.order.controller;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import com.jelly.zzirit.domain.order.controller.PaymentController;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.jelly.zzirit.domain.order.service.order.TempOrderService;
-import com.jelly.zzirit.domain.order.service.pay.TossConfirmService;
-import com.jelly.zzirit.domain.order.service.pay.TossPaymentService;
+import com.jelly.zzirit.domain.order.service.pay.PaymentInitService;
 import com.jelly.zzirit.global.support.TestMemberConfig;
 
 @SpringBootTest
@@ -27,15 +25,15 @@ import com.jelly.zzirit.global.support.TestMemberConfig;
 class PaymentControllerTest extends TestMemberConfig {
 
 	@Autowired private MockMvc mockMvc;
-	@Autowired private TossPaymentService tossPaymentService;
+	@Autowired private PaymentInitService paymentInitService;
 	@Autowired private TossConfirmService tossConfirmService;
 	@Autowired private TempOrderService tempOrderService;
 
 	@TestConfiguration
 	static class TestConfig {
 		@Bean
-		public TossPaymentService tossPaymentService() {
-			return Mockito.mock(TossPaymentService.class);
+		public PaymentInitService tossPaymentService() {
+			return Mockito.mock(PaymentInitService.class);
 		}
 
 		@Bean
@@ -53,7 +51,7 @@ class PaymentControllerTest extends TestMemberConfig {
 	void 주문번호_생성_API는_쿠키인증으로_정상적으로_응답해야_한다() throws Exception {
 		// given
 		String mockOrderNumber = "ORDER-20250507-001";
-		Mockito.when(tossPaymentService.createOrderAndReturnOrderNumber(Mockito.any()))
+		Mockito.when(paymentInitService.createOrderAndReturnOrderNumber(Mockito.any()))
 			.thenReturn(mockOrderNumber);
 
 		String requestBody = """

@@ -1,4 +1,4 @@
-package com.jelly.zzirit.domain.order.service.pay;
+package com.jelly.zzirit.domain.order.util.payment;
 
 import java.math.BigDecimal;
 

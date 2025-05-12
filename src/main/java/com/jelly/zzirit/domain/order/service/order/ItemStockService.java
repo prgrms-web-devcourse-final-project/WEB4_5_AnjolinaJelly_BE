@@ -16,7 +16,11 @@ public class ItemStockService {
 
 	private final ItemStockRepository itemStockRepository;
 
-	@DistributedLock(key = "#itemId")
+	@DistributedLock(
+		key = "#itemId",
+		waitTime = 3L,
+		leaseTime = 5L
+	)
 	public void decrease(Long itemId, int quantity) {
 		ItemStock stock = itemStockRepository.findByItemId(itemId)
 			.orElseThrow(() -> new InvalidOrderException(BaseResponseStatus.STOCK_NOT_FOUND));
