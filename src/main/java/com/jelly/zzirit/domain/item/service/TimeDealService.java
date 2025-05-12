@@ -136,13 +136,26 @@ public class TimeDealService {
 	}
 
 	// 진행중인 타임딜 조회
-	public List<CurrentTimeDealResponse> getCurrentTimeDeals() {
-		return timeDealRepository.getOngoingTimeDeal().stream()
+	public PageResponse<CurrentTimeDealResponse> getCurrentTimeDeals(int page, int size) {
+		List<CurrentTimeDealResponse> fullList = timeDealRepository.getOngoingTimeDeal().stream()
 			.map(timeDeal -> CurrentTimeDealResponse.from(
 				timeDeal,
 				mapToCurrentTimeDealItemList(timeDeal)
 			))
 			.toList();
+
+		int start = page * size;
+		int end = Math.min(start + size, fullList.size());
+		List<CurrentTimeDealResponse> pagedResult = fullList.subList(start, end);
+
+		return new PageResponse<>(
+			pagedResult,
+			page,
+			size,
+			fullList.size(),
+			(int)Math.ceil((double)fullList.size() / size),
+			end >= fullList.size()
+		);
 	}
 
 	private List<CurrentTimeDealResponse.CurrentTimeDealItem> mapToCurrentTimeDealItemList(TimeDeal timeDeal) {

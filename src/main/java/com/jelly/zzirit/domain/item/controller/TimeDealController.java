@@ -46,8 +46,11 @@ public class TimeDealController {
 
 	@GetMapping("/api/time-deals/now")
 	@Operation(summary = "현재 진행 중인 타임딜", description = "현재 진행중인 타임딜 및 타임딜 상품을 조회합니다.")
-	public BaseResponse<List<CurrentTimeDealResponse>> getCurrentTimeDeals() {
-		List<CurrentTimeDealResponse> response = timeDealService.getCurrentTimeDeals();
+	public BaseResponse<PageResponse<CurrentTimeDealResponse>> getCurrentTimeDeals(
+		@RequestParam(defaultValue = "0") int page,
+		@RequestParam(defaultValue = "3") int size
+	) {
+		PageResponse<CurrentTimeDealResponse> response = timeDealService.getCurrentTimeDeals(page, size);
 		return BaseResponse.success(response);
 	}
 
