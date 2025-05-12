@@ -169,22 +169,22 @@ public class TimeDealService {
 	}
 
 	@Transactional
-	public List<TimeDeal> convertTimeDealStatusScheduledToOngoing(LocalDateTime now) {
+	public int convertTimeDealStatusScheduledToOngoing(LocalDateTime now) {
 		// 시작 시간이 지났지만 아직 시작되지 않은 타임딜 (SCHEDULED → ONGOING)
 		List<TimeDeal> toStartDeals = timeDealRepository.findAllByStatusAndStartTimeLessThanEqual(
 			TimeDeal.TimeDealStatus.SCHEDULED, now);
 		toStartDeals.forEach(deal -> deal.updateStatus(TimeDeal.TimeDealStatus.ONGOING));
 
-		return toStartDeals;
+		return toStartDeals.size();
 	}
 
 	@Transactional
-	public List<TimeDeal> converTimeDealStatusOngoingToEnded(LocalDateTime now) {
+	public int converTimeDealStatusOngoingToEnded(LocalDateTime now) {
 		// 종료 시간이 지난 타임딜 (ONGOING → ENDED)
 		List<TimeDeal> toEndDeals = timeDealRepository.findAllByStatusAndEndTimeBefore(TimeDeal.TimeDealStatus.ONGOING,
 			now);
 		toEndDeals.forEach(deal -> deal.updateStatus(TimeDeal.TimeDealStatus.ENDED));
 
-		return toEndDeals;
+		return toEndDeals.size();
 	}
 }
