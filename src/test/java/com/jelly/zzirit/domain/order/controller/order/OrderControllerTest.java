@@ -1,0 +1,155 @@
+package com.jelly.zzirit.domain.order.controller.order;
+
+import com.jelly.zzirit.domain.item.entity.Brand;
+import com.jelly.zzirit.domain.item.entity.Item;
+import com.jelly.zzirit.domain.item.entity.Type;
+import com.jelly.zzirit.domain.item.entity.TypeBrand;
+import com.jelly.zzirit.domain.item.repository.BrandRepository;
+import com.jelly.zzirit.domain.item.repository.ItemRepository;
+import com.jelly.zzirit.domain.item.repository.TypeBrandRepository;
+import com.jelly.zzirit.domain.item.repository.TypeRepository;
+import com.jelly.zzirit.domain.member.entity.Member;
+import com.jelly.zzirit.domain.member.repository.MemberRepository;
+import com.jelly.zzirit.domain.order.entity.Order;
+import com.jelly.zzirit.domain.order.repository.OrderRepository;
+import com.jelly.zzirit.global.support.AcceptanceTest;
+import io.restassured.response.Response;
+import io.restassured.specification.RequestSpecification;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.restdocs.restassured.RestDocumentationFilter;
+
+import java.util.List;
+import java.util.stream.IntStream;
+
+import static com.epages.restdocs.apispec.RestAssuredRestDocumentationWrapper.document;
+import static com.epages.restdocs.apispec.RestAssuredRestDocumentationWrapper.resourceDetails;
+import static com.jelly.zzirit.domain.item.domain.fixture.BrandFixture.삼성;
+import static com.jelly.zzirit.domain.item.domain.fixture.ItemFixture.상품_생성_이름;
+import static com.jelly.zzirit.domain.item.domain.fixture.TypeBrandFixture.타입_브랜드_생성;
+import static com.jelly.zzirit.domain.item.domain.fixture.TypeFixture.노트북;
+import static com.jelly.zzirit.domain.member.domain.MemberFixture.일반_회원;
+import static com.jelly.zzirit.domain.order.domain.fixture.OrderFixture.결제된_주문_생성;
+import static com.jelly.zzirit.domain.order.domain.fixture.OrderItemFixture.주문_상품_생성;
+import static io.restassured.RestAssured.given;
+import static org.springframework.restdocs.payload.JsonFieldType.*;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
+
+public class OrderControllerTest extends AcceptanceTest {
+
+    @Autowired
+    private OrderRepository orderRepository;
+
+    @Autowired
+    private MemberRepository memberRepository;
+
+    @Autowired
+    private TypeRepository typeRepository;
+
+    @Autowired
+    private BrandRepository brandRepository;
+
+    @Autowired
+    private TypeBrandRepository typeBrandRepository;
+
+    @Autowired
+    private ItemRepository itemRepository;
+
+    private Member 유저;
+    private List<Order> 주문_목록;
+
+    @BeforeEach
+    void setUp() {
+        유저 = memberRepository.save(일반_회원());
+        Type 상품_종류 = typeRepository.save(노트북());
+        Brand 브랜드 = brandRepository.save(삼성());
+        TypeBrand 상품_종류_브랜드 = typeBrandRepository.save(타입_브랜드_생성(상품_종류, 브랜드));
+
+        주문_목록 = IntStream.range(0, 20)
+            .mapToObj(i -> {
+                Order 주문 = 결제된_주문_생성(유저);
+
+                List<Item> 상품_목록 = List.of(
+                    itemRepository.save(상품_생성_이름("상품" + i + "-1", 상품_종류_브랜드)),
+                    itemRepository.save(상품_생성_이름("상품" + i + "-2", 상품_종류_브랜드))
+                );
+
+                상품_목록.forEach(상품 -> 주문.addOrderItem(주문_상품_생성(주문, 상품)));
+
+                return 주문;
+            })
+            .toList();
+
+        orderRepository.saveAll(주문_목록);
+    }
+
+    @Nested
+    @DisplayName("주문 전체 조회 API")
+    class FetchOrders {
+
+        @Test
+        void 주문_전체를_조회하면_상태_코드_200을_응답한다() {
+            // given
+            Long 유저_아이디 = 유저.getId();
+
+            RequestSpecification 요청 = given(spec)
+                .cookie(getCookie(유저_아이디))
+                .filter(성공_문서_생성("주문 전체 조회"));
+
+            // when
+            Response 응답 = 요청.when()
+                .get("/api/orders");
+
+            // then
+            응답.then()
+                .log().body()
+                .statusCode(200);
+        }
+
+        private RestDocumentationFilter 성공_문서_생성(String name) {
+            return document(
+                name,
+                resourceDetails()
+                    .summary("주문 전체 조회")
+                    .description("유저의 전체 주문 목록을 조회합니다."),
+                queryParameters(
+                    parameterWithName("page").description("페이지 번호(디폴트: 0)").optional(),
+                    parameterWithName("size").description("페이지 크기(디폴트: 10)").optional()
+                ),
+                responseFields(
+                    fieldWithPath("success").description("요청 성공 여부").type(BOOLEAN),
+                    fieldWithPath("code").description("커스텀 응답 코드").type(NUMBER),
+                    fieldWithPath("httpStatus").description("HTTP 상태 코드").type(NUMBER),
+                    fieldWithPath("message").description("응답 메시지").type(STRING),
+
+                    fieldWithPath("result.content[]").description("주문 목록").type(ARRAY),
+                    fieldWithPath("result.content[].orderDate").description("주문 일시(yyyy.MM.dd HH:mm:ss)").type(STRING),
+                    fieldWithPath("result.content[].orderId").description("주문 아이디").type(NUMBER),
+                    fieldWithPath("result.content[].orderNumber").description("주문 번호").type(STRING),
+                    fieldWithPath("result.content[].totalPrice").description("총 주문 금액").type(NUMBER),
+                    fieldWithPath("result.content[].orderStatus").description("주문 상태").type(STRING),
+
+                    fieldWithPath("result.content[].items[]").description("주문에 포함된 상품 목록").type(ARRAY),
+                    fieldWithPath("result.content[].items[].itemName").description("상품 이름").type(STRING),
+                    fieldWithPath("result.content[].items[].quantity").description("주문 수량").type(NUMBER),
+                    fieldWithPath("result.content[].items[].imageUrl").description("상품 이미지 URL").type(STRING),
+                    fieldWithPath("result.content[].items[].totalPrice").description("해당 상품의 총 주문 금액").type(NUMBER),
+
+                    fieldWithPath("result.pageNumber").description("현재 페이지 번호").type(NUMBER),
+                    fieldWithPath("result.pageSize").description("페이지 크기").type(NUMBER),
+                    fieldWithPath("result.totalElements").description("총 요소 개수").type(NUMBER),
+                    fieldWithPath("result.totalPages").description("총 페이지 개수").type(NUMBER),
+                    fieldWithPath("result.last").description("마지막 페이지 여부").type(BOOLEAN)
+                )
+            );
+        }
+
+    }
+
+}
