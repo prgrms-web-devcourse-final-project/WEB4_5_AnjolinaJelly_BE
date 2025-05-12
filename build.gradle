@@ -140,7 +140,7 @@ jacocoTestReport {
 //			}
 //
 //			excludes = [
-//                '**/*Application.*',
+//                '**/*Application*',
 //                '**/dto/**',
 //                '**/entity/**',
 //                '**/exception/**',
