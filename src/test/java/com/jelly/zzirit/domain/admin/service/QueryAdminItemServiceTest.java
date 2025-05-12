@@ -65,13 +65,12 @@ public class QueryAdminItemServiceTest {
         PageResponse<AdminItemResponse> response = queryAdminItemService.getSearchItems(itemId, null, pageable);
 
         // then
-        assertNotNull(response); // todo: response에 getter까지 붙여가며 실제로 응답이 빈 리스트인지 검증?
+        assertNotNull(response); // todo: response에 getter까지 붙여가며 실제로 응답이 하나인지 검증?
         assertEquals(1, response.getContent().size());
         assertEquals("아이폰 15", response.getContent().get(0).name()); // getter 혹은 record 필드 접근
 
         verify(itemRepository).searchItemById(itemId, pageable);
     }
-
 
     @DisplayName("관리자 상품 조회 - 상품 ID로 조회했지만 없으면 빈 페이지를 반환한다")
     @Test
@@ -91,7 +90,6 @@ public class QueryAdminItemServiceTest {
         assertTrue(response.getContent().isEmpty());
         verify(itemRepository).searchItemById(itemId, pageable);
     }
-
 
     @DisplayName("관리자 상품 조회 - 이름으로 조회하면 조건에 맞는 상품들을 반환한다")
     @Test
@@ -122,7 +120,6 @@ public class QueryAdminItemServiceTest {
         verify(itemRepository).searchItemsByName(name, pageable);
     }
 
-
     @DisplayName("관리자 상품 조회 - 필터가 없으면 전체 목록을 조회한다")
     @Test
     void 관리자_상품_조회_필터가_없으면_전체목록을_조회한다() {
@@ -146,5 +143,4 @@ public class QueryAdminItemServiceTest {
 
         verify(itemRepository).findAllItems(pageable);
     }
-
 }
