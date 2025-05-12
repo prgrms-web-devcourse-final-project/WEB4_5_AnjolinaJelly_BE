@@ -23,6 +23,7 @@ public class ItemFixture {
 			.name(name)
 			.price(BigDecimal.valueOf(1000000))
 			.itemStatus(ItemStatus.NONE)
+			.imageUrl("")
 			.typeBrand(typeBrand)
 			.build();
 	}
