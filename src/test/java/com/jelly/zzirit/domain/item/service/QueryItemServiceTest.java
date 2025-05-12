@@ -10,23 +10,25 @@ import static org.mockito.BDDMockito.*;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
 import com.jelly.zzirit.domain.item.dto.response.ItemResponse;
-import com.jelly.zzirit.domain.item.dto.response.SimpleItemResponse;
 import com.jelly.zzirit.domain.item.entity.Brand;
 import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.domain.item.entity.Type;
 import com.jelly.zzirit.domain.item.entity.stock.ItemStock;
+import com.jelly.zzirit.domain.item.repository.ItemQueryRepository;
 import com.jelly.zzirit.domain.item.repository.ItemRepository;
 import com.jelly.zzirit.domain.item.repository.ItemStockRepository;
-import com.jelly.zzirit.global.dto.PageResponse;
 
 @ExtendWith(MockitoExtension.class)
 public class QueryItemServiceTest {
@@ -37,67 +39,83 @@ public class QueryItemServiceTest {
 	@Mock
 	private ItemStockRepository itemStockRepository;
 
+	@Mock
+	private ItemQueryRepository itemQueryRepository;
+
 	@InjectMocks
 	private QueryItemService queryItemService;
 
-	@Test
-	void 검색어와_필터에_맞게_상품을_조회한다() {
-		// given
-		Type 노트북 = 노트북();
-		Type 스마트폰 = 스마트폰();
-		Brand 삼성 = 삼성();
-		Brand 애플 = 브랜드_생성("애플");
+	@Nested
+	@DisplayName("상품 전체 조회 테스트")
+	class getItems {
+		@Test
+		void 검색어와_필터에_맞게_상품을_조회한다() {
+			// given
+			Type 노트북 = 노트북();
+			Type 스마트폰 = 스마트폰();
+			Brand 삼성 = 삼성();
+			Brand 애플 = 브랜드_생성("애플");
 
-		List<Item> 상품들 = List.of(
-			삼성_노트북(타입_브랜드_생성(노트북, 삼성)),
-			상품_생성_이름("애플 휴대폰", 타입_브랜드_생성(스마트폰, 애플))
-		);
-		PageRequest pageable = PageRequest.of(0, Integer.MAX_VALUE);
-		PageImpl<Item> mockPage = new PageImpl<>(상품들, pageable, 상품들.size());
-		given(itemRepository.findAllByNameContainingIgnoreCase("노트북", pageable))
-			.willReturn(mockPage);
+			List<Item> 상품들 = List.of(
+				삼성_노트북(타입_브랜드_생성(노트북, 삼성))
+			);
+			PageRequest pageable = PageRequest.of(0, Integer.MAX_VALUE);
+			PageImpl<Item> mockPage = new PageImpl<>(상품들, pageable, 상품들.size());
+			given(itemQueryRepository.findItems(
+				List.of(노트북.getName()),
+				List.of(),
+				"노트북",
+				"priceAsc",
+				pageable
+			)).willReturn(mockPage);
 
-		// when
-		PageResponse<SimpleItemResponse> 응답 = queryItemService.search(
-			List.of(노트북.getName()),
-			List.of(),
-			"노트북",
-			"priceAsc",
-			pageable
-		);
+			// when
+			Page<Item> 응답 = queryItemService.search(
+				List.of(노트북.getName()),
+				List.of(),
+				"노트북",
+				"priceAsc",
+				pageable
+			);
 
-		// then
-		assertThat(응답.getTotalElements()).isEqualTo(1);
-	}
+			// then
+			assertThat(응답.getTotalElements()).isEqualTo(1);
+		}
 
-	@Test
-	void 필터에_맞게_상품을_조회한다() {
-		// given
-		Type 노트북 = 노트북();
-		Type 스마트폰 = 스마트폰();
-		Brand 삼성 = 삼성();
-		Brand 애플 = 브랜드_생성("애플");
+		@Test
+		void 필터에_맞게_상품을_조회한다() {
+			// given
+			Type 노트북 = 노트북();
+			Type 스마트폰 = 스마트폰();
+			Brand 삼성 = 삼성();
+			Brand 애플 = 브랜드_생성("애플");
 
-		List<Item> 상품들 = List.of(
-			삼성_노트북(타입_브랜드_생성(노트북, 삼성)),
-			상품_생성_이름("애플 휴대폰", 타입_브랜드_생성(스마트폰, 애플))
-		);
-		PageRequest pageable = PageRequest.of(0, Integer.MAX_VALUE);
-		PageImpl<Item> mockPage = new PageImpl<>(상품들, pageable, 상품들.size());
-		given(itemRepository.findAll(pageable))
-			.willReturn(mockPage);
+			List<Item> 상품들 = List.of(
+				삼성_노트북(타입_브랜드_생성(노트북, 삼성)),
+				상품_생성_이름("애플 휴대폰", 타입_브랜드_생성(스마트폰, 애플))
+			);
+			PageRequest pageable = PageRequest.of(0, Integer.MAX_VALUE);
+			PageImpl<Item> mockPage = new PageImpl<>(상품들, pageable, 상품들.size());
+			given(itemQueryRepository.findItems(
+				List.of(노트북.getName(), 스마트폰.getName()),
+				List.of(삼성.getName(), 애플.getName()),
+				"",
+				"priceAsc",
+				pageable
+			)).willReturn(mockPage);
 
-		// when
-		PageResponse<SimpleItemResponse> 응답 = queryItemService.search(
-			List.of(노트북.getName(), 스마트폰.getName()),
-			List.of(삼성.getName(), 애플.getName()),
-			"",
-			"priceAsc",
-			pageable
-		);
+			// when
+			Page<Item> 응답 = queryItemService.search(
+				List.of(노트북.getName(), 스마트폰.getName()),
+				List.of(삼성.getName(), 애플.getName()),
+				"",
+				"priceAsc",
+				pageable
+			);
 
-		// then
-		assertThat(응답.getTotalElements()).isEqualTo(2);
+			// then
+			assertThat(응답.getTotalElements()).isEqualTo(2);
+		}
 	}
 
 	@Test

@@ -71,4 +71,8 @@ public class Item extends BaseTime {
 		this.itemStatus = status;
 		return Empty.getInstance();
 	}
+
+	public boolean validateTimeDeal() {
+		return this.getItemStatus().equals(ItemStatus.TIME_DEAL);
+	}
 }

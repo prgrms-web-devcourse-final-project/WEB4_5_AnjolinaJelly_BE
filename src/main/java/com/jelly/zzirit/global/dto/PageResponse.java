@@ -2,6 +2,8 @@ package com.jelly.zzirit.global.dto;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.data.domain.Page;
