@@ -15,6 +15,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
@@ -58,7 +59,7 @@ public class QueryItemServiceTest {
 			.willReturn(mockPage);
 
 		// when
-		PageResponse<SimpleItemResponse> 응답 = queryItemService.search(
+		Page<Item> 응답 = queryItemService.search(
 			List.of(노트북.getName()),
 			List.of(),
 			"노트북",
@@ -88,7 +89,7 @@ public class QueryItemServiceTest {
 			.willReturn(mockPage);
 
 		// when
-		PageResponse<SimpleItemResponse> 응답 = queryItemService.search(
+		Page<Item> 응답 = queryItemService.search(
 			List.of(노트북.getName(), 스마트폰.getName()),
 			List.of(삼성.getName(), 애플.getName()),
 			"",

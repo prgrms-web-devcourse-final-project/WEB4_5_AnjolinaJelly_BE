@@ -4,8 +4,6 @@ import java.util.List;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,10 +38,12 @@ public class ItemController {
 		@RequestParam(defaultValue = "0") int page,
 		@RequestParam(defaultValue = "10") int size
 	) {
-		Direction direction = sort.equals("priceDesc") ? Direction.DESC : Direction.ASC;
-		Pageable pageable = PageRequest.of(page, size, Sort.by(direction, "price"));
+		Pageable pageable = PageRequest.of(page, size);
 		return BaseResponse.success(
-			queryItemService.search(types, brands, keyword, sort, pageable)
+			PageResponse.from(
+				queryItemService.search(types, brands, keyword, sort, pageable)
+					.map(SimpleItemResponse::from)
+			)
 		);
 	}
 
