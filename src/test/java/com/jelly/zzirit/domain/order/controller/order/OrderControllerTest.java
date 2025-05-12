@@ -13,6 +13,8 @@ import com.jelly.zzirit.domain.member.repository.MemberRepository;
 import com.jelly.zzirit.domain.order.entity.Order;
 import com.jelly.zzirit.domain.order.repository.OrderRepository;
 import com.jelly.zzirit.domain.order.service.pay.RefundService;
+import com.jelly.zzirit.global.authorization.AuthorizationService;
+import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
 import com.jelly.zzirit.global.support.AcceptanceTest;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
@@ -23,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.restdocs.restassured.RestDocumentationFilter;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 import java.util.List;
 import java.util.stream.IntStream;
@@ -36,8 +39,10 @@ import static com.jelly.zzirit.domain.item.domain.fixture.TypeFixture.노트북;
 import static com.jelly.zzirit.domain.member.domain.MemberFixture.일반_회원;
 import static com.jelly.zzirit.domain.order.domain.fixture.OrderFixture.결제된_주문_생성;
 import static com.jelly.zzirit.domain.order.domain.fixture.OrderItemFixture.주문_상품_생성;
+import static com.jelly.zzirit.global.dto.BaseResponseStatus.*;
 import static io.restassured.RestAssured.given;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.springframework.restdocs.payload.JsonFieldType.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
@@ -65,6 +70,9 @@ public class OrderControllerTest extends AcceptanceTest {
 
     @MockitoBean // 외부 API 호출을 방지하고 동작을 제어하기 위해 mock 객체로 대체
     private RefundService refundService;
+
+    @MockitoSpyBean // 실제 동작을 기본으로 하되, 특정 메서드만 모킹하기 위해 spy 객체 사용
+    private AuthorizationService authorizationService;
 
     private Member 유저;
     private List<Order> 주문_목록;
@@ -185,12 +193,127 @@ public class OrderControllerTest extends AcceptanceTest {
                 .statusCode(200);
         }
 
+        @Test
+        void 주문을_취소할_권한이_없으면_상태_코드_403을_응답한다() {
+            // given
+            Order 취소할_주문 = 주문_목록.getFirst();
+            Long 취소할_주문_아이디 = 취소할_주문.getId();
+            Long 유저_아이디 = 유저.getId();
+
+            doThrow(new InvalidOrderException(ACCESS_DENIED)).when(authorizationService)
+                .checkOrderCancelPermission(취소할_주문, 유저);
+
+            RequestSpecification 요청 = given(spec)
+                .cookie(getCookie(유저_아이디))
+                .filter(실패_문서_생성("주문 취소 및 환불", "주문 취소 실패", "주문을 취소할 권한이 없는 경우입니다."));
+
+            // when
+            Response 응답 = 요청
+                .delete("/api/orders/{orderId}", 취소할_주문_아이디);
+
+            // then
+            응답.then()
+                .log().body()
+                .statusCode(403);
+        }
+
+        @Test
+        void 주문_취소_가능_시간이_지났다면_상태_코드_400을_응답한다() {
+            // given
+            Order 취소할_주문 = 주문_목록.getFirst();
+            Long 취소할_주문_아이디 = 취소할_주문.getId();
+            Long 유저_아이디 = 유저.getId();
+
+            doThrow(new InvalidOrderException(EXPIRED_CANCEL_TIME)).when(authorizationService)
+                .checkOrderCancelPermission(취소할_주문, 유저);
+
+            RequestSpecification 요청 = given(spec)
+                .cookie(getCookie(유저_아이디))
+                .filter(실패_문서_생성("주문 취소 및 환불", "주문 취소 실패", "24시간 이내의 주문이 아닌 경우입니다."));
+
+            // when
+            Response 응답 = 요청
+                .delete("/api/orders/{orderId}", 취소할_주문_아이디);
+
+            // then
+            응답.then()
+                .log().body()
+                .statusCode(400);
+        }
+
+        @Test
+        void 결제_완료_상태의_주문이_아니라면_상태_코드_400을_응답한다() {
+            // given
+            Order 취소할_주문 = 주문_목록.getFirst();
+            Long 취소할_주문_아이디 = 취소할_주문.getId();
+            Long 유저_아이디 = 유저.getId();
+
+            doThrow(new InvalidOrderException(NOT_PAID_ORDER)).when(authorizationService)
+                .checkOrderCancelPermission(취소할_주문, 유저);
+
+            RequestSpecification 요청 = given(spec)
+                .cookie(getCookie(유저_아이디))
+                .filter(실패_문서_생성("주문 취소 및 환불", "주문 취소 실패", "결제 완료 상태(PAID)의 주문이 아닌 경우입니다."));
+
+            // when
+            Response 응답 = 요청
+                .delete("/api/orders/{orderId}", 취소할_주문_아이디);
+
+            // then
+            응답.then()
+                .log().body()
+                .statusCode(400);
+        }
+
+        @Test
+        void 환불에_실패하면_상태_코드_502를_응답한다() {
+            // given
+            Order 취소할_주문 = 주문_목록.getFirst();
+            Long 취소할_주문_아이디 = 취소할_주문.getId();
+            String 결제_정보_키 = 취소할_주문.getPayment().getPaymentKey();
+            Long 유저_아이디 = 유저.getId();
+
+            doThrow(IllegalArgumentException.class).when(refundService).refund(취소할_주문_아이디, 결제_정보_키); // 외부 API 호출 모킹
+
+            RequestSpecification 요청 = given(spec)
+                .cookie(getCookie(유저_아이디))
+                .filter(실패_문서_생성("주문 취소 및 환불", "환불 실패", "토스 결제 취소 API에서 오류가 발생한 경우입니다."));
+
+            // when
+            Response 응답 = 요청
+                .delete("/api/orders/{orderId}", 취소할_주문_아이디);
+
+            // then
+            응답.then()
+                .log().body()
+                .statusCode(502);
+        }
+
         private RestDocumentationFilter 성공_문서_생성(String name) {
             return document(
                 name,
                 resourceDetails()
                     .summary("주문 취소 및 환불")
                     .description("주문을 취소하고 총 주문 금액을 환불합니다."),
+                pathParameters(
+                    parameterWithName("orderId").description("취소할 주문 아이디")
+                ),
+                responseFields(
+                    fieldWithPath("success").description("요청 성공 여부").type(BOOLEAN),
+                    fieldWithPath("code").description("커스텀 응답 코드").type(NUMBER),
+                    fieldWithPath("httpStatus").description("HTTP 상태 코드").type(NUMBER),
+                    fieldWithPath("message").description("응답 메시지").type(STRING),
+                    fieldWithPath("result").description("빈 응답 데이터").type(OBJECT)
+                )
+            );
+        }
+
+        private RestDocumentationFilter 실패_문서_생성(String name, String summary, String description) {
+            return document(
+                name,
+                resourceDetails()
+                    .summary(summary)
+                    .description(description),
                 pathParameters(
                     parameterWithName("orderId").description("취소할 주문 아이디")
                 ),
