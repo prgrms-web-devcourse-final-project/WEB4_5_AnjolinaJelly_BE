@@ -50,9 +50,13 @@ public abstract class AcceptanceTest extends RedisTestContainerConfig {
 	}
 
 	public Cookie getCookie() {
+		return getCookie(1L);
+	}
+
+	public Cookie getCookie(Long userId) {
 		return new Cookie.Builder(
 			AuthConst.TOKEN_TYPE_ACCESS,
-			tokenService.generateAccessToken(1L, Role.ROLE_USER)
+			tokenService.generateAccessToken(userId, Role.ROLE_USER)
 		).build();
 	}
 }

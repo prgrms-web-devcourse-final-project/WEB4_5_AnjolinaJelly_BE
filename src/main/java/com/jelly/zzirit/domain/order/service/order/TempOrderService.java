@@ -43,7 +43,7 @@ public class TempOrderService {
 
 		TossPaymentValidation.validateAll(order, paymentInfo, paymentInfo.getTotalAmount().toPlainString());
 
-		Payment payment = Payment.of(order, paymentInfo.getPaymentKey(), paymentInfo.getMethod());
+		Payment payment = Payment.of(paymentInfo.getPaymentKey(), paymentInfo.getMethod());
 		paymentRepository.save(payment);
 
 		orderService.completeOrder(order, paymentInfo.getPaymentKey());
@@ -58,7 +58,7 @@ public class TempOrderService {
 			throw new InvalidOrderException(BaseResponseStatus.ALREADY_PROCESSED);
 		}
 
-		paymentRepository.findByOrder(order).ifPresent(paymentRepository::delete);
+		// paymentRepository.findByOrder(order).ifPresent(paymentRepository::delete);
 		orderRepository.delete(order);
 	} // 결제 실패 또는 취소 시 임시 주문 제거
 }

@@ -6,9 +6,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,10 +22,6 @@ public class Payment extends BaseTime {
 	@Column(name = "payment_key", nullable = false, unique = true)
 	private String paymentKey;
 
-	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "order_id", nullable = false, unique = true)
-	private Order order;
-
 	@Column(name = "payment_method", nullable = false)
 	@Enumerated(EnumType.STRING)
 	private PaymentMethod paymentMethod;
@@ -41,9 +34,8 @@ public class Payment extends BaseTime {
 		READY, DONE, CANCELLED, FAILED
 	}
 
-	public static Payment of(Order order, String paymentKey, String methodRaw) {
+	public static Payment of(String paymentKey, String methodRaw) {
 		return Payment.builder()
-			.order(order)
 			.paymentKey(paymentKey)
 			.paymentMethod(PaymentMethod.from(methodRaw))
 			.paymentStatus(PaymentStatus.DONE)

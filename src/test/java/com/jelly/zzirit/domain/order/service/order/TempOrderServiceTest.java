@@ -132,11 +132,11 @@ class TempOrderServiceTest {
 
 		when(orderRepository.findByOrderNumber("ORDER-001")).thenReturn(Optional.of(mockOrder));
 		when(mockOrder.isConfirmed()).thenReturn(false);
-		when(paymentRepository.findByOrder(mockOrder)).thenReturn(Optional.empty());
+		// when(paymentRepository.findByOrder(mockOrder)).thenReturn(Optional.empty());
 
 		tempOrderService.deleteTempOrder("ORDER-001");
 
-		verify(paymentRepository).findByOrder(mockOrder);
+		// verify(paymentRepository).findByOrder(mockOrder);
 		verify(orderRepository).delete(mockOrder);
 	}
 
