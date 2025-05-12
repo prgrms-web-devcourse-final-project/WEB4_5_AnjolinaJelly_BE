@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static com.jelly.zzirit.global.dto.BaseResponseStatus.ORDER_NOT_FOUND;
-import static com.jelly.zzirit.global.dto.BaseResponseStatus.PAYMENT_NOT_FOUND;
 
 @Slf4j
 @Service
@@ -28,11 +27,10 @@ public class CommandOrderService {
 	 */
 	@Transactional
 	public void updateOrderAndPaymentStatusAfterRefund(Long orderId, boolean isRefundSuccessful) {
-		Order order = orderRepository.findById(orderId)
+		Order order = orderRepository.findByIdWithPayment(orderId)
 			.orElseThrow(() -> new InvalidOrderException(ORDER_NOT_FOUND));
 
-		Payment payment = paymentRepository.findByOrder(order)
-			.orElseThrow(() -> new InvalidOrderException(PAYMENT_NOT_FOUND));
+		Payment payment = order.getPayment();
 
 		if (isRefundSuccessful) {
 			order.cancel();

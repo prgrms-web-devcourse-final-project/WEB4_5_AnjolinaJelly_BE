@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.jelly.zzirit.domain.member.entity.Member;
-import com.jelly.zzirit.domain.order.dto.request.PaymentRequestDto;
 import com.jelly.zzirit.global.entity.BaseTime;
 
 import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
@@ -54,7 +53,7 @@ public class Order extends BaseTime {
 	@Column(name = "address_detail")
 	private String addressDetail;
 
-	@OneToOne(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JoinColumn(name = "payment_id")
 	private Payment payment;
 
@@ -96,4 +95,5 @@ public class Order extends BaseTime {
 	public boolean isConfirmed() {
 		return this.status == OrderStatus.PAID || this.status == OrderStatus.COMPLETED;
 	}
+
 }

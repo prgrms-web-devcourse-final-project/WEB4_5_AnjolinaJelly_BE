@@ -50,7 +50,7 @@ class RefundServiceTest {
 		Payment payment = mock(Payment.class);
 
 		// 여기서 명확히 연결
-		when(payment.getOrder()).thenReturn(order);
+		// when(payment.getOrder()).thenReturn(order);
 		when(paymentRepository.findByPaymentKey(paymentKey)).thenReturn(Optional.of(payment));
 
 		ResponseEntity<String> mockResponse = ResponseEntity.ok("OK");
@@ -85,7 +85,7 @@ class RefundServiceTest {
 		Payment payment = mock(Payment.class);
 
 		when(paymentRepository.findByPaymentKey(paymentKey)).thenReturn(Optional.of(payment));
-		when(payment.getOrder()).thenReturn(order);
+		// when(payment.getOrder()).thenReturn(order);
 
 		ResponseEntity<String> failResponse = new ResponseEntity<>("Fail", HttpStatus.BAD_REQUEST);
 		when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(), eq(String.class)))

@@ -43,13 +43,13 @@ public class RefundService {
 			Payment payment = paymentRepository.findByPaymentKey(paymentKey)
 				.orElseThrow(() -> new InvalidOrderException(BaseResponseStatus.PAYMENT_NOT_FOUND));
 
-			Order order = payment.getOrder();
-			requestTossRefund(paymentKey, amount);
-
-			order.changeStatus(Order.OrderStatus.FAILED);
-			payment.changeStatus(Payment.PaymentStatus.FAILED);
-
-			log.info("자동 환불 완료: paymentKey={}, orderNumber={}", paymentKey, order.getOrderNumber());
+//			Order order = payment.getOrder();
+//			requestTossRefund(paymentKey, amount);
+//
+//			order.changeStatus(Order.OrderStatus.FAILED);
+//			payment.changeStatus(Payment.PaymentStatus.FAILED);
+//
+//			log.info("자동 환불 완료: paymentKey={}, orderNumber={}", paymentKey, order.getOrderNumber());
 		} catch (Exception e) {
 			log.error("자동 환불 실패: paymentKey={}, amount={}, message={}", paymentKey, amount, e.getMessage(), e);
 			throw new InvalidOrderException(BaseResponseStatus.ORDER_REFUND_FAILED);

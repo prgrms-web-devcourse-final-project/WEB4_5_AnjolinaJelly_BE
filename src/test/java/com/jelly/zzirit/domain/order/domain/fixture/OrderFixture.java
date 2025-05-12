@@ -13,7 +13,7 @@ import static com.jelly.zzirit.domain.order.domain.fixture.PaymentFixture.결제
 
 public class OrderFixture {
 
-    public static Order 주문_생성(Member member) {
+    public static Order 주문_생성(Member member, Payment payment) {
         return Order.builder()
             .member(member)
             .totalPrice(BigDecimal.valueOf(10000))
@@ -22,16 +22,12 @@ public class OrderFixture {
             .orderNumber(generateUniqueOrderNumber())
             .address("서울시 강남구 테헤란로 123")
             .addressDetail("101호")
+            .payment(payment)
             .build();
     }
 
     public static Order 결제된_주문_생성(Member member) {
-        Order order = 주문_생성(member);
-
-        Payment payment = 결제_정보_생성(order);
-        order.addPayment(payment);
-
-        return order;
+        return 주문_생성(member, 결제_정보_생성());
     }
 
     private static String generateUniqueOrderNumber() {
