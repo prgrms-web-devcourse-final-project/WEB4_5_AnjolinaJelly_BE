@@ -106,9 +106,13 @@ jacocoTestReport {
         classDirectories.setFrom(
                 files(classDirectories.files.collect {
                     fileTree(dir: it, excludes: [
-                            '**/*Application*',
-                            '**/*Response*',
-                            '**/*Request*',
+                            "**/dto/**",
+                            "**/entity/**",
+                            "**/exception/**",
+                            "**/config/**",
+                            "**/dataInit/**",
+                            "**/converter/**",
+                            "**/*Application.*"
                     ])
                 })
         )
@@ -135,10 +139,15 @@ jacocoTestReport {
 //			}
 //
 //			excludes = [
-//					'*.*Application',
-//					'*.*Response',
-//					'*.*Request',
-//			]
+//                '**/*Application.*',
+//                '**/dto/**',
+//                '**/entity/**',
+//                '**/exception/**',
+//                '**/config/**',
+//                '**/dataInit/**',
+//                '**/converter/**',
+//                '**/repository/**'
+//            ]
 //		}
 //	}
 //}
