@@ -9,14 +9,18 @@ import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.domain.item.repository.ItemRepository;
 import com.jelly.zzirit.domain.item.repository.ItemStockRepository;
 import com.jelly.zzirit.global.dto.PageResponse;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,124 +39,108 @@ public class QueryAdminItemServiceTest {
     @Mock
     private ItemStockRepository itemStockRepository;
 
+    @DisplayName("관리자 상품 조회 - 상품 ID로 조회하면 단일 결과를 Page로 반환한다")
     @Test
     void 관리자_상품_조회_상품ID로_조회하면_단일_결과를_Page로_반환한다() {
         // given
         Long itemId = 1L;
         Pageable pageable = PageRequest.of(0, 10);
 
-        // mock 객체들
-        Item item = mock(Item.class);
-        ItemStock itemStock = mock(ItemStock.class);
-        TypeBrand typeBrand = mock(TypeBrand.class);
-        Type type = mock(Type.class);
-        Brand brand = mock(Brand.class);
+        AdminItemResponse mockDto = new AdminItemResponse(
+                itemId,
+                "아이폰 15",
+                "https://example.com/image.png",
+                "스마트폰",
+                "애플",
+                new BigDecimal("1500000"),
+                100,
+                20
+        );
+        Page<AdminItemResponse> mockPage = new PageImpl<>(List.of(mockDto), pageable, 1);
 
-        // 내부 객체 연결 설정
-        when(item.getId()).thenReturn(itemId);
-        when(item.getTypeBrand()).thenReturn(typeBrand);
-        when(typeBrand.getType()).thenReturn(type);
-        when(typeBrand.getBrand()).thenReturn(brand);
+        // when - itemId 기준으로만 조회
+        when(itemRepository.searchItemById(eq(itemId), eq(pageable))).thenReturn(mockPage);
 
-        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
-        when(itemStockRepository.findAllByItemIdIn(List.of(itemId))).thenReturn(List.of(itemStock));
-        when(itemStock.getItem()).thenReturn(item);
-
-        // when
-        PageResponse<AdminItemResponse> response = queryAdminItemService.getItems(null, itemId, pageable);
+        // 실행
+        PageResponse<AdminItemResponse> response = queryAdminItemService.getSearchItems(itemId, null, pageable);
 
         // then
         assertNotNull(response); // todo: response에 getter까지 붙여가며 실제로 응답이 하나인지 검증?
-        verify(itemRepository).findById(itemId);
-        verify(itemStockRepository).findAllByItemIdIn(List.of(itemId));
+        assertEquals(1, response.getContent().size());
+        assertEquals("아이폰 15", response.getContent().get(0).name()); // getter 혹은 record 필드 접근
+
+        verify(itemRepository).searchItemById(itemId, pageable);
     }
 
+    @DisplayName("관리자 상품 조회 - 상품 ID로 조회했지만 없으면 빈 페이지를 반환한다")
     @Test
     void 관리자_상품_조회_상품ID로_조회했지만_없으면_빈페이지를_반환한다() {
         // given
         Long itemId = 99L;
         Pageable pageable = PageRequest.of(0, 10);
+        Page<AdminItemResponse> emptyPage = Page.empty(pageable);
 
-        when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
+        when(itemRepository.searchItemById(eq(itemId), eq(pageable))).thenReturn(emptyPage);
 
         // when
-        PageResponse<AdminItemResponse> response = queryAdminItemService.getItems(null, itemId, pageable);
+        PageResponse<AdminItemResponse> response = queryAdminItemService.getSearchItems(itemId, null, pageable);
 
         // then
-        assertNotNull(response); // todo: response에 getter까지 붙여가며 실제로 응답이 빈 리스트인지 검증?
-        verify(itemRepository).findById(itemId);
-        verify(itemStockRepository).findAllByItemIdIn(List.of()); // 빈 리스트에 대한 호출
+        assertNotNull(response);
+        assertTrue(response.getContent().isEmpty());
+        verify(itemRepository).searchItemById(itemId, pageable);
     }
 
+    @DisplayName("관리자 상품 조회 - 이름으로 조회하면 조건에 맞는 상품들을 반환한다")
     @Test
     void 관리자_상품_조회_이름으로_조회하면_조건에_맞는_상품들을_반환한다() {
         // given
         String name = "냉장고";
         Pageable pageable = PageRequest.of(0, 10);
 
-        Item item1 = mock(Item.class);
-        Item item2 = mock(Item.class);
-        when(item1.getId()).thenReturn(1L);
-        when(item2.getId()).thenReturn(2L);
+        AdminItemResponse dto1 = new AdminItemResponse(
+                1L, "삼성 냉장고", "https://img1.png", "냉장고", "삼성", new BigDecimal("1000000"), 50, 10
+        );
+        AdminItemResponse dto2 = new AdminItemResponse(
+                2L, "LG 냉장고", "https://img2.png", "냉장고", "LG", new BigDecimal("1200000"), 30, 5
+        );
+        Page<AdminItemResponse> resultPage = new PageImpl<>(List.of(dto1, dto2), pageable, 2);
 
-        // item 필드 mock
-        TypeBrand typeBrand = mock(TypeBrand.class);
-        Type type = mock(Type.class);
-        Brand brand = mock(Brand.class);
-        when(item1.getTypeBrand()).thenReturn(typeBrand);
-        when(item2.getTypeBrand()).thenReturn(typeBrand);
-        when(typeBrand.getType()).thenReturn(type);
-        when(typeBrand.getBrand()).thenReturn(brand);
-
-        // DB 리턴
-        when(itemRepository.findAllByNameContainingIgnoreCase(name, pageable))
-                .thenReturn(new org.springframework.data.domain.PageImpl<>(List.of(item1, item2)));
-
-        ItemStock stock1 = mock(ItemStock.class);
-        ItemStock stock2 = mock(ItemStock.class);
-        when(stock1.getItem()).thenReturn(item1);
-        when(stock2.getItem()).thenReturn(item2);
-
-        when(itemStockRepository.findAllByItemIdIn(List.of(1L, 2L)))
-                .thenReturn(List.of(stock1, stock2));
+        when(itemRepository.searchItemsByName(eq(name), eq(pageable))).thenReturn(resultPage);
 
         // when
-        PageResponse<AdminItemResponse> response = queryAdminItemService.getItems(name, null, pageable);
+        PageResponse<AdminItemResponse> response = queryAdminItemService.getSearchItems(null, name, pageable);
 
         // then
-        assertNotNull(response); // todo: response에 getter까지 붙여가며 실제로 응답이 2개인지 검증?
-        verify(itemRepository).findAllByNameContainingIgnoreCase(name, pageable);
-        verify(itemStockRepository).findAllByItemIdIn(List.of(1L, 2L));
+        assertNotNull(response);
+        assertEquals(2, response.getContent().size());
+        assertEquals("삼성 냉장고", response.getContent().get(0).name());
+        assertEquals("LG 냉장고", response.getContent().get(1).name());
+
+        verify(itemRepository).searchItemsByName(name, pageable);
     }
 
+    @DisplayName("관리자 상품 조회 - 필터가 없으면 전체 목록을 조회한다")
     @Test
     void 관리자_상품_조회_필터가_없으면_전체목록을_조회한다() {
         // given
         Pageable pageable = PageRequest.of(0, 10);
-        Item item = mock(Item.class);
-        when(item.getId()).thenReturn(1L);
 
-        TypeBrand typeBrand = mock(TypeBrand.class);
-        Type type = mock(Type.class);
-        Brand brand = mock(Brand.class);
-        when(item.getTypeBrand()).thenReturn(typeBrand);
-        when(typeBrand.getType()).thenReturn(type);
-        when(typeBrand.getBrand()).thenReturn(brand);
+        AdminItemResponse dto = new AdminItemResponse(
+                1L, "아이폰", "https://img.png", "스마트폰", "애플", new BigDecimal("1500000"), 100, 25
+        );
+        Page<AdminItemResponse> resultPage = new PageImpl<>(List.of(dto), pageable, 1);
 
-        when(itemRepository.findAll(pageable))
-                .thenReturn(new org.springframework.data.domain.PageImpl<>(List.of(item)));
-
-        ItemStock stock = mock(ItemStock.class);
-        when(stock.getItem()).thenReturn(item);
-        when(itemStockRepository.findAllByItemIdIn(List.of(1L)))
-                .thenReturn(List.of(stock));
+        when(itemRepository.findAllItems(eq(pageable))).thenReturn(resultPage);
 
         // when
-        PageResponse<AdminItemResponse> response = queryAdminItemService.getItems(null, null, pageable);
+        PageResponse<AdminItemResponse> response = queryAdminItemService.getSearchItems(null, null, pageable);
 
         // then
-        assertNotNull(response); // todo: response에 getter까지 붙여가며 실제로 응답이 1개인지 검증?
-        verify(itemRepository).findAll(pageable);
-        verify(itemStockRepository).findAllByItemIdIn(List.of(1L));
+        assertNotNull(response);
+        assertEquals(1, response.getContent().size());
+        assertEquals("아이폰", response.getContent().get(0).name());
+
+        verify(itemRepository).findAllItems(pageable);
     }
 }
