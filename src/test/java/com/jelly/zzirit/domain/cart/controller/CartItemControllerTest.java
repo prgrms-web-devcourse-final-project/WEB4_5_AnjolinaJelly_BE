@@ -17,7 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.restdocs.payload.FieldDescriptor;
 import org.springframework.restdocs.request.ParameterDescriptor;
 
-import com.jelly.zzirit.domain.cart.dto.request.CartItemAddRequest;
+import com.jelly.zzirit.domain.cart.dto.request.CartItemCreateRequest;
 import com.jelly.zzirit.domain.cart.entity.Cart;
 import com.jelly.zzirit.domain.cart.entity.CartItem;
 import com.jelly.zzirit.domain.cart.repository.CartItemRepository;
@@ -79,9 +79,7 @@ class CartItemControllerTest extends AcceptanceTest {
 	}
 	@Test
 	void 장바구니_상품_추가() {
-		CartItemAddRequest request = new CartItemAddRequest();
-		request.setItemId(itemId);
-		request.setQuantity(2);
+		CartItemCreateRequest request = new CartItemCreateRequest(itemId, 2);
 
 		given(spec)
 			.contentType(APPLICATION_JSON_VALUE)
@@ -108,9 +106,9 @@ class CartItemControllerTest extends AcceptanceTest {
 					fieldWithPath("result.originalPrice").description("원가").type(NUMBER),
 					fieldWithPath("result.discountedPrice").description("할인된 가격").type(NUMBER),
 					fieldWithPath("result.totalPrice").description("총 가격").type(NUMBER),
-					fieldWithPath("result.timeDeal").description("타임딜 여부").type(BOOLEAN),
+					fieldWithPath("result.isTimeDeal").description("타임딜 여부").type(BOOLEAN),
 					fieldWithPath("result.discountRatio").description("할인율").type(NUMBER).optional(),
-					fieldWithPath("result.soldOut").description("품절 여부").type(BOOLEAN)
+					fieldWithPath("result.isSoldOut").description("품절 여부").type(BOOLEAN)
 				}
 			))
 			.when()
@@ -225,9 +223,9 @@ class CartItemControllerTest extends AcceptanceTest {
 			fieldWithPath("result.originalPrice").description("원가").type(NUMBER),
 			fieldWithPath("result.discountedPrice").description("할인된 가격").type(NUMBER),
 			fieldWithPath("result.totalPrice").description("총 가격").type(NUMBER),
-			fieldWithPath("result.timeDeal").description("타임딜 여부").type(BOOLEAN),
+			fieldWithPath("result.isTimeDeal").description("타임딜 여부").type(BOOLEAN),
 			fieldWithPath("result.discountRatio").description("할인율").type(NUMBER).optional(),
-			fieldWithPath("result.soldOut").description("품절 여부").type(BOOLEAN)
+			fieldWithPath("result.isSoldOut").description("품절 여부").type(BOOLEAN)
 		};
 	}
 }

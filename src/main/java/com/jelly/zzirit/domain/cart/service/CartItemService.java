@@ -5,9 +5,8 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.jelly.zzirit.domain.cart.dto.request.CartItemAddRequest;
-import com.jelly.zzirit.domain.cart.dto.response.CartItemResponse;
-import com.jelly.zzirit.domain.cart.dto.response.CartResponse;
+import com.jelly.zzirit.domain.cart.dto.request.CartItemCreateRequest;
+import com.jelly.zzirit.domain.cart.dto.response.CartItemFetchResponse;
 import com.jelly.zzirit.domain.cart.entity.Cart;
 import com.jelly.zzirit.domain.cart.entity.CartItem;
 import com.jelly.zzirit.domain.cart.repository.CartItemRepository;
@@ -39,7 +38,7 @@ public class CartItemService {
 	private final CartService cartService;
 
 	@Transactional
-	public CartItemResponse addItemToCart(Long memberId, CartItemAddRequest request) {
+	public CartItemFetchResponse addItemToCart(Long memberId, CartItemCreateRequest request) {
 
 		Cart cart = cartRepository.findByMemberId(memberId)
 			.orElseGet(() -> {
@@ -48,7 +47,7 @@ public class CartItemService {
 				return cartRepository.save(newCart);
 			});
 
-		Item item = itemRepository.findById(request.getItemId())
+		Item item = itemRepository.findById(request.itemId())
 			.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND));
 
 		// 장바구니에 이미 존재하는 상품인지 확인
@@ -56,9 +55,9 @@ public class CartItemService {
 		CartItem cartItem;
 		if (existingCartItem.isPresent()) {
 			cartItem = existingCartItem.get();
-			cartItem.increaseQuantity(request.getQuantity()); // 있으면 수량 증가
+			cartItem.increaseQuantity(request.quantity()); // 있으면 수량 증가
 		} else {
-			cartItem = CartItem.of(cart, item, request.getQuantity());
+			cartItem = CartItem.of(cart, item, request.quantity());
 			cartItemRepository.save(cartItem);
 		}
 
@@ -84,7 +83,7 @@ public class CartItemService {
 			.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND));
 		boolean isSoldOut = itemStock.getQuantity() == 0;
 
-		return new CartItemResponse(
+		return new CartItemFetchResponse(
 			cartItem.getId(),
 			item.getId(),
 			item.getName(),
@@ -114,7 +113,7 @@ public class CartItemService {
 	}
 
 	@Transactional
-	public CartItemResponse modifyQuantity(Long memberId, Long itemId, int delta) {
+	public CartItemFetchResponse modifyQuantity(Long memberId, Long itemId, int delta) {
 
 		Cart cart = cartRepository.findByMemberId(memberId)
 			.orElseThrow(() -> new InvalidUserException(BaseResponseStatus.USER_NOT_FOUND));
@@ -154,7 +153,7 @@ public class CartItemService {
 		int totalPrice = discountedPrice * newQuantity;
 		boolean isSoldOut = itemStock.getQuantity() == 0;
 
-		return new CartItemResponse(
+		return new CartItemFetchResponse(
 			cartItem.getId(),
 			item.getId(),
 			item.getName(),

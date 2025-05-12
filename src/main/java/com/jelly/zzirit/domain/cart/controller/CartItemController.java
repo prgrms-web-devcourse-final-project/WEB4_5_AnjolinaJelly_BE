@@ -7,9 +7,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.jelly.zzirit.domain.cart.dto.request.CartItemAddRequest;
-import com.jelly.zzirit.domain.cart.dto.response.CartItemResponse;
-import com.jelly.zzirit.domain.cart.dto.response.CartResponse;
+import com.jelly.zzirit.domain.cart.dto.request.CartItemCreateRequest;
+import com.jelly.zzirit.domain.cart.dto.response.CartItemFetchResponse;
 import com.jelly.zzirit.domain.cart.service.CartItemService;
 import com.jelly.zzirit.global.AuthMember;
 import com.jelly.zzirit.global.dto.BaseResponse;
@@ -34,11 +33,11 @@ public class CartItemController {
 		summary = "장바구니에 상품 추가",
 		description = "상품 ID와 수량을 전달받아 장바구니에 항목을 추가합니다.")
 	@PostMapping
-	public BaseResponse<CartItemResponse> addItemToCart(@Valid @RequestBody CartItemAddRequest request) {
+	public BaseResponse<CartItemFetchResponse> addItemToCart(@Valid @RequestBody CartItemCreateRequest request) {
 		Long memberId = AuthMember.getMemberId();
-		log.info("장바구니 추가 요청 - 사용자 ID: {}, itemId: {}", memberId, request.getItemId());
+		log.info("장바구니 추가 요청 - 사용자 ID: {}, itemId: {}", memberId, request.itemId());
 
-		CartItemResponse response = cartItemService.addItemToCart(memberId, request);
+		CartItemFetchResponse response = cartItemService.addItemToCart(memberId, request);
 		return BaseResponse.success(response);
 	}
 
@@ -57,14 +56,14 @@ public class CartItemController {
 
 	@Operation(summary = "장바구니 상품 수량 증가", description = "+1 수량 증가")
 	@PostMapping("/{itemId}/increase")
-	public BaseResponse<CartItemResponse> increaseQuantity(@PathVariable Long itemId) {
+	public BaseResponse<CartItemFetchResponse> increaseQuantity(@PathVariable Long itemId) {
 		Long memberId = AuthMember.getMemberId();
 		return BaseResponse.success(cartItemService.modifyQuantity(memberId, itemId, +1));
 	}
 
 	@Operation(summary = "장바구니 상품 수량 감소", description = "-1 수량 감소")
 	@PostMapping("/{itemId}/decrease")
-	public BaseResponse<CartItemResponse> decreaseQuantity(@PathVariable Long itemId) {
+	public BaseResponse<CartItemFetchResponse> decreaseQuantity(@PathVariable Long itemId) {
 		Long memberId = AuthMember.getMemberId();
 		return BaseResponse.success(cartItemService.modifyQuantity(memberId, itemId, -1));
 	}
