@@ -1,4 +1,4 @@
-package com.jelly.zzirit.domain.order.util;
+package com.jelly.zzirit.domain.order.util.payment;
 
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
@@ -11,13 +11,16 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jelly.zzirit.domain.order.dto.response.PaymentResponse;
 import com.jelly.zzirit.domain.order.dto.response.TossPaymentResponse;
+import com.jelly.zzirit.domain.order.entity.Order;
+import com.jelly.zzirit.domain.order.util.PaymentGateway;
+import com.jelly.zzirit.domain.order.util.PaymentProvider;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
 
@@ -25,9 +28,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Component("toss")
+@Service
 @RequiredArgsConstructor
-public class TossPaymentAdapter implements PaymentGateway {
+public class TossPaymentGateway implements PaymentGateway {
 
 	private final RestTemplate restTemplate;
 	private final ObjectMapper objectMapper;
@@ -95,6 +98,16 @@ public class TossPaymentAdapter implements PaymentGateway {
 			log.warn("토스 환불 실패: {}, {}", response.getStatusCode(), response.getBody());
 			throw new InvalidOrderException(BaseResponseStatus.TOSS_REFUND_FAILED);
 		}
+	}
+
+	@Override
+	public PaymentProvider getPaymentProvider() {
+		return PaymentProvider.TOSS;
+	}
+
+	@Override
+	public void validate(Order order, PaymentResponse response, String amount) {
+		TossPaymentValidation.validateAll(order, response, amount);
 	}
 
 	private HttpHeaders createHeaders() {

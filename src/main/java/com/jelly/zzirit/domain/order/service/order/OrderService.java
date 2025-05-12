@@ -21,7 +21,7 @@ public class OrderService {
 			orderManager.process(order);
 		} catch (Exception e) {
 			log.error("주문 처리 실패 - 자동 환불 시작: orderNumber={}", order.getOrderNumber(), e);
-			refundService.refund(paymentKey, order.getTotalPrice(), "주문 처리 실패로 인한 자동 환불");
+			refundService.refund(order, paymentKey, "주문 처리 실패로 인한 자동 환불");
 		}
 	}
 }

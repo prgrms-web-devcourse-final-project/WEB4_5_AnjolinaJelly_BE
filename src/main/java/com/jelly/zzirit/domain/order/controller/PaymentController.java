@@ -7,10 +7,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.jelly.zzirit.domain.order.dto.request.PaymentRequest;
+import com.jelly.zzirit.domain.order.dto.request.PaymentRequestDto;
 import com.jelly.zzirit.domain.order.service.order.TempOrderService;
-import com.jelly.zzirit.domain.order.service.pay.TossConfirmService;
-import com.jelly.zzirit.domain.order.service.pay.TossPaymentService;
+import com.jelly.zzirit.domain.order.service.pay.PaymentConfirmService;
+import com.jelly.zzirit.domain.order.service.pay.PaymentInitService;
 import com.jelly.zzirit.global.dto.BaseResponse;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.dto.Empty;
@@ -28,17 +28,17 @@ import lombok.RequiredArgsConstructor;
 @SecurityRequirement(name = "accessToken")
 public class PaymentController {
 
-	private final TossPaymentService tossPaymentService;
+	private final PaymentInitService paymentInitService;
 	private final TempOrderService tempOrderService;
-	private final TossConfirmService tossConfirmService;
+	private final PaymentConfirmService paymentConfirmService;
 
 	@Operation(
 		summary = "주문번호 생성",
 		description = "결제를 위한 주문번호를 생성하고 임시 주문을 저장합니다."
 	)
 	@PostMapping("/init")
-	public BaseResponse<String> initOrder(@RequestBody @Valid PaymentRequest requestDto) {
-		String orderNumber = tossPaymentService.createOrderAndReturnOrderNumber(requestDto);
+	public BaseResponse<String> initOrder(@RequestBody @Valid PaymentRequestDto requestDto) {
+		String orderNumber = paymentInitService.createOrderAndReturnOrderNumber(requestDto);
 		return BaseResponse.success(orderNumber);
 	}
 
@@ -46,13 +46,13 @@ public class PaymentController {
 		summary = "결제 성공",
 		description = "결제 성공 시 주문을 확정 처리합니다."
 	)
-	@GetMapping("/toss/success")
+	@GetMapping("/success")
 	public BaseResponse<Empty> confirmPayment(
-		@RequestParam String paymentKey,
-		@RequestParam String orderId,
-		@RequestParam String amount
+		@RequestParam("paymentKey") String paymentKey,
+		@RequestParam("orderId") String orderId,
+		@RequestParam("amount") String amount
 	) {
-		tossConfirmService.confirmPayment(paymentKey, orderId, amount);
+		paymentConfirmService.confirmPayment(paymentKey, orderId, amount);
 		return BaseResponse.success();
 	}
 
@@ -60,7 +60,7 @@ public class PaymentController {
 		summary = "결제 실패",
 		description = "결제 실패 또는 사용자 취소 시 임시 주문이 삭제됩니다."
 	)
-	@GetMapping("/toss/fail")
+	@GetMapping("/fail")
 	public BaseResponse<String> failPayment(
 		@RequestParam(required = false) String code,
 		@RequestParam(required = false) String message,

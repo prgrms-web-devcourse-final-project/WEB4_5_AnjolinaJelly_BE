@@ -14,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class TossPaymentService {
+public class PaymentInitService {
 
 	private final OrderSequenceGenerator orderSequenceGenerator;
 	private final TempOrderService tempOrderService;

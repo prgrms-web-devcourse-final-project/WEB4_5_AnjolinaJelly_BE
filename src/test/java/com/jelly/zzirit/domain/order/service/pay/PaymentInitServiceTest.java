@@ -19,10 +19,10 @@ import com.jelly.zzirit.domain.order.service.order.TempOrderService;
 import com.jelly.zzirit.global.AuthMember;
 
 @ExtendWith(MockitoExtension.class)
-class TossPaymentServiceTest {
+class PaymentInitServiceTest {
 
 	@InjectMocks
-	private TossPaymentService tossPaymentService;
+	private PaymentInitService paymentInitService;
 
 	@Mock
 	private OrderSequenceGenerator orderSequenceGenerator;
@@ -48,7 +48,7 @@ class TossPaymentServiceTest {
 			when(mockOrder.getOrderNumber()).thenReturn(expectedOrderNumber);
 
 			// when
-			String result = tossPaymentService.createOrderAndReturnOrderNumber(dto);
+			String result = paymentInitService.createOrderAndReturnOrderNumber(dto);
 
 			// then
 			assertEquals(expectedOrderNumber, result);
