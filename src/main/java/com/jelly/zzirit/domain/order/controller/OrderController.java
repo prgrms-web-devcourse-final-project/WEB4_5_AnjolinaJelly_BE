@@ -46,7 +46,7 @@ public class OrderController {
     }
 
     @DeleteMapping("/{order-id}")
-    @Operation(summary = "주문 취소 API", description = "orderId에 해당되는 주문을 취소합니다.")
+    @Operation(summary = "주문 취소 및 환불 API", description = "아이디에 해당되는 주문을 취소하고 총 주문 금액을 환불합니다.")
     public BaseResponse<Empty> cancelOrder(@PathVariable(name = "order-id") Long orderId) {
         orderCancellationFacade.cancelOrderAndRefund(
             orderId,
