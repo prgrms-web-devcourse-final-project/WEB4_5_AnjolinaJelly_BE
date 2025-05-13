@@ -7,13 +7,16 @@ import static com.jelly.zzirit.domain.item.entity.QTypeBrand.*;
 
 import java.util.List;
 
+import com.jelly.zzirit.domain.admin.dto.response.AdminItemFetchResponse;
+import com.jelly.zzirit.domain.item.entity.*;
+import com.jelly.zzirit.domain.item.entity.stock.QItemStock;
+import com.querydsl.core.types.Projections;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.domain.item.repository.ItemQueryRepository;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -92,5 +95,60 @@ public class ItemQueryRepositoryImpl implements ItemQueryRepository {
 			return null;
 		}
 		return brand.name.in(brands);
+	}
+
+	@Override
+	public Page<AdminItemFetchResponse> findAdminItems(String name, Long itemId, Pageable pageable) {
+		QItem i = QItem.item;
+		QItemStock s = QItemStock.itemStock;
+		QTypeBrand tb = QTypeBrand.typeBrand;
+		QType t = QType.type;
+		QBrand b = QBrand.brand;
+
+		List<AdminItemFetchResponse> content = queryFactory
+				.select(Projections.constructor(AdminItemFetchResponse.class,
+						i.id,
+						i.name,
+						i.imageUrl,
+						t.name,
+						b.name,
+						i.price,
+						s.quantity
+				))
+				.from(i)
+				.join(i.typeBrand, tb)
+				.join(tb.type, t)
+				.join(tb.brand, b)
+				.join(s).on(s.item.eq(i))
+				.where(
+						containsName(name),
+						matchesItemId(itemId)
+				)
+				.offset(pageable.getOffset())
+				.limit(pageable.getPageSize())
+				.fetch();
+
+		Long count = queryFactory
+				.select(i.count())
+				.from(i)
+				.join(i.typeBrand, tb)
+				.join(tb.type, t)
+				.join(tb.brand, b)
+				.join(s).on(s.item.eq(i))
+				.where(
+						containsName(name),
+						matchesItemId(itemId)
+				)
+				.fetchOne();
+
+		return PageableExecutionUtils.getPage(content, pageable, () -> count == null ? 0 : count);
+	}
+
+	private BooleanExpression containsName(String name) {
+		return (name == null || name.isBlank()) ? null : QItem.item.name.lower().contains(name.toLowerCase());
+	}
+
+	private BooleanExpression matchesItemId(Long id) {
+		return id == null ? null : QItem.item.id.eq(id);
 	}
 }

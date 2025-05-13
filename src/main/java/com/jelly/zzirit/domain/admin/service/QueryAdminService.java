@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.jelly.zzirit.domain.admin.dto.response.AdminItemFetchResponse;
 import com.jelly.zzirit.domain.item.repository.ItemRepository;
+import com.jelly.zzirit.domain.item.repository.ItemQueryRepository;
 import com.jelly.zzirit.global.dto.PageResponse;
 
 import lombok.RequiredArgsConstructor;
@@ -17,15 +18,16 @@ import lombok.RequiredArgsConstructor;
 public class QueryAdminService {
     
     private final ItemRepository itemRepository;
+    private final ItemQueryRepository itemQueryRepository;
 
     public PageResponse<AdminItemFetchResponse> getSearchItems(Long itemId, String name, Pageable pageable) {
         Page<AdminItemFetchResponse> page;
         if (itemId != null) {
-            page = itemRepository.searchItemById(itemId, pageable);
+            page = itemQueryRepository.findAdminItems(null, itemId, pageable);
         } else if (name != null && !name.isBlank()) {
-            page = itemRepository.searchItemsByName(name, pageable);
+            page = itemQueryRepository.findAdminItems(name, null, pageable);
         } else {
-            page = itemRepository.findAllItems(pageable);
+            page = itemQueryRepository.findAdminItems(null, null, pageable);
         }
         return PageResponse.from(page);
     }
