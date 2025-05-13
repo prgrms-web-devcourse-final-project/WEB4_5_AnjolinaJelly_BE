@@ -35,34 +35,46 @@ public class CartService {
 	private final ItemStockRepository itemStockRepository;
 
 	public CartFetchResponse getMyCart(Long memberId) {
+		Cart cart = getOrCreateCart(memberId);
+		List<CartItem> cartItems = cartItemRepository.findAllWithItemByCartId(cart.getId());
+		Map<Long, ItemStock> stockMap = loadItemStockMap(cartItems);
+		List<CartItemFetchResponse> responses = convertToResponses(cartItems, stockMap);
 
-		// 사용자 장바구니 조회
-		Cart cart = cartRepository.findByMemberId(memberId)
+		return new CartFetchResponse(
+			cart.getId(),
+			responses,
+			calculateTotalQuantity(responses),
+			calculateTotalPrice(responses)
+		);
+	}
+
+	// 회원의 장바구니가 없으면 새로 생성하여 반환
+	private Cart getOrCreateCart(Long memberId) {
+		return cartRepository.findByMemberId(memberId)
 			.orElseGet(() -> {
 				Member member = Member.builder().id(memberId).build();
 				Cart newCart = Cart.builder().member(member).build();
 				return cartRepository.save(newCart);
 			});
+	}
 
-		// 장바구니 항목 조회
-		List<CartItem> cartItems = cartItemRepository.findAllWithItemByCartId(cart.getId());
-
-		// itemId 목록 추출
+	// 장바구니 상품들의 itemId로 재고 목록을 일괄 조회하여 Map으로 반환
+	private Map<Long, ItemStock> loadItemStockMap(List<CartItem> cartItems) {
 		List<Long> itemIds = cartItems.stream()
 			.map(cartItem -> cartItem.getItem().getId())
 			.distinct()
 			.toList();
 
-		// ItemStock 일괄 조회 후 Map으로 캐싱
-		Map<Long, ItemStock> itemStockMap = itemStockRepository.findAllByItemIdIn(itemIds).stream()
+		return itemStockRepository.findAllByItemIdIn(itemIds).stream()
 			.collect(Collectors.toMap(stock -> stock.getItem().getId(), stock -> stock));
+	}
 
-		// DTO 변환
-		List<CartItemFetchResponse> itemResponses = cartItems.stream()
+	// CartItem 목록을 CartItemFetchResponse 목록으로 변환
+	private List<CartItemFetchResponse> convertToResponses(List<CartItem> cartItems, Map<Long, ItemStock> stockMap) {
+		return cartItems.stream()
 			.map(cartItem -> {
 				Item item = cartItem.getItem();
-
-				ItemStock itemStock = itemStockMap.get(item.getId());
+				ItemStock itemStock = stockMap.get(item.getId());
 				if (itemStock == null) {
 					throw new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND);
 				}
@@ -73,18 +85,21 @@ public class CartService {
 
 				return CartItemMapper.mapToCartItem(cartItem, itemStock, timeDealItem);
 			}).toList();
+	}
 
-		// 전체 수량 및 금액 집계 (품절 상품 제외)
-		int cartTotalQuantity = itemResponses.stream()
+	// 품절 제외 총 수량 계산
+	private int calculateTotalQuantity(List<CartItemFetchResponse> responses) {
+		return responses.stream()
 			.filter(res -> !res.isSoldOut())
 			.mapToInt(CartItemFetchResponse::quantity)
 			.sum();
+	}
 
-		int cartTotalPrice = itemResponses.stream()
+	// 품절 제외 총 금액 계산
+	private int calculateTotalPrice(List<CartItemFetchResponse> responses) {
+		return responses.stream()
 			.filter(res -> !res.isSoldOut())
 			.mapToInt(CartItemFetchResponse::totalPrice)
 			.sum();
-
-		return new CartFetchResponse(cart.getId(), itemResponses, cartTotalQuantity, cartTotalPrice);
 	}
 }
