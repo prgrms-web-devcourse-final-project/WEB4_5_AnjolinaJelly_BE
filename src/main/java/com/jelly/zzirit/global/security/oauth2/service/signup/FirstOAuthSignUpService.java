@@ -8,7 +8,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.jelly.zzirit.domain.member.dto.request.SocialSignupDTO;
+import com.jelly.zzirit.domain.member.dto.request.SocialSignupRequest;
 import com.jelly.zzirit.domain.member.entity.Member;
 import com.jelly.zzirit.global.security.model.MemberPrincipal;
 import com.jelly.zzirit.global.security.oauth2.service.token.OAuthTempTokenService;
@@ -28,9 +28,9 @@ public class FirstOAuthSignUpService {
 	private final OAuthUserTempService oAuthUserTempService;
 
 	@Transactional
-	public void finalizeSocialSignup(HttpServletRequest request, HttpServletResponse response, SocialSignupDTO socialSignupDto) {
+	public void finalizeSocialSignup(HttpServletRequest request, HttpServletResponse response, SocialSignupRequest socialSignupRequest) {
 		Map<String, String> tokenData = oAuthTempTokenService.extractTokenData(request);
-		Member newUser = oAuthSignupService.processSignup(socialSignupDto, tokenData);
+		Member newUser = oAuthSignupService.processSignup(socialSignupRequest, tokenData);
 		MemberPrincipal memberPrincipal = new MemberPrincipal(newUser.getId(), newUser.getRole());
 
 		Authentication authentication = new UsernamePasswordAuthenticationToken(

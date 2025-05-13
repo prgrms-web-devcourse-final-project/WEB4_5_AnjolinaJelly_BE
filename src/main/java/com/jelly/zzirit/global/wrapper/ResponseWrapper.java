@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import com.jelly.zzirit.global.dto.BaseResponse;
-import com.jelly.zzirit.global.dto.BaseResponseStatus;
 
 @RestControllerAdvice
 public class ResponseWrapper implements ResponseBodyAdvice<Object> {

@@ -9,7 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class S3ServiceTest {
 
 	@Autowired
-	private S3Service s3Service;
+	private CommandS3Service commandS3Service;
 
 	/***
 	 * S3에 이미지 업로드 테스트, 주석 처리 (테스트할 때 마다 S3에 업로드되므로)

@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.jelly.zzirit.domain.order.dto.request.PaymentRequestDto;
+import com.jelly.zzirit.domain.order.dto.request.PaymentRequest;
 import com.jelly.zzirit.domain.order.service.order.TempOrderService;
 import com.jelly.zzirit.domain.order.service.pay.TossConfirmService;
 import com.jelly.zzirit.domain.order.service.pay.TossPaymentService;
@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/payments")
+@RequestMapping("/payments")
 @Tag(name = "결제(Payments)", description = "토스 페이먼츠 결제 관련 API")
 @SecurityRequirement(name = "accessToken")
 public class PaymentController {
@@ -37,7 +37,7 @@ public class PaymentController {
 		description = "결제를 위한 주문번호를 생성하고 임시 주문을 저장합니다."
 	)
 	@PostMapping("/init")
-	public BaseResponse<String> initOrder(@RequestBody @Valid PaymentRequestDto requestDto) {
+	public BaseResponse<String> initOrder(@RequestBody @Valid PaymentRequest requestDto) {
 		String orderNumber = tossPaymentService.createOrderAndReturnOrderNumber(requestDto);
 		return BaseResponse.success(orderNumber);
 	}
@@ -48,9 +48,9 @@ public class PaymentController {
 	)
 	@GetMapping("/toss/success")
 	public BaseResponse<Empty> confirmPayment(
-		@RequestParam("paymentKey") String paymentKey,
-		@RequestParam("orderId") String orderId,
-		@RequestParam("amount") String amount
+		@RequestParam String paymentKey,
+		@RequestParam String orderId,
+		@RequestParam String amount
 	) {
 		tossConfirmService.confirmPayment(paymentKey, orderId, amount);
 		return BaseResponse.success();

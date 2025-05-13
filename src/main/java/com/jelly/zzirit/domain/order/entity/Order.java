@@ -1,5 +1,7 @@
 package com.jelly.zzirit.domain.order.entity;
 
+import static com.jelly.zzirit.global.dto.BaseResponseStatus.*;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -9,14 +11,25 @@ import java.util.List;
 
 import com.jelly.zzirit.domain.member.entity.Member;
 import com.jelly.zzirit.global.entity.BaseTime;
-
 import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
-import jakarta.persistence.*;
-import lombok.*;
-import lombok.experimental.SuperBuilder;
 
-import static com.jelly.zzirit.global.dto.BaseResponseStatus.EXPIRED_CANCEL_TIME;
-import static com.jelly.zzirit.global.dto.BaseResponseStatus.NOT_PAID_ORDER;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter

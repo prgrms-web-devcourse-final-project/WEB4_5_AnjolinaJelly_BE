@@ -17,7 +17,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
-import com.jelly.zzirit.domain.order.entity.Order;
 import com.jelly.zzirit.domain.order.entity.Payment;
 import com.jelly.zzirit.domain.order.repository.PaymentRepository;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;

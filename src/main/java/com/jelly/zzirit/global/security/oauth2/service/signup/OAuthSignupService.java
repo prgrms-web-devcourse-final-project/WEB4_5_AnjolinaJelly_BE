@@ -6,7 +6,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.jelly.zzirit.domain.member.dto.request.SocialSignupDTO;
+import com.jelly.zzirit.domain.member.dto.request.SocialSignupRequest;
 import com.jelly.zzirit.domain.member.entity.Member;
 import com.jelly.zzirit.domain.member.entity.OAuthMember;
 import com.jelly.zzirit.domain.member.entity.authenum.ProviderInfo;
@@ -31,21 +31,21 @@ public class OAuthSignupService {
 	private final PasswordEncoder passwordEncoder;
 
 	@Transactional
-	public Member processSignup(SocialSignupDTO socialSignupDto, Map<String, String> tokenData) {
-		String encodedPassword = passwordEncoder.encode(socialSignupDto.getMemberPassword());
+	public Member processSignup(SocialSignupRequest socialSignupRequest, Map<String, String> tokenData) {
+		String encodedPassword = passwordEncoder.encode(socialSignupRequest.getMemberPassword());
 
 		if (!passwordManager.isInvalid(encodedPassword)) {
 			throw new InvalidUserException(BaseResponseStatus.USER_PASSWORD_NOT_VALID);
 		}
 
-		Member member = createUserEntity(socialSignupDto, tokenData, encodedPassword);
+		Member member = createUserEntity(socialSignupRequest, tokenData, encodedPassword);
 		saveOAuthUser(member, tokenData);
 		return member;
 	}
 
-	private Member createUserEntity(SocialSignupDTO socialSignupDto, Map<String, String> tokenData, String encodedPassword) {
+	private Member createUserEntity(SocialSignupRequest socialSignupRequest, Map<String, String> tokenData, String encodedPassword) {
 		String email = tokenData.get(AuthConst.TEMP_USER_EMAIL);
-		return memberRepository.save(memberMapper.ofSocialSignupDTO(socialSignupDto, encodedPassword, email));
+		return memberRepository.save(memberMapper.ofSocialSignupDTO(socialSignupRequest, encodedPassword, email));
 	}
 
 	private void saveOAuthUser(Member member, Map<String, String> tokenData) {

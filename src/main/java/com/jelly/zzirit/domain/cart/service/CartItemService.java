@@ -5,9 +5,8 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.jelly.zzirit.domain.cart.dto.request.CartItemAddRequest;
-import com.jelly.zzirit.domain.cart.dto.response.CartItemResponse;
-import com.jelly.zzirit.domain.cart.dto.response.CartResponse;
+import com.jelly.zzirit.domain.cart.dto.request.CartItemCreateRequest;
+import com.jelly.zzirit.domain.cart.dto.response.CartItemFetchResponse;
 import com.jelly.zzirit.domain.cart.entity.Cart;
 import com.jelly.zzirit.domain.cart.entity.CartItem;
 import com.jelly.zzirit.domain.cart.repository.CartItemRepository;
@@ -36,10 +35,8 @@ public class CartItemService {
 	private final ItemRepository itemRepository;
 	private final ItemStockRepository itemStockRepository;
 
-	private final CartService cartService;
-
 	@Transactional
-	public CartItemResponse addItemToCart(Long memberId, CartItemAddRequest request) {
+	public CartItemFetchResponse addItemToCart(Long memberId, CartItemCreateRequest request) {
 
 		Cart cart = cartRepository.findByMemberId(memberId)
 			.orElseGet(() -> {
@@ -84,7 +81,7 @@ public class CartItemService {
 			.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND));
 		boolean isSoldOut = itemStock.getQuantity() == 0;
 
-		return new CartItemResponse(
+		return new CartItemFetchResponse(
 			cartItem.getId(),
 			item.getId(),
 			item.getName(),
@@ -114,7 +111,7 @@ public class CartItemService {
 	}
 
 	@Transactional
-	public CartItemResponse modifyQuantity(Long memberId, Long itemId, int delta) {
+	public CartItemFetchResponse modifyQuantity(Long memberId, Long itemId, int delta) {
 
 		Cart cart = cartRepository.findByMemberId(memberId)
 			.orElseThrow(() -> new InvalidUserException(BaseResponseStatus.USER_NOT_FOUND));
@@ -154,7 +151,7 @@ public class CartItemService {
 		int totalPrice = discountedPrice * newQuantity;
 		boolean isSoldOut = itemStock.getQuantity() == 0;
 
-		return new CartItemResponse(
+		return new CartItemFetchResponse(
 			cartItem.getId(),
 			item.getId(),
 			item.getName(),
@@ -170,5 +167,4 @@ public class CartItemService {
 			isSoldOut
 		);
 	}
-
 }

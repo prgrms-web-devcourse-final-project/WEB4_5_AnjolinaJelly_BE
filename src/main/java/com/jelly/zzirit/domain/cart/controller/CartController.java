@@ -4,7 +4,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.jelly.zzirit.domain.cart.dto.response.CartResponse;
+import com.jelly.zzirit.domain.cart.dto.response.CartFetchResponse;
 import com.jelly.zzirit.domain.cart.service.CartService;
 import com.jelly.zzirit.global.AuthMember;
 import com.jelly.zzirit.global.dto.BaseResponse;
@@ -13,11 +13,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @RestController
-@RequestMapping("/api/cart")
+@RequestMapping("/cart")
 @RequiredArgsConstructor
 @Tag(name = "장바구니 API", description = "장바구니와 관련된 API를 설명합니다.")
 public class CartController {
@@ -29,7 +27,7 @@ public class CartController {
 		description = "현재 로그인된 사용자의 장바구니를 조회합니다.",
 		security = {@SecurityRequirement(name = "bearer")})
 	@GetMapping("/me")
-	public BaseResponse<CartResponse> getMyCart() {
+	public BaseResponse<CartFetchResponse> getMyCart() {
 		Long memberId = AuthMember.getMemberId();
 		return BaseResponse.success(cartService.getMyCart(memberId));
 	}

@@ -12,9 +12,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jelly.zzirit.domain.member.dto.request.EmailAuthDTO;
-import com.jelly.zzirit.domain.member.dto.request.EmailAuthVerificationDTO;
-import com.jelly.zzirit.domain.member.dto.request.SignupDTO;
+import com.jelly.zzirit.domain.member.dto.request.EmailAuthRequest;
+import com.jelly.zzirit.domain.member.dto.request.EmailAuthVerifyRequest;
+import com.jelly.zzirit.domain.member.dto.request.SignupRequest;
 import com.jelly.zzirit.global.redis.RedisService;
 import com.jelly.zzirit.global.redis.RedisTestContainerConfig;
 
@@ -34,9 +34,9 @@ class AuthControllerTest extends RedisTestContainerConfig {
 		redisService.deleteData("emailAuth:test@example.com:requestLock");
 		redisService.deleteData("emailAuth:test@example.com:verified");
 
-		EmailAuthDTO dto = new EmailAuthDTO("test@example.com");
+		EmailAuthRequest dto = new EmailAuthRequest("test@example.com");
 
-		mockMvc.perform(post("/api/auth/send-email-code")
+		mockMvc.perform(post("/auth/send-email-code")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(asJsonString(dto)))
 			.andExpect(status().isOk());
@@ -47,9 +47,9 @@ class AuthControllerTest extends RedisTestContainerConfig {
 		redisService.setData("emailAuth:test@example.com:code", "123456", 600L);
 		redisService.setData("emailAuth:test@example.com:verified", "false", 600L);
 
-		EmailAuthVerificationDTO dto = new EmailAuthVerificationDTO("test@example.com", "123456");
+		EmailAuthVerifyRequest dto = new EmailAuthVerifyRequest("test@example.com", "123456");
 
-		mockMvc.perform(post("/api/auth/verify-email")
+		mockMvc.perform(post("/auth/verify-email")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(asJsonString(dto)))
 			.andExpect(status().isOk());
@@ -59,9 +59,9 @@ class AuthControllerTest extends RedisTestContainerConfig {
 	void 회원가입_성공() throws Exception {
 		redisService.setData("emailAuth:test@example.com:verified", "true", 600L);
 
-		SignupDTO dto = new SignupDTO("홍길동", "test@example.com", "password123", "서울시 강남구", "302호");
+		SignupRequest dto = new SignupRequest("홍길동", "test@example.com", "password123", "서울시 강남구", "302호");
 
-		mockMvc.perform(post("/api/auth/signup")
+		mockMvc.perform(post("/auth/signup")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(asJsonString(dto)))
 			.andExpect(status().isOk());

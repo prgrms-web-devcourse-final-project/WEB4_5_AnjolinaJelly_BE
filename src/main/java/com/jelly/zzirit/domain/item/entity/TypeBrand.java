@@ -2,13 +2,11 @@ package com.jelly.zzirit.domain.item.entity;
 
 import com.jelly.zzirit.global.entity.BaseTime;
 
-import com.jelly.zzirit.global.entity.BaseTime;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;

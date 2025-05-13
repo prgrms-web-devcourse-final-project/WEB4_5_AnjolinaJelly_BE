@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
 import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.domain.item.repository.ItemRepository;
 import com.jelly.zzirit.domain.member.entity.Member;
-import com.jelly.zzirit.domain.order.dto.request.OrderItemRequestDto;
-import com.jelly.zzirit.domain.order.dto.request.PaymentRequestDto;
+import com.jelly.zzirit.domain.order.dto.request.OrderItemCreateRequest;
+import com.jelly.zzirit.domain.order.dto.request.PaymentRequest;
 import com.jelly.zzirit.domain.order.entity.Order;
 import com.jelly.zzirit.domain.order.entity.OrderItem;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
@@ -24,7 +24,7 @@ public class OrderMapper {
 
 	private final ItemRepository itemRepository;
 
-	public Order mapToTempOrder(PaymentRequestDto dto, Member member, String orderNumber) {
+	public Order mapToTempOrder(PaymentRequest dto, Member member, String orderNumber) {
 		return Order.builder()
 			.member(member)
 			.orderNumber(orderNumber)
@@ -36,9 +36,9 @@ public class OrderMapper {
 			.build();
 	}
 
-	public void mapToOrderItems(Order order, List<OrderItemRequestDto> itemDtos) {
+	public void mapToOrderItems(Order order, List<OrderItemCreateRequest> itemDtos) {
 		List<Long> itemIds = itemDtos.stream()
-			.map(OrderItemRequestDto::itemId)
+			.map(OrderItemCreateRequest::itemId)
 			.distinct()
 			.toList();
 
@@ -48,7 +48,7 @@ public class OrderMapper {
 			itemMap.put(item.getId(), item);
 		}
 
-		for (OrderItemRequestDto dto : itemDtos) {
+		for (OrderItemCreateRequest dto : itemDtos) {
 			Item item = itemMap.get(dto.itemId());
 			if (item == null) {
 				throw new InvalidOrderException(BaseResponseStatus.ITEM_NOT_FOUND);

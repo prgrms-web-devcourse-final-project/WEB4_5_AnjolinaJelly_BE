@@ -116,9 +116,9 @@ class CartControllerTest extends AcceptanceTest {
 					fieldWithPath("result.items[].originalPrice").description("상품 정가").type(NUMBER),
 					fieldWithPath("result.items[].discountedPrice").description("할인 적용된 가격").type(NUMBER),
 					fieldWithPath("result.items[].totalPrice").description("총 가격").type(NUMBER),
-					fieldWithPath("result.items[].timeDeal").description("타임딜 상품 여부").type(BOOLEAN),
+					fieldWithPath("result.items[].isTimeDeal").description("타임딜 상품 여부").type(BOOLEAN),
 					fieldWithPath("result.items[].discountRatio").description("할인율").type(NUMBER).optional(),
-					fieldWithPath("result.items[].soldOut").description("품절 여부").type(BOOLEAN),
+					fieldWithPath("result.items[].isSoldOut").description("품절 여부").type(BOOLEAN),
 				}
 			))
 			.when()

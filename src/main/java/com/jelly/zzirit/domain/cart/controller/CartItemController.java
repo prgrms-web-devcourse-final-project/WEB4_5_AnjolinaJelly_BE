@@ -7,9 +7,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.jelly.zzirit.domain.cart.dto.request.CartItemAddRequest;
-import com.jelly.zzirit.domain.cart.dto.response.CartItemResponse;
-import com.jelly.zzirit.domain.cart.dto.response.CartResponse;
+import com.jelly.zzirit.domain.cart.dto.request.CartItemCreateRequest;
+import com.jelly.zzirit.domain.cart.dto.response.CartItemFetchResponse;
 import com.jelly.zzirit.domain.cart.service.CartItemService;
 import com.jelly.zzirit.global.AuthMember;
 import com.jelly.zzirit.global.dto.BaseResponse;
@@ -19,52 +18,40 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @RestController
-@RequestMapping("/api/cart/items")
+@RequestMapping("/cart/items")
 @RequiredArgsConstructor
 @Tag(name = "장바구니 API", description = "장바구니와 관련된 API를 설명합니다.")
 public class CartItemController {
 
 	private final CartItemService cartItemService;
 
-	@Operation(
-		summary = "장바구니에 상품 추가",
-		description = "상품 ID와 수량을 전달받아 장바구니에 항목을 추가합니다.")
+	@Operation(summary = "장바구니에 상품 추가", description = "상품 ID와 수량을 전달받아 장바구니에 항목을 추가합니다.")
 	@PostMapping
-	public BaseResponse<CartItemResponse> addItemToCart(@Valid @RequestBody CartItemAddRequest request) {
+	public BaseResponse<CartItemFetchResponse> addItemToCart(@Valid @RequestBody CartItemCreateRequest request) {
 		Long memberId = AuthMember.getMemberId();
-		log.info("장바구니 추가 요청 - 사용자 ID: {}, itemId: {}", memberId, request.getItemId());
-
-		CartItemResponse response = cartItemService.addItemToCart(memberId, request);
-		return BaseResponse.success(response);
+		return BaseResponse.success(cartItemService.addItemToCart(memberId, request));
 	}
 
-	@Operation(
-		summary = "장바구니 항목 삭제",
-		description = "장바구니에서 항목을 제거합니다."
-	)
-	@DeleteMapping("/{itemId}")
-	public BaseResponse<Empty> removeItemToCart(@PathVariable Long itemId) {
+	@Operation(summary = "장바구니 항목 삭제", description = "장바구니에서 항목을 제거합니다.")
+	@DeleteMapping("/{item-id}")
+	public BaseResponse<Empty> removeItemToCart(@PathVariable(name = "item-id") Long itemId) {
 		Long memberId = AuthMember.getMemberId();
-		log.info("장바구니에서 itemId {} 삭제 요청 - 사용자 ID: {}", itemId, memberId);
-
 		cartItemService.removeItemToCart(memberId, itemId);
 		return BaseResponse.success();
 	}
 
 	@Operation(summary = "장바구니 상품 수량 증가", description = "+1 수량 증가")
-	@PostMapping("/{itemId}/increase")
-	public BaseResponse<CartItemResponse> increaseQuantity(@PathVariable Long itemId) {
+	@PostMapping("/{item-id}/increase")
+	public BaseResponse<CartItemFetchResponse> increaseQuantity(@PathVariable(name = "item-id") Long itemId) {
 		Long memberId = AuthMember.getMemberId();
 		return BaseResponse.success(cartItemService.modifyQuantity(memberId, itemId, +1));
 	}
 
 	@Operation(summary = "장바구니 상품 수량 감소", description = "-1 수량 감소")
-	@PostMapping("/{itemId}/decrease")
-	public BaseResponse<CartItemResponse> decreaseQuantity(@PathVariable Long itemId) {
+	@PostMapping("/{item-id}/decrease")
+	public BaseResponse<CartItemFetchResponse> decreaseQuantity(@PathVariable(name = "item-id") Long itemId) {
 		Long memberId = AuthMember.getMemberId();
 		return BaseResponse.success(cartItemService.modifyQuantity(memberId, itemId, -1));
 	}

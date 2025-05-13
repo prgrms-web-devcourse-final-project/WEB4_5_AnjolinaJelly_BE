@@ -2,7 +2,7 @@ package com.jelly.zzirit.domain.order.service.order;
 
 import com.jelly.zzirit.domain.order.entity.Order;
 import com.jelly.zzirit.domain.order.repository.OrderRepository;
-import com.jelly.zzirit.domain.order.service.QueryOrderService;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
