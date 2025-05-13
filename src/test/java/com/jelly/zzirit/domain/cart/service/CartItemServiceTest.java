@@ -102,9 +102,7 @@ class CartItemServiceTest {
 	void addNewItem() {
 		// given: 상품 ID와 수량이 담긴 요청 객체를 생성하고,
 		// 장바구니, 상품, 재고가 모두 정상적으로 존재하는 상황을 가정
-		CartItemCreateRequest request = new CartItemCreateRequest();
-		request.setItemId(item.getId());
-		request.setQuantity(2);
+		CartItemCreateRequest request = new CartItemCreateRequest(item.getId(), 2);
 
 		given(cartRepository.findByMemberId(memberId)).willReturn(Optional.of(cart)); // 회원의 장바구니 존재
 		given(itemRepository.findById(item.getId())).willReturn(Optional.of(item));   // 상품 존재
@@ -115,11 +113,11 @@ class CartItemServiceTest {
 		CartItemFetchResponse response = cartItemService.addItemToCart(memberId, request);
 
 		// then: 응답 결과가 요청한 상품 ID와 수량을 반영하고, 할인 없이 정가가 적용되며 품절 아님을 검증
-		assertThat(response.getItemId()).isEqualTo(item.getId());
-		assertThat(response.getQuantity()).isEqualTo(2);
-		assertThat(response.getDiscountedPrice()).isEqualTo(2000000); // 정가
-		assertThat(response.getTotalPrice()).isEqualTo(2000000 * 2);  // 총 가격
-		assertThat(response.getIsSoldOut()).isFalse();                   // 품절 아님
+		assertThat(response.itemId()).isEqualTo(item.getId());
+		assertThat(response.quantity()).isEqualTo(2);
+		assertThat(response.discountedPrice()).isEqualTo(2000000); // 정가
+		assertThat(response.totalPrice()).isEqualTo(2000000 * 2);  // 총 가격
+		assertThat(response.isSoldOut()).isFalse();                   // 품절 아님
 	}
 
 	@Test
@@ -134,9 +132,7 @@ class CartItemServiceTest {
 			.timeDeal(TimeDeal.builder().discountRatio(10).build()) // 할인율
 			.build();
 
-		CartItemCreateRequest request = new CartItemCreateRequest();
-		request.setItemId(item.getId());
-		request.setQuantity(2);
+		CartItemCreateRequest request = new CartItemCreateRequest(item.getId(), 2);
 
 		given(cartRepository.findByMemberId(memberId)).willReturn(Optional.of(cart));
 		given(itemRepository.findById(item.getId())).willReturn(Optional.of(item));
@@ -148,11 +144,11 @@ class CartItemServiceTest {
 		CartItemFetchResponse response = cartItemService.addItemToCart(memberId, request);
 
 		// then: 할인 정보가 정확히 반영되어 응답되는지 검증
-		assertThat(response.getIsTimeDeal()).isTrue();
-		assertThat(response.getDiscountedPrice()).isEqualTo(1800000);
-		assertThat(response.getOriginalPrice()).isEqualTo(2000000);
-		assertThat(response.getDiscountRatio()).isEqualTo(10);
-		assertThat(response.getTotalPrice()).isEqualTo(1800000 * 2);
+		assertThat(response.isTimeDeal()).isTrue();
+		assertThat(response.discountedPrice()).isEqualTo(1800000);
+		assertThat(response.originalPrice()).isEqualTo(2000000);
+		assertThat(response.discountRatio()).isEqualTo(10);
+		assertThat(response.totalPrice()).isEqualTo(1800000 * 2);
 	}
 
 	@Test
@@ -164,9 +160,7 @@ class CartItemServiceTest {
 			.quantity(0)
 			.build();
 
-		CartItemCreateRequest request = new CartItemCreateRequest();
-		request.setItemId(item.getId());
-		request.setQuantity(1);
+		CartItemCreateRequest request = new CartItemCreateRequest(item.getId(), 1);
 
 		given(cartRepository.findByMemberId(memberId)).willReturn(Optional.of(cart));
 		given(itemRepository.findById(item.getId())).willReturn(Optional.of(item));
@@ -177,11 +171,11 @@ class CartItemServiceTest {
 		CartItemFetchResponse response = cartItemService.addItemToCart(memberId, request);
 
 		// then: 품절 여부가 true이고 가격 정보는 그대로 반영되었는지 검증
-		assertThat(response.getItemId()).isEqualTo(item.getId());
-		assertThat(response.getQuantity()).isEqualTo(1);
-		assertThat(response.getIsSoldOut()).isTrue();
-		assertThat(response.getDiscountedPrice()).isEqualTo(2000000); // 정가
-		assertThat(response.getTotalPrice()).isEqualTo(2000000); // 정가 * 수량
+		assertThat(response.itemId()).isEqualTo(item.getId());
+		assertThat(response.quantity()).isEqualTo(1);
+		assertThat(response.isSoldOut()).isTrue();
+		assertThat(response.discountedPrice()).isEqualTo(2000000); // 정가
+		assertThat(response.totalPrice()).isEqualTo(2000000); // 정가 * 수량
 	}
 
 	@Test
@@ -211,23 +205,21 @@ class CartItemServiceTest {
 		given(itemStockRepository.findByItemId(item.getId())).willReturn(Optional.of(itemStock));
 
 		// when: 동일 상품 2개를 addItemToCart로 재추가
-		CartItemCreateRequest request = new CartItemCreateRequest();
-		request.setItemId(item.getId());
-		request.setQuantity(2);
+		CartItemCreateRequest request = new CartItemCreateRequest(item.getId(), 2);
 		CartItemFetchResponse responseViaAdd = cartItemService.addItemToCart(memberId, request);
 
 		// then: 기존 수량 1 + 추가 2 = 총 3이 반영되어야 함
-		assertThat(responseViaAdd.getQuantity()).isEqualTo(3);
-		assertThat(responseViaAdd.getTotalPrice()).isEqualTo(responseViaAdd.getDiscountedPrice() * 3);
-		assertThat(responseViaAdd.getIsSoldOut()).isFalse();
+		assertThat(responseViaAdd.quantity()).isEqualTo(3);
+		assertThat(responseViaAdd.totalPrice()).isEqualTo(responseViaAdd.discountedPrice() * 3);
+		assertThat(responseViaAdd.isSoldOut()).isFalse();
 		verify(cartItemRepository, never()).save(any()); // 기존 항목에 수량만 증가했으므로 save 호출되지 않음
 
 		// when: modifyQuantity를 통해 수량을 +1 증가
 		CartItemFetchResponse responseViaModify = cartItemService.modifyQuantity(memberId, item.getId(), +1);
 
 		// then: 총 수량 4가 반영되어야 함
-		assertThat(responseViaModify.getQuantity()).isEqualTo(4);
-		assertThat(responseViaModify.getTotalPrice()).isEqualTo(responseViaModify.getDiscountedPrice() * 4);
+		assertThat(responseViaModify.quantity()).isEqualTo(4);
+		assertThat(responseViaModify.totalPrice()).isEqualTo(responseViaModify.discountedPrice() * 4);
 	}
 
 	@Test
@@ -245,8 +237,8 @@ class CartItemServiceTest {
 		// then: 수량이 2로 줄고 총 가격이 할인 가격 * 2로 계산되는지 검증
 		assertThat(cartItem.getQuantity()).isEqualTo(2);
 		assertThat(result).isNotNull();
-		assertThat(result.getQuantity()).isEqualTo(2);
-		assertThat(result.getTotalPrice()).isEqualTo(result.getDiscountedPrice() * 2);
+		assertThat(result.quantity()).isEqualTo(2);
+		assertThat(result.totalPrice()).isEqualTo(result.discountedPrice() * 2);
 	}
 
 	@Test

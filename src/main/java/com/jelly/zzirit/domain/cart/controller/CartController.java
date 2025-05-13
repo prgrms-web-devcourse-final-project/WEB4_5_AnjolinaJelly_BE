@@ -10,7 +10,6 @@ import com.jelly.zzirit.global.AuthMember;
 import com.jelly.zzirit.global.dto.BaseResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
@@ -22,13 +21,11 @@ public class CartController {
 
 	private final CartService cartService;
 
-	@Operation(
-		summary = "내 장바구니 조회",
-		description = "현재 로그인된 사용자의 장바구니를 조회합니다.",
-		security = {@SecurityRequirement(name = "bearer")})
+	@Operation(summary = "내 장바구니 조회", description = "현재 로그인된 사용자의 장바구니를 조회합니다.")
 	@GetMapping("/me")
 	public BaseResponse<CartFetchResponse> getMyCart() {
-		Long memberId = AuthMember.getMemberId();
-		return BaseResponse.success(cartService.getMyCart(memberId));
+		return BaseResponse.success(
+			cartService.getMyCart(AuthMember.getMemberId())
+		);
 	}
 }

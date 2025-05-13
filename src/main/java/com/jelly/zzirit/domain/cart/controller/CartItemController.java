@@ -30,29 +30,31 @@ public class CartItemController {
 	@Operation(summary = "장바구니에 상품 추가", description = "상품 ID와 수량을 전달받아 장바구니에 항목을 추가합니다.")
 	@PostMapping
 	public BaseResponse<CartItemFetchResponse> addItemToCart(@Valid @RequestBody CartItemCreateRequest request) {
-		Long memberId = AuthMember.getMemberId();
-		return BaseResponse.success(cartItemService.addItemToCart(memberId, request));
+		return BaseResponse.success(
+			cartItemService.addItemToCart(AuthMember.getMemberId(), request)
+		);
 	}
 
 	@Operation(summary = "장바구니 항목 삭제", description = "장바구니에서 항목을 제거합니다.")
 	@DeleteMapping("/{item-id}")
-	public BaseResponse<Empty> removeItemToCart(@PathVariable(name = "item-id") Long itemId) {
-		Long memberId = AuthMember.getMemberId();
-		cartItemService.removeItemToCart(memberId, itemId);
+	public BaseResponse<Empty> removeItemToCart(@PathVariable("item-id") Long itemId) {
+		cartItemService.removeItemToCart(AuthMember.getMemberId(), itemId);
 		return BaseResponse.success();
 	}
 
-	@Operation(summary = "장바구니 상품 수량 증가", description = "+1 수량 증가")
+	@Operation(summary = "장바구니 상품 수량 증가", description = "수량 1 증가")
 	@PostMapping("/{item-id}/increase")
-	public BaseResponse<CartItemFetchResponse> increaseQuantity(@PathVariable(name = "item-id") Long itemId) {
-		Long memberId = AuthMember.getMemberId();
-		return BaseResponse.success(cartItemService.modifyQuantity(memberId, itemId, +1));
+	public BaseResponse<CartItemFetchResponse> increaseQuantity(@PathVariable("item-id") Long itemId) {
+		return BaseResponse.success(
+			cartItemService.modifyQuantity(AuthMember.getMemberId(), itemId, +1)
+		);
 	}
 
-	@Operation(summary = "장바구니 상품 수량 감소", description = "-1 수량 감소")
+	@Operation(summary = "장바구니 상품 수량 감소", description = "수량 1 감소")
 	@PostMapping("/{item-id}/decrease")
-	public BaseResponse<CartItemFetchResponse> decreaseQuantity(@PathVariable(name = "item-id") Long itemId) {
-		Long memberId = AuthMember.getMemberId();
-		return BaseResponse.success(cartItemService.modifyQuantity(memberId, itemId, -1));
+	public BaseResponse<CartItemFetchResponse> decreaseQuantity(@PathVariable("item-id") Long itemId) {
+		return BaseResponse.success(
+			cartItemService.modifyQuantity(AuthMember.getMemberId(), itemId, -1)
+		);
 	}
 }

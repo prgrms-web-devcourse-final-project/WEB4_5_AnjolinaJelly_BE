@@ -1,19 +1,10 @@
 package com.jelly.zzirit.domain.cart.dto.request;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import io.swagger.v3.oas.annotations.media.Schema;
 
-@Getter
-@Setter
-@NoArgsConstructor
-public class CartItemCreateRequest {
-	@NotNull
-	private Long itemId;
-
-	@NotNull
-	@Min(value = 1, message = "최솟값은 1개 이상이여야 합니다")
-	private Integer quantity;
+@Schema(description = "장바구니 상품 추가 요청 DTO")
+public record CartItemCreateRequest(
+	Long itemId,
+	Integer quantity
+) {
 }

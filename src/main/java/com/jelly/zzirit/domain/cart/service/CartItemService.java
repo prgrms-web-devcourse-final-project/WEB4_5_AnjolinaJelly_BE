@@ -45,7 +45,7 @@ public class CartItemService {
 				return cartRepository.save(newCart);
 			});
 
-		Item item = itemRepository.findById(request.getItemId())
+		Item item = itemRepository.findById(request.itemId())
 			.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND));
 
 		// 장바구니에 이미 존재하는 상품인지 확인
@@ -53,9 +53,9 @@ public class CartItemService {
 		CartItem cartItem;
 		if (existingCartItem.isPresent()) {
 			cartItem = existingCartItem.get();
-			cartItem.increaseQuantity(request.getQuantity()); // 있으면 수량 증가
+			cartItem.increaseQuantity(request.quantity()); // 있으면 수량 증가
 		} else {
-			cartItem = CartItem.of(cart, item, request.getQuantity());
+			cartItem = CartItem.of(cart, item, request.quantity());
 			cartItemRepository.save(cartItem);
 		}
 

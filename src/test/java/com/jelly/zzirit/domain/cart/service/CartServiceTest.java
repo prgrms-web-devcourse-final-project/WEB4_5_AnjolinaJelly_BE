@@ -107,13 +107,13 @@ class CartServiceTest {
 
 		// then: 상품 수량, 가격, ID, 총합 정보가 정확히 응답되는지 검증
 		assertThat(result).isNotNull();
-		assertThat(result.getCartId()).isEqualTo(cart.getId());
-		assertThat(result.getItems()).hasSize(1);
-		CartItemFetchResponse response = result.getItems().get(0);
-		assertThat(response.getItemId()).isEqualTo(item.getId());
-		assertThat(response.getQuantity()).isEqualTo(2);
-		assertThat(result.getCartTotalQuantity()).isEqualTo(2);
-		assertThat(result.getCartTotalPrice()).isEqualTo(1500000 * 2);
+		assertThat(result.cartId()).isEqualTo(cart.getId());
+		assertThat(result.items()).hasSize(1);
+		CartItemFetchResponse response = result.items().get(0);
+		assertThat(response.itemId()).isEqualTo(item.getId());
+		assertThat(response.quantity()).isEqualTo(2);
+		assertThat(result.cartTotalQuantity()).isEqualTo(2);
+		assertThat(result.cartTotalPrice()).isEqualTo(1500000 * 2);
 	}
 
 	@Test
@@ -137,12 +137,12 @@ class CartServiceTest {
 		CartFetchResponse result = cartService.getMyCart(memberId);
 
 		// then: 할인 정보가 정확히 반영되어 있는지 검증
-		CartItemFetchResponse response = result.getItems().get(0);
-		assertThat(response.getOriginalPrice()).isEqualTo(1500000);
-		assertThat(response.getDiscountedPrice()).isEqualTo(1350000);
-		assertThat(response.getIsTimeDeal()).isTrue();
-		assertThat(response.getDiscountRatio()).isEqualTo(10);
-		assertThat(response.getTotalPrice()).isEqualTo(1350000 * 2);
+		CartItemFetchResponse response = result.items().get(0);
+		assertThat(response.originalPrice()).isEqualTo(1500000);
+		assertThat(response.discountedPrice()).isEqualTo(1350000);
+		assertThat(response.isTimeDeal()).isTrue();
+		assertThat(response.discountRatio()).isEqualTo(10);
+		assertThat(response.totalPrice()).isEqualTo(1350000 * 2);
 	}
 
 	@Test
@@ -162,16 +162,16 @@ class CartServiceTest {
 		CartFetchResponse result = cartService.getMyCart(memberId);
 
 		// then: 품절 상품의 표시 여부와 전체 합산 제외 여부 검증
-		CartItemFetchResponse response = result.getItems().get(0);
+		CartItemFetchResponse response = result.items().get(0);
 
-		assertThat(response.getItemId()).isEqualTo(item.getId());
-		assertThat(response.getQuantity()).isEqualTo(cartItem.getQuantity());
-		assertThat(response.getIsSoldOut()).isTrue(); // 품절 여부
-		assertThat(response.getDiscountedPrice()).isEqualTo(item.getPrice().intValue());
-		assertThat(response.getTotalPrice()).isEqualTo(item.getPrice().intValue() * cartItem.getQuantity());
+		assertThat(response.itemId()).isEqualTo(item.getId());
+		assertThat(response.quantity()).isEqualTo(cartItem.getQuantity());
+		assertThat(response.isSoldOut()).isTrue(); // 품절 여부
+		assertThat(response.discountedPrice()).isEqualTo(item.getPrice().intValue());
+		assertThat(response.totalPrice()).isEqualTo(item.getPrice().intValue() * cartItem.getQuantity());
 
-		assertThat(result.getCartTotalQuantity()).isEqualTo(0); // 품절 제외
-		assertThat(result.getCartTotalPrice()).isEqualTo(0);    // 품절 제외
+		assertThat(result.cartTotalQuantity()).isEqualTo(0); // 품절 제외
+		assertThat(result.cartTotalPrice()).isEqualTo(0);    // 품절 제외
 	}
 
 	@Test
@@ -234,37 +234,37 @@ class CartServiceTest {
 
 		// then: 항목 개수 확인
 		assertThat(result).isNotNull();
-		assertThat(result.getItems()).hasSize(3);
+		assertThat(result.items()).hasSize(3);
 
 		// 일반 상품 검증
-		CartItemFetchResponse normalRes = result.getItems().stream()
-			.filter(r -> r.getItemId().equals(normalItem.getId()))
+		CartItemFetchResponse normalRes = result.items().stream()
+			.filter(r -> r.itemId().equals(normalItem.getId()))
 			.findFirst().orElseThrow();
-		assertThat(normalRes.getIsTimeDeal()).isFalse();
-		assertThat(normalRes.getIsSoldOut()).isFalse();
-		assertThat(normalRes.getTotalPrice()).isEqualTo(1000000);
+		assertThat(normalRes.isTimeDeal()).isFalse();
+		assertThat(normalRes.isSoldOut()).isFalse();
+		assertThat(normalRes.totalPrice()).isEqualTo(1000000);
 
 		// 타임딜 상품 검증
-		CartItemFetchResponse timeDealRes = result.getItems().stream()
-			.filter(r -> r.getItemId().equals(timeDealItem.getId()))
+		CartItemFetchResponse timeDealRes = result.items().stream()
+			.filter(r -> r.itemId().equals(timeDealItem.getId()))
 			.findFirst().orElseThrow();
-		assertThat(timeDealRes.getIsTimeDeal()).isTrue();
-		assertThat(timeDealRes.getIsSoldOut()).isFalse();
-		assertThat(timeDealRes.getDiscountedPrice()).isEqualTo(1800000);
-		assertThat(timeDealRes.getTotalPrice()).isEqualTo(1800000 * 2);
+		assertThat(timeDealRes.isTimeDeal()).isTrue();
+		assertThat(timeDealRes.isSoldOut()).isFalse();
+		assertThat(timeDealRes.discountedPrice()).isEqualTo(1800000);
+		assertThat(timeDealRes.totalPrice()).isEqualTo(1800000 * 2);
 
 		// 품절 상품 검증
-		CartItemFetchResponse soldOutRes = result.getItems().stream()
-			.filter(r -> r.getItemId().equals(soldOutItem.getId()))
+		CartItemFetchResponse soldOutRes = result.items().stream()
+			.filter(r -> r.itemId().equals(soldOutItem.getId()))
 			.findFirst().orElseThrow();
-		assertThat(soldOutRes.getIsSoldOut()).isTrue();
-		assertThat(soldOutRes.getTotalPrice()).isEqualTo(500000);
+		assertThat(soldOutRes.isSoldOut()).isTrue();
+		assertThat(soldOutRes.totalPrice()).isEqualTo(500000);
 
 		// 총합 검증 (품절 상품 제외)
 		int expectedQuantity = 1 + 2;
 		int expectedPrice = 1000000 + 1800000 * 2;
-		assertThat(result.getCartTotalQuantity()).isEqualTo(expectedQuantity);
-		assertThat(result.getCartTotalPrice()).isEqualTo(expectedPrice);
+		assertThat(result.cartTotalQuantity()).isEqualTo(expectedQuantity);
+		assertThat(result.cartTotalPrice()).isEqualTo(expectedPrice);
 	}
 
 }

@@ -44,7 +44,6 @@ public class CartService {
 		// 장바구니 항목 조회
 		List<CartItem> cartItems = cartItemRepository.findAllByCartId(cart.getId());
 
-		// cartitems를 조인으로 장바구니 조회 없이 바로 들고오기 가능
 		List<CartItemFetchResponse> itemResponses = cartItems.stream()
 			.map(cartItem -> {
 				Item item = cartItem.getItem();
@@ -95,13 +94,13 @@ public class CartService {
 
 		// 전체 수량 및 금액 집계 (품절 상품 제외)
 		int cartTotalQuantity = itemResponses.stream()
-			.filter(res -> !res.getIsSoldOut())
-			.mapToInt(CartItemFetchResponse::getQuantity)
+			.filter(res -> !res.isSoldOut())
+			.mapToInt(CartItemFetchResponse::quantity)
 			.sum();
 
 		int cartTotalPrice = itemResponses.stream()
-			.filter(res -> !res.getIsSoldOut())
-			.mapToInt(CartItemFetchResponse::getTotalPrice)
+			.filter(res -> !res.isSoldOut())
+			.mapToInt(CartItemFetchResponse::totalPrice)
 			.sum();
 
 		return new CartFetchResponse(cart.getId(), itemResponses, cartTotalQuantity, cartTotalPrice);

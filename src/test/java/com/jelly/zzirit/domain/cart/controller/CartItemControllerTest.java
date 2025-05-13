@@ -79,9 +79,7 @@ class CartItemControllerTest extends AcceptanceTest {
 	}
 	@Test
 	void 장바구니_상품_추가() {
-		CartItemCreateRequest request = new CartItemCreateRequest();
-		request.setItemId(itemId);
-		request.setQuantity(2);
+		CartItemCreateRequest request = new CartItemCreateRequest(itemId, 2);
 
 		given(spec)
 			.contentType(APPLICATION_JSON_VALUE)
