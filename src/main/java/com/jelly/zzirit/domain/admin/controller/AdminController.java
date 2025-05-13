@@ -60,7 +60,7 @@ public class AdminController {
 		@RequestParam(defaultValue = "10") int size
 	) {
 		Pageable pageable = PageRequest.of(page, size);
-		return BaseResponse.success(queryAdminItemService.getItems(name, itemId, pageable));
+		return BaseResponse.success(queryAdminItemService.getSearchItems(name, itemId, pageable));
 	}
 
 	@Operation(summary = "관리자 상품 이미지 업로드", description = "상품 등록 전 이미지를 S3에 업로드하고 URL 반환")
