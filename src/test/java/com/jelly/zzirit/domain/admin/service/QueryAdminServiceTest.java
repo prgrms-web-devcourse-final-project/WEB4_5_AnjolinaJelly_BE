@@ -2,9 +2,8 @@ package com.jelly.zzirit.domain.admin.service;
 
 import com.jelly.zzirit.domain.admin.dto.response.AdminItemFetchResponse;
 import com.jelly.zzirit.domain.item.repository.ItemQueryRepository;
-import com.jelly.zzirit.domain.item.repository.ItemRepository;
-import com.jelly.zzirit.domain.item.repository.ItemStockRepository;
 import com.jelly.zzirit.global.dto.PageResponse;
+import com.jelly.zzirit.global.exception.custom.InvalidItemException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -29,14 +29,13 @@ public class QueryAdminServiceTest {
     private QueryAdminService queryAdminService;
 
     @Mock
-    private ItemQueryRepository itemQueryRepository; // ✅ 변경됨
+    private ItemQueryRepository itemQueryRepository;
 
     @DisplayName("관리자 상품 조회 - 상품 ID로 조회하면 단일 결과를 Page로 반환한다")
     @Test
     void 관리자_상품_조회_상품ID로_조회하면_단일_결과를_Page로_반환한다() {
         // given
         Long itemId = 1L;
-        Pageable pageable = PageRequest.of(0, 10);
 
         AdminItemFetchResponse mockDto = new AdminItemFetchResponse(
                 itemId,
@@ -47,20 +46,17 @@ public class QueryAdminServiceTest {
                 new BigDecimal("1500000"),
                 100
         );
-        Page<AdminItemFetchResponse> mockPage = new PageImpl<>(List.of(mockDto), pageable, 1);
 
         // when - itemId 기준으로만 조회
-        when(itemQueryRepository.findAdminItems(null, itemId, pageable)).thenReturn(mockPage);
+        when(itemQueryRepository.findAdminItemById(itemId)).thenReturn(Optional.of(mockDto));
 
         // 실행
-        PageResponse<AdminItemFetchResponse> response = queryAdminService.getSearchItems(itemId, null, pageable);
+        Optional<AdminItemFetchResponse> response = queryAdminService.getItemById(itemId);
 
         // then
         assertNotNull(response); // todo: response에 getter까지 붙여가며 실제로 응답이 빈 리스트인지 검증?
-        assertEquals(1, response.getContent().size());
-        assertEquals("아이폰 15", response.getContent().get(0).name()); // getter 혹은 record 필드 접근
-
-        verify(itemQueryRepository).findAdminItems(null, itemId, pageable);
+        assertEquals("아이폰 15", response.get().name());
+        verify(itemQueryRepository).findAdminItemById(itemId);
     }
 
 
@@ -69,18 +65,11 @@ public class QueryAdminServiceTest {
     void 관리자_상품_조회_상품ID로_조회했지만_없으면_빈페이지를_반환한다() {
         // given
         Long itemId = 99L;
-        Pageable pageable = PageRequest.of(0, 10);
-        Page<AdminItemFetchResponse> emptyPage = Page.empty(pageable);
-
-        when(itemQueryRepository.findAdminItems(null, itemId, pageable)).thenReturn(emptyPage);
-
-        // when
-        PageResponse<AdminItemFetchResponse> response = queryAdminService.getSearchItems(itemId, null, pageable);
+        when(itemQueryRepository.findAdminItemById(itemId)).thenReturn(Optional.empty());
 
         // then
-        assertNotNull(response);
-        assertTrue(response.getContent().isEmpty());
-        verify(itemQueryRepository).findAdminItems(null, itemId, pageable);
+        assertEquals(Optional.empty(), queryAdminService.getItemById(itemId));
+        verify(itemQueryRepository).findAdminItemById(itemId);
     }
 
 
@@ -99,10 +88,10 @@ public class QueryAdminServiceTest {
         );
         Page<AdminItemFetchResponse> resultPage = new PageImpl<>(List.of(dto1, dto2), pageable, 2);
 
-        when(itemQueryRepository.findAdminItems(name, null, pageable)).thenReturn(resultPage);
+        when(itemQueryRepository.findAdminItems(name, pageable)).thenReturn(resultPage);
 
         // when
-        PageResponse<AdminItemFetchResponse> response = queryAdminService.getSearchItems(null, name, pageable);
+        PageResponse<AdminItemFetchResponse> response = queryAdminService.getSearchItems(name, pageable);
 
         // then
         assertNotNull(response);
@@ -110,7 +99,7 @@ public class QueryAdminServiceTest {
         assertEquals("삼성 냉장고", response.getContent().get(0).name());
         assertEquals("LG 냉장고", response.getContent().get(1).name());
 
-        verify(itemQueryRepository).findAdminItems(name, null, pageable);
+        verify(itemQueryRepository).findAdminItems(name, pageable);
     }
 
 
@@ -125,16 +114,16 @@ public class QueryAdminServiceTest {
         );
         Page<AdminItemFetchResponse> resultPage = new PageImpl<>(List.of(dto), pageable, 1);
 
-        when(itemQueryRepository.findAdminItems(null, null, pageable)).thenReturn(resultPage);
+        when(itemQueryRepository.findAdminItems(null, pageable)).thenReturn(resultPage);
 
         // when
-        PageResponse<AdminItemFetchResponse> response = queryAdminService.getSearchItems(null, null, pageable);
+        PageResponse<AdminItemFetchResponse> response = queryAdminService.getSearchItems(null, pageable);
 
         // then
         assertNotNull(response);
         assertEquals(1, response.getContent().size());
         assertEquals("아이폰", response.getContent().get(0).name());
 
-        verify(itemQueryRepository).findAdminItems(null, null, pageable);
+        verify(itemQueryRepository).findAdminItems(null, pageable);
     }
 }
