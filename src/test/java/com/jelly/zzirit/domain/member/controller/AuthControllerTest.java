@@ -36,7 +36,7 @@ class AuthControllerTest extends RedisTestContainerConfig {
 
 		EmailAuthRequest dto = new EmailAuthRequest("test@example.com");
 
-		mockMvc.perform(post("/auth/send-email-code")
+		mockMvc.perform(post("api/auth/send-email-code")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(asJsonString(dto)))
 			.andExpect(status().isOk());
@@ -49,7 +49,7 @@ class AuthControllerTest extends RedisTestContainerConfig {
 
 		EmailAuthVerifyRequest dto = new EmailAuthVerifyRequest("test@example.com", "123456");
 
-		mockMvc.perform(post("/auth/verify-email")
+		mockMvc.perform(post("api//auth/verify-email")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(asJsonString(dto)))
 			.andExpect(status().isOk());
@@ -61,7 +61,7 @@ class AuthControllerTest extends RedisTestContainerConfig {
 
 		SignupRequest dto = new SignupRequest("홍길동", "test@example.com", "password123", "서울시 강남구", "302호");
 
-		mockMvc.perform(post("/auth/signup")
+		mockMvc.perform(post("/api/auth/signup")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(asJsonString(dto)))
 			.andExpect(status().isOk());

@@ -22,7 +22,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/orders")
+@RequestMapping("/api/orders")
 @RequiredArgsConstructor
 @Tag(name = "주문 API", description = "주문과 관련된 API를 설명합니다.")
 public class OrderController {

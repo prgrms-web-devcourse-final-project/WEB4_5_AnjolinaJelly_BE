@@ -24,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/items")
+@RequestMapping("/api/items")
 @Tag(name = "상품 API", description = "상품과 관련된 API를 설명합니다.")
 public class ItemController {
 

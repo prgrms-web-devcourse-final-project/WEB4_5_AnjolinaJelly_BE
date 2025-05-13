@@ -49,7 +49,7 @@ class AdminControllerTest extends TestMemberConfig {
     @Test
     @DisplayName("상품 목록 조회 (성공)")
     void getItems_shouldReturnSuccess() throws Exception {
-        mockMvc.perform(get("/admin/items")
+        mockMvc.perform(get("/api/admin/items")
                 .cookie(getAdminAccessTokenCookie()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true));
@@ -66,7 +66,7 @@ class AdminControllerTest extends TestMemberConfig {
                 1L,
                 "https://example.com/image.jpg"
         );
-        mockMvc.perform(post("/admin/items")
+        mockMvc.perform(post("/api/admin/items")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
                 .cookie(getAdminAccessTokenCookie()))
@@ -79,7 +79,7 @@ class AdminControllerTest extends TestMemberConfig {
     void updateItem_shouldReturnSuccess() throws Exception {
         ItemUpdateRequest request = new ItemUpdateRequest(50, new BigDecimal("8900"));
 
-        mockMvc.perform(put("/admin/items/{itemId}", 1L)
+        mockMvc.perform(put("/api/admin/items/{itemId}", 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request))
                         .cookie(getAdminAccessTokenCookie()))
@@ -94,7 +94,7 @@ class AdminControllerTest extends TestMemberConfig {
                 "image", "image.jpg", MediaType.IMAGE_JPEG_VALUE, "fake-image-content".getBytes()
         );
 
-        mockMvc.perform(multipart("/admin/items/image")
+        mockMvc.perform(multipart("/api/admin/items/image")
                         .file(image)
                         .cookie(getAdminAccessTokenCookie()))
                 .andExpect(status().isOk())
@@ -110,7 +110,7 @@ class AdminControllerTest extends TestMemberConfig {
                 "image", "image.jpg", MediaType.IMAGE_JPEG_VALUE, "new-image-content".getBytes()
         );
 
-        mockMvc.perform(multipart("/admin/items/{itemId}/image", 1L)
+        mockMvc.perform(multipart("/api/admin/items/{itemId}/image", 1L)
                         .file(image)
                         .with(req -> { req.setMethod("PUT"); return req; })
                         .cookie(getAdminAccessTokenCookie())) // multipart PUT 요청 설정
@@ -123,7 +123,7 @@ class AdminControllerTest extends TestMemberConfig {
     @Test
     @DisplayName("상품 삭제 요청 시 정상 응답")
     void deleteItem_shouldReturnSuccess() throws Exception {
-        mockMvc.perform(delete("/admin/items/{itemId}", 1L)
+        mockMvc.perform(delete("/api/admin/items/{itemId}", 1L)
                         .cookie(getAdminAccessTokenCookie()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true));

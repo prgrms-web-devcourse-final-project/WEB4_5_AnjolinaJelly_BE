@@ -40,7 +40,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/admin")
+@RequestMapping("/api/admin")
 @RequiredArgsConstructor
 @Tag(name = "관리자 상품 API", description = "관리자 상품 기능을 제공합니다.")
 public class AdminController {

@@ -75,7 +75,7 @@ class PaymentControllerTest extends TestMemberConfig {
         """;
 
 		// when & then
-		mockMvc.perform(post("/payments/init")
+		mockMvc.perform(post("/api/payments/init")
 				.cookie(getAccessTokenCookie())
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(requestBody))
@@ -87,7 +87,7 @@ class PaymentControllerTest extends TestMemberConfig {
 
 	@Test
 	void 결제성공_콜백_API는_쿠키인증으로_정상처리되어야_한다() throws Exception {
-		mockMvc.perform(get("/payments/toss/success")
+		mockMvc.perform(get("/api/payments/toss/success")
 				.cookie(getAccessTokenCookie())
 				.param("paymentKey", "pay_123")
 				.param("orderId", "ORDER-123")
@@ -105,7 +105,7 @@ class PaymentControllerTest extends TestMemberConfig {
 		String message = "사용자 취소";
 		String orderId = "ORDER-123";
 
-		mockMvc.perform(get("/payments/toss/fail")
+		mockMvc.perform(get("/api/payments/toss/fail")
 				.cookie(getAccessTokenCookie())
 				.param("code", code)
 				.param("message", message)

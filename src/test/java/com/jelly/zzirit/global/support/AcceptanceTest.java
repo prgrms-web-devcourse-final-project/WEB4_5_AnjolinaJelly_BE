@@ -26,8 +26,8 @@ import io.restassured.http.Cookie;
 import io.restassured.specification.RequestSpecification;
 
 @AutoConfigureRestDocs
-// @SuppressWarnings("NonAsciiCharacters")
-// @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
+@SuppressWarnings("NonAsciiCharacters")
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ExtendWith({RestDocumentationExtension.class, SpringExtension.class})
 public abstract class AcceptanceTest extends RedisTestContainerConfig {

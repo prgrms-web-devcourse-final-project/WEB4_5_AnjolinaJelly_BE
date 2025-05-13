@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
-@RequestMapping("/info")
+@RequestMapping("/api/info")
 @RequiredArgsConstructor
 @Tag(name = "로그인 및 토큰 정보", description = "인증된 사용자 정보 및 임시 회원가입 확인 API")
 public class InfoController {

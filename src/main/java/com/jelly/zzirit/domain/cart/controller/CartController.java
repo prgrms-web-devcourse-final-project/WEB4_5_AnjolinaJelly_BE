@@ -14,7 +14,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/cart")
+@RequestMapping("/api/cart")
 @RequiredArgsConstructor
 @Tag(name = "장바구니 API", description = "장바구니와 관련된 API를 설명합니다.")
 public class CartController {

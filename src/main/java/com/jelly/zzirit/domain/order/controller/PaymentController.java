@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/payments")
+@RequestMapping("/api/payments")
 @Tag(name = "결제(Payments)", description = "토스 페이먼츠 결제 관련 API")
 @SecurityRequirement(name = "accessToken")
 public class PaymentController {

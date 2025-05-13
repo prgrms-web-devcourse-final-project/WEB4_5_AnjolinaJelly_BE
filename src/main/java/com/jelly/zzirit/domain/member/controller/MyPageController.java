@@ -21,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/user/mypage")
+@RequestMapping("/api/user/mypage")
 @Tag(name = "마이페이지", description = "회원 마이페이지 API")
 @SecurityRequirement(name = "accessToken")
 public class MyPageController {

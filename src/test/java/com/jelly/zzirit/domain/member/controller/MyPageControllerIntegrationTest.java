@@ -21,7 +21,7 @@ class MyPageControllerIntegrationTest extends TestMemberConfig {
 
 	@Test
 	void 내정보조회_인증된_쿠키로_정상응답() throws Exception {
-		mockMvc.perform(get("/user/mypage/info")
+		mockMvc.perform(get("/api/user/mypage/info")
 				.cookie(getAccessTokenCookie()))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.success").value(true))
@@ -37,7 +37,7 @@ class MyPageControllerIntegrationTest extends TestMemberConfig {
         }
         """;
 
-		mockMvc.perform(patch("/user/mypage/address")
+		mockMvc.perform(patch("/api/user/mypage/address")
 				.cookie(getAccessTokenCookie())
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(body))
