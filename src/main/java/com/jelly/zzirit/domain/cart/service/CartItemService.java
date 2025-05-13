@@ -9,6 +9,7 @@ import com.jelly.zzirit.domain.cart.dto.request.CartItemCreateRequest;
 import com.jelly.zzirit.domain.cart.dto.response.CartItemFetchResponse;
 import com.jelly.zzirit.domain.cart.entity.Cart;
 import com.jelly.zzirit.domain.cart.entity.CartItem;
+import com.jelly.zzirit.domain.cart.mapper.CartItemMapper;
 import com.jelly.zzirit.domain.cart.repository.CartItemRepository;
 import com.jelly.zzirit.domain.cart.repository.CartRepository;
 import com.jelly.zzirit.domain.item.entity.Item;
@@ -79,23 +80,12 @@ public class CartItemService {
 		// 재고 확인
 		ItemStock itemStock = itemStockRepository.findByItemId(item.getId())
 			.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND));
-		boolean isSoldOut = itemStock.getQuantity() == 0;
 
-		return new CartItemFetchResponse(
-			cartItem.getId(),
-			item.getId(),
-			item.getName(),
-			item.getTypeBrand().getType().getName(),
-			item.getTypeBrand().getBrand().getName(),
-			cartItem.getQuantity(),
-			item.getImageUrl(),
-			originalPrice,
-			discountedPrice,
-			totalPrice,
-			isTimeDeal,
-			discountRatio,
-			isSoldOut
-		);
+		TimeDealItem timeDealItem = item.getItemStatus() == ItemStatus.TIME_DEAL
+			? timeDealItemRepository.findActiveTimeDealItemByItemId(item.getId()).orElse(null)
+			: null;
+
+		return CartItemMapper.mapToCartItem(cartItem, itemStock, timeDealItem);
 	}
 
 	@Transactional
@@ -134,37 +124,10 @@ public class CartItemService {
 
 		cartItem.setQuantity(newQuantity);
 
-		int originalPrice = item.getPrice().intValue();
-		int discountedPrice = originalPrice;
-		Integer discountRatio = null;
-		boolean isTimeDeal = item.getItemStatus() == ItemStatus.TIME_DEAL;
+		TimeDealItem timeDealItem = item.getItemStatus() == ItemStatus.TIME_DEAL
+			? timeDealItemRepository.findActiveTimeDealItemByItemId(item.getId()).orElse(null)
+			: null;
 
-		if (isTimeDeal) {
-			TimeDealItem timeDealItem = timeDealItemRepository.findActiveTimeDealItemByItemId(item.getId())
-				.orElse(null);
-			if (timeDealItem != null) {
-				discountedPrice = timeDealItem.getPrice().intValue();
-				discountRatio = timeDealItem.getTimeDeal().getDiscountRatio();
-			}
-		}
-
-		int totalPrice = discountedPrice * newQuantity;
-		boolean isSoldOut = itemStock.getQuantity() == 0;
-
-		return new CartItemFetchResponse(
-			cartItem.getId(),
-			item.getId(),
-			item.getName(),
-			item.getTypeBrand().getType().getName(),
-			item.getTypeBrand().getBrand().getName(),
-			newQuantity,
-			item.getImageUrl(),
-			originalPrice,
-			discountedPrice,
-			totalPrice,
-			isTimeDeal,
-			discountRatio,
-			isSoldOut
-		);
+		return CartItemMapper.mapToCartItem(cartItem, itemStock, timeDealItem);
 	}
 }

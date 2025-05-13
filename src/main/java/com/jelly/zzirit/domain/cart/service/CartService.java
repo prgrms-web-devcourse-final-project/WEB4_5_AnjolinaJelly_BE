@@ -8,6 +8,7 @@ import com.jelly.zzirit.domain.cart.dto.response.CartItemFetchResponse;
 import com.jelly.zzirit.domain.cart.dto.response.CartFetchResponse;
 import com.jelly.zzirit.domain.cart.entity.Cart;
 import com.jelly.zzirit.domain.cart.entity.CartItem;
+import com.jelly.zzirit.domain.cart.mapper.CartItemMapper;
 import com.jelly.zzirit.domain.cart.repository.CartItemRepository;
 import com.jelly.zzirit.domain.cart.repository.CartRepository;
 import com.jelly.zzirit.domain.item.entity.Item;
@@ -47,50 +48,14 @@ public class CartService {
 		List<CartItemFetchResponse> itemResponses = cartItems.stream()
 			.map(cartItem -> {
 				Item item = cartItem.getItem();
-				int quantity = cartItem.getQuantity();
-				int originalPrice = item.getPrice().intValue();
-
-				// 재고 확인
 				ItemStock itemStock = itemStockRepository.findByItemId(item.getId())
 					.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND));
-				boolean isSoldOut = itemStock.getQuantity() == 0;
+				TimeDealItem timeDealItem = item.getItemStatus() == ItemStatus.TIME_DEAL
+					? timeDealItemRepository.findActiveTimeDealItemByItemId(item.getId()).orElse(null)
+					: null;
 
-				// 타임딜 여부
-				boolean isTimeDeal = item.getItemStatus() == ItemStatus.TIME_DEAL;
-				Integer discountRatio = null;
-				int discountedPrice = originalPrice;
-
-				// 타임딜 적용
-				if (isTimeDeal) {
-					TimeDealItem timeDealItem = timeDealItemRepository
-						.findActiveTimeDealItemByItemId(item.getId())
-						.orElse(null);
-
-					if (timeDealItem != null) {
-						discountedPrice = timeDealItem.getPrice().intValue();
-						discountRatio = timeDealItem.getTimeDeal().getDiscountRatio();
-					}
-				}
-
-				int totalPrice = discountedPrice * quantity;
-
-				return new CartItemFetchResponse(
-					cartItem.getId(),
-					item.getId(),
-					item.getName(),
-					item.getTypeBrand().getType().getName(),
-					item.getTypeBrand().getBrand().getName(),
-					quantity,
-					item.getImageUrl(),
-					originalPrice,
-					discountedPrice,
-					totalPrice,
-					isTimeDeal,
-					discountRatio,
-					isSoldOut
-				);
-			})
-			.toList();
+				return CartItemMapper.mapToCartItem(cartItem, itemStock, timeDealItem);
+			}).toList();
 
 		// 전체 수량 및 금액 집계 (품절 상품 제외)
 		int cartTotalQuantity = itemResponses.stream()
