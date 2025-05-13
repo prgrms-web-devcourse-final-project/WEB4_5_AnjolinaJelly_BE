@@ -1,6 +1,8 @@
 package com.jelly.zzirit.domain.cart.service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -43,13 +45,28 @@ public class CartService {
 			});
 
 		// 장바구니 항목 조회
-		List<CartItem> cartItems = cartItemRepository.findAllByCartId(cart.getId());
+		List<CartItem> cartItems = cartItemRepository.findAllWithItemByCartId(cart.getId());
 
+		// itemId 목록 추출
+		List<Long> itemIds = cartItems.stream()
+			.map(cartItem -> cartItem.getItem().getId())
+			.distinct()
+			.toList();
+
+		// ItemStock 일괄 조회 후 Map으로 캐싱
+		Map<Long, ItemStock> itemStockMap = itemStockRepository.findAllByItemIdIn(itemIds).stream()
+			.collect(Collectors.toMap(stock -> stock.getItem().getId(), stock -> stock));
+
+		// DTO 변환
 		List<CartItemFetchResponse> itemResponses = cartItems.stream()
 			.map(cartItem -> {
 				Item item = cartItem.getItem();
-				ItemStock itemStock = itemStockRepository.findByItemId(item.getId())
-					.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND));
+
+				ItemStock itemStock = itemStockMap.get(item.getId());
+				if (itemStock == null) {
+					throw new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND);
+				}
+
 				TimeDealItem timeDealItem = item.getItemStatus() == ItemStatus.TIME_DEAL
 					? timeDealItemRepository.findActiveTimeDealItemByItemId(item.getId()).orElse(null)
 					: null;

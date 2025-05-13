@@ -106,7 +106,7 @@ public class CartItemService {
 		Cart cart = cartRepository.findByMemberId(memberId)
 			.orElseThrow(() -> new InvalidUserException(BaseResponseStatus.USER_NOT_FOUND));
 
-		CartItem cartItem = cartItemRepository.findByCartIdAndItemId(cart.getId(), itemId)
+		CartItem cartItem = cartItemRepository.findWithItemJoinByCartIdAndItemId(cart.getId(), itemId)
 			.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND_IN_CART));
 
 		int newQuantity = cartItem.getQuantity() + delta;
