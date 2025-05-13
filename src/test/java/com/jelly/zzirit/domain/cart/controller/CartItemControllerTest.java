@@ -35,22 +35,14 @@ import com.jelly.zzirit.global.support.OpenApiDocumentationFilter;
 
 class CartItemControllerTest extends AcceptanceTest {
 
-	@Autowired
-	private MemberRepository memberRepository;
-	@Autowired
-	private TypeRepository typeRepository;
-	@Autowired
-	private BrandRepository brandRepository;
-	@Autowired
-	private TypeBrandRepository typeBrandRepository;
-	@Autowired
-	private ItemRepository itemRepository;
-	@Autowired
-	private ItemStockRepository itemStockRepository;
-	@Autowired
-	private CartRepository cartRepository;
-	@Autowired
-	private CartItemRepository cartItemRepository;
+	@Autowired private MemberRepository memberRepository;
+	@Autowired private TypeRepository typeRepository;
+	@Autowired private BrandRepository brandRepository;
+	@Autowired private TypeBrandRepository typeBrandRepository;
+	@Autowired private ItemRepository itemRepository;
+	@Autowired private ItemStockRepository itemStockRepository;
+	@Autowired private CartRepository cartRepository;
+	@Autowired private CartItemRepository cartItemRepository;
 
 	private Long itemId;
 

@@ -33,31 +33,14 @@ import com.jelly.zzirit.global.support.OpenApiDocumentationFilter;
 
 class CartControllerTest extends AcceptanceTest {
 
-
-	@Autowired
-	private CartItemRepository cartItemRepository;
-
-	@Autowired
-	private CartRepository cartRepository;
-
-	@Autowired
-	private MemberRepository memberRepository;
-
-	@Autowired
-	private ItemRepository itemRepository;
-
-	@Autowired
-	private BrandRepository brandRepository;
-
-	@Autowired
-	private TypeRepository typeRepository;
-
-	@Autowired
-	private TypeBrandRepository typeBrandRepository;
-
-	@Autowired
-	private ItemStockRepository itemStockRepository;
-
+	@Autowired private CartItemRepository cartItemRepository;
+	@Autowired private CartRepository cartRepository;
+	@Autowired private MemberRepository memberRepository;
+	@Autowired private ItemRepository itemRepository;
+	@Autowired private BrandRepository brandRepository;
+	@Autowired private TypeRepository typeRepository;
+	@Autowired private TypeBrandRepository typeBrandRepository;
+	@Autowired private ItemStockRepository itemStockRepository;
 
 	@Test
 	void 장바구니_조회() {
