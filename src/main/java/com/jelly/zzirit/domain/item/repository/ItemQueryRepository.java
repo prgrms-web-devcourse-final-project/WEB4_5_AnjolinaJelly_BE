@@ -1,6 +1,7 @@
 package com.jelly.zzirit.domain.item.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.jelly.zzirit.domain.admin.dto.response.AdminItemFetchResponse;
 import org.springframework.data.domain.Page;
@@ -18,10 +19,7 @@ public interface ItemQueryRepository {
 		Pageable pageable
 	);
 
-	Page<AdminItemFetchResponse> findAdminItems(
-			String name,
-			Long itemId,
-			Pageable pageable
-	);
+	Optional<AdminItemFetchResponse> findAdminItemById(Long itemId);
 
+	Page<AdminItemFetchResponse> findAdminItems(String name, Pageable pageable);
 }

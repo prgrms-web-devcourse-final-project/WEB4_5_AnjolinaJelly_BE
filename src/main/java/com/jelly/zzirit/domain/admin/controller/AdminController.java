@@ -1,6 +1,7 @@
 package com.jelly.zzirit.domain.admin.controller;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -44,23 +45,34 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Tag(name = "관리자 상품 API", description = "관리자 상품 기능을 제공합니다.")
 public class AdminController {
-	private final QueryAdminService queryAdminItemService;
+	private final QueryAdminService queryAdminService;
 	private final CommandAdminService commandAdminItemService;
 	private final QueryTimeDealService queryTimeDealService;
 	private final CommandTimeDealService timeDealService;
 	private final CommandS3Service commandS3Service;
 
+	@Operation(summary = "관리자 상품 단건 조회", description = "관리자가 id로 상품을 단건 조회합니다.")
+	@GetMapping("/items/{item-id}")
+	public BaseResponse<?> getItem(
+			@PathVariable("item-id") Long itemId
+	) {
+		Optional<AdminItemFetchResponse> itemOpt = queryAdminService.getItemById(itemId);
+		if (itemOpt.isPresent()) {
+			return BaseResponse.success(itemOpt.get());
+		} else {
+			return BaseResponse.success(Empty.getInstance());
+		}
+	}
 
-	@Operation(summary = "관리자 상품 조회 & 검색", description = "관리자가 id/이름으로 상품 목록을 조회합니다.")
+	@Operation(summary = "관리자 상품 이름 검색 & 목록 조회", description = "관리자가 이름으로 상품을 검색 / 상품 목록을 조회합니다.")
 	@GetMapping("/items")
 	public BaseResponse<PageResponse<AdminItemFetchResponse>> getItems(
-		@RequestParam(required = false) String name,
-		@RequestParam(required = false) Long itemId,
-		@RequestParam(defaultValue = "0") int page,
-		@RequestParam(defaultValue = "10") int size
+			@RequestParam(required = false) String name,
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size
 	) {
 		Pageable pageable = PageRequest.of(page, size);
-		return BaseResponse.success(queryAdminItemService.getSearchItems(itemId, name, pageable));
+		return BaseResponse.success(queryAdminService.getSearchItems(name, pageable));
 	}
 
 	@Operation(summary = "관리자 상품 이미지 업로드", description = "상품 등록 전 이미지를 S3에 업로드하고 URL 반환")

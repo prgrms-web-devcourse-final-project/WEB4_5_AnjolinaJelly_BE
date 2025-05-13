@@ -6,6 +6,7 @@ import static com.jelly.zzirit.domain.item.entity.QType.*;
 import static com.jelly.zzirit.domain.item.entity.QTypeBrand.*;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.jelly.zzirit.domain.admin.dto.response.AdminItemFetchResponse;
 import com.jelly.zzirit.domain.item.entity.*;
@@ -98,7 +99,36 @@ public class ItemQueryRepositoryImpl implements ItemQueryRepository {
 	}
 
 	@Override
-	public Page<AdminItemFetchResponse> findAdminItems(String name, Long itemId, Pageable pageable) {
+	public Optional<AdminItemFetchResponse> findAdminItemById(Long itemId) {
+		QItem i = QItem.item;
+		QItemStock s = QItemStock.itemStock;
+		QTypeBrand tb = QTypeBrand.typeBrand;
+		QType t = QType.type;
+		QBrand b = QBrand.brand;
+
+		AdminItemFetchResponse dto = queryFactory
+				.select(Projections.constructor(AdminItemFetchResponse.class,
+						i.id,
+						i.name,
+						i.imageUrl,
+						t.name,
+						b.name,
+						i.price,
+						s.quantity
+				))
+				.from(i)
+				.join(i.typeBrand, tb)
+				.join(tb.type, t)
+				.join(tb.brand, b)
+				.join(s).on(s.item.eq(i))
+				.where(i.id.eq(itemId))
+				.fetchOne(); // 단건 조회
+
+		return Optional.ofNullable(dto);
+	}
+
+	@Override
+	public Page<AdminItemFetchResponse> findAdminItems(String name, Pageable pageable) {
 		QItem i = QItem.item;
 		QItemStock s = QItemStock.itemStock;
 		QTypeBrand tb = QTypeBrand.typeBrand;
@@ -120,10 +150,7 @@ public class ItemQueryRepositoryImpl implements ItemQueryRepository {
 				.join(tb.type, t)
 				.join(tb.brand, b)
 				.join(s).on(s.item.eq(i))
-				.where(
-						containsName(name),
-						matchesItemId(itemId)
-				)
+				.where(containsName(name)) // ✅ 이름 조건만 남김
 				.offset(pageable.getOffset())
 				.limit(pageable.getPageSize())
 				.fetch();
@@ -135,10 +162,7 @@ public class ItemQueryRepositoryImpl implements ItemQueryRepository {
 				.join(tb.type, t)
 				.join(tb.brand, b)
 				.join(s).on(s.item.eq(i))
-				.where(
-						containsName(name),
-						matchesItemId(itemId)
-				)
+				.where(containsName(name)) // ✅ 이름 조건만 남김
 				.fetchOne();
 
 		return PageableExecutionUtils.getPage(content, pageable, () -> count == null ? 0 : count);
@@ -146,9 +170,5 @@ public class ItemQueryRepositoryImpl implements ItemQueryRepository {
 
 	private BooleanExpression containsName(String name) {
 		return (name == null || name.isBlank()) ? null : QItem.item.name.lower().contains(name.toLowerCase());
-	}
-
-	private BooleanExpression matchesItemId(Long id) {
-		return id == null ? null : QItem.item.id.eq(id);
 	}
 }
