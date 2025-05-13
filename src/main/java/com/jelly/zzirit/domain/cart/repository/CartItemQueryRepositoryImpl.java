@@ -9,12 +9,17 @@ import static com.jelly.zzirit.domain.item.entity.QTypeBrand.*;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.jelly.zzirit.domain.cart.entity.CartItem;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import lombok.RequiredArgsConstructor;
 
+@Repository
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class CartItemQueryRepositoryImpl implements CartItemQueryRepository {
 
 	private final JPAQueryFactory queryFactory;
