@@ -23,10 +23,10 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           timeout: 15m
+          script_stop: true  # 💥 스크립트 내부 명령 실패 시 즉시 종료!
           script: |
             
             cd ~/WEB4_5_AnjolinaJelly_BE
-
             git pull origin main
 
             cd ~
