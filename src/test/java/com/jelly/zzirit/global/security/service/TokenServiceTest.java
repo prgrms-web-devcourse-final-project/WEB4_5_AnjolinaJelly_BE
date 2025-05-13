@@ -53,9 +53,6 @@ class TokenServiceTest {
 		given(jwtUtil.createJwt(eq(AuthConst.TOKEN_TYPE_REFRESH), any(), any(), anyLong()))
 			.willReturn(refreshToken);
 
-		given(jwtUtil.getUserId(accessToken)).willReturn(userId);
-		given(jwtUtil.getRole(accessToken)).willReturn(role);
-
 		// when
 		String issuedAccessToken = tokenService.generateTokensAndSetCookies(response, userId, role);
 

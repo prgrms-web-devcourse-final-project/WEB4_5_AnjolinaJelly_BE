@@ -25,9 +25,7 @@ import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TossPaymentGateway implements PaymentGateway {
@@ -53,7 +51,6 @@ public class TossPaymentGateway implements PaymentGateway {
 		try {
 			restTemplate.postForEntity(url, new HttpEntity<>(body, headers), String.class);
 		} catch (HttpClientErrorException e) {
-			log.warn("토스 결제 승인 실패: {}", e.getMessage());
 			throw new InvalidOrderException(BaseResponseStatus.TOSS_CONFIRM_FAILED);
 		}
 	}
@@ -68,16 +65,8 @@ public class TossPaymentGateway implements PaymentGateway {
 				url, HttpMethod.GET, new HttpEntity<>(headers), String.class);
 
 			TossPaymentResponse tossResponse = objectMapper.readValue(response.getBody(), TossPaymentResponse.class);
-
-			return new PaymentResponse(
-				tossResponse.getOrderId(),
-				tossResponse.getPaymentKey(),
-				tossResponse.getMethod(),
-				tossResponse.getStatus(),
-				tossResponse.getTotalAmount()
-			);
+			return PaymentResponse.from(tossResponse);
 		} catch (Exception e) {
-			log.warn("토스 결제 조회 실패: {}", e.getMessage());
 			throw new InvalidOrderException(BaseResponseStatus.TOSS_PAYMENT_VERIFY_FAILED);
 		}
 	}
@@ -95,7 +84,6 @@ public class TossPaymentGateway implements PaymentGateway {
 			url, HttpMethod.POST, new HttpEntity<>(body, headers), String.class);
 
 		if (!response.getStatusCode().is2xxSuccessful()) {
-			log.warn("토스 환불 실패: {}, {}", response.getStatusCode(), response.getBody());
 			throw new InvalidOrderException(BaseResponseStatus.TOSS_REFUND_FAILED);
 		}
 	}

@@ -10,9 +10,20 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PaymentResponse {
+
 	private String orderId;
 	private String paymentKey;
 	private String method;
 	private String status;
 	private BigDecimal totalAmount;
+
+	public static PaymentResponse from(TossPaymentResponse response) {
+		return new PaymentResponse(
+			response.getOrderId(),
+			response.getPaymentKey(),
+			response.getMethod(),
+			response.getStatus(),
+			response.getTotalAmount()
+		);
+	}
 }

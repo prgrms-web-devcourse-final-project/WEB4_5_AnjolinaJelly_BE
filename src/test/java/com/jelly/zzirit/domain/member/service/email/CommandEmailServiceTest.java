@@ -26,7 +26,6 @@ class EmailServiceTest {
 
 	@BeforeEach
 	void setUp() {
-		given(emailVerificationService.isRequestLocked(anyString())).willReturn(false);
 		given(emailVerificationService.isAlreadyVerified(anyString())).willReturn(false);
 	}
 
