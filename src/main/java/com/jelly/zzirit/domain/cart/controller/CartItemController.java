@@ -42,7 +42,7 @@ public class CartItemController {
 		return BaseResponse.success();
 	}
 
-	@Operation(summary = "장바구니 상품 수량 증가", description = "+1 수량 증가")
+	@Operation(summary = "장바구니 상품 수량 증가", description = "수량 1 증가")
 	@PostMapping("/{item-id}/increase")
 	public BaseResponse<CartItemFetchResponse> increaseQuantity(@PathVariable("item-id") Long itemId) {
 		return BaseResponse.success(
@@ -50,7 +50,7 @@ public class CartItemController {
 		);
 	}
 
-	@Operation(summary = "장바구니 상품 수량 감소", description = "-1 수량 감소")
+	@Operation(summary = "장바구니 상품 수량 감소", description = "수량 1 감소")
 	@PostMapping("/{item-id}/decrease")
 	public BaseResponse<CartItemFetchResponse> decreaseQuantity(@PathVariable("item-id") Long itemId) {
 		return BaseResponse.success(
