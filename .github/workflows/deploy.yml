@@ -4,6 +4,10 @@ on:
   push:
     branches: [ "main" ]
 
+concurrency:
+  group: deploy-to-ec2
+  cancel-in-progress: false  # 이전 배포가 끝날 때까지 기다리게 함
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
