@@ -1,7 +1,5 @@
 package com.jelly.zzirit.domain.cart.service;
 
-import java.util.Optional;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,7 +14,7 @@ import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.domain.item.entity.ItemStatus;
 import com.jelly.zzirit.domain.item.entity.stock.ItemStock;
 import com.jelly.zzirit.domain.item.entity.timedeal.TimeDealItem;
-import com.jelly.zzirit.domain.item.repository.ItemRepository;
+import com.jelly.zzirit.domain.item.repository.ItemQueryRepository;
 import com.jelly.zzirit.domain.item.repository.ItemStockRepository;
 import com.jelly.zzirit.domain.item.repository.TimeDealItemRepository;
 import com.jelly.zzirit.domain.member.entity.Member;
@@ -30,82 +28,48 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CartItemService {
 
-	private final CartItemRepository cartItemRepository;
 	private final CartRepository cartRepository;
-	private final TimeDealItemRepository timeDealItemRepository;
-	private final ItemRepository itemRepository;
+	private final CartItemRepository cartItemRepository;
+	private final ItemQueryRepository itemQueryRepository;
 	private final ItemStockRepository itemStockRepository;
+	private final TimeDealItemRepository timeDealItemRepository;
 
 	@Transactional
 	public CartItemFetchResponse addItemToCart(Long memberId, CartItemCreateRequest request) {
+		Cart cart = getOrCreateCart(memberId);
+		Item item = getItemWithTypeJoin(request.itemId());
+		ItemStock itemStock = getItemStock(item.getId());
 
-		Cart cart = cartRepository.findByMemberId(memberId)
+		CartItem cartItem = cartItemRepository.findByCartIdAndItemId(cart.getId(), item.getId())
+			.map(existing -> {
+				int newQuantity = existing.getQuantity() + request.quantity();
+				if (newQuantity > itemStock.getQuantity()) {
+					throw new InvalidItemException(BaseResponseStatus.CART_QUANTITY_EXCEEDS_STOCK);
+				}
+				existing.setQuantity(newQuantity);
+				return existing;
+			})
 			.orElseGet(() -> {
-				Member member = Member.builder().id(memberId).build();
-				Cart newCart = Cart.builder().member(member).build();
-				return cartRepository.save(newCart);
+				CartItem created = CartItem.of(cart, item, request.quantity());
+				cartItemRepository.save(created);
+				return created;
 			});
 
-		Item item = itemRepository.findById(request.itemId())
-			.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND));
-
-		// 장바구니에 이미 존재하는 상품인지 확인
-		Optional<CartItem> existingCartItem = cartItemRepository.findByCartIdAndItemId(cart.getId(), item.getId());
-		CartItem cartItem;
-		if (existingCartItem.isPresent()) {
-			cartItem = existingCartItem.get();
-			cartItem.increaseQuantity(request.quantity()); // 있으면 수량 증가
-		} else {
-			cartItem = CartItem.of(cart, item, request.quantity());
-			cartItemRepository.save(cartItem);
-		}
-
-		int originalPrice = item.getPrice().intValue();
-		int discountedPrice = originalPrice;
-		Integer discountRatio = null;
-
-		boolean isTimeDeal = item.getItemStatus() == ItemStatus.TIME_DEAL;
-
-		if (isTimeDeal) {
-			TimeDealItem timeDealItem = timeDealItemRepository.findActiveTimeDealItemByItemId(item.getId())
-				.orElse(null);
-			if (timeDealItem != null) {
-				discountedPrice = timeDealItem.getPrice().intValue();
-				discountRatio = timeDealItem.getTimeDeal().getDiscountRatio();
-			}
-		}
-
-		int totalPrice = discountedPrice * cartItem.getQuantity();
-
-		// 재고 확인
-		ItemStock itemStock = itemStockRepository.findByItemId(item.getId())
-			.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND));
-
-		TimeDealItem timeDealItem = item.getItemStatus() == ItemStatus.TIME_DEAL
-			? timeDealItemRepository.findActiveTimeDealItemByItemId(item.getId()).orElse(null)
-			: null;
+		TimeDealItem timeDealItem = getTimeDealItemIfApplicable(item);
 
 		return CartItemMapper.mapToCartItem(cartItem, itemStock, timeDealItem);
 	}
 
 	@Transactional
 	public void removeItemToCart(Long memberId, Long itemId) {
-
-		Cart cart = cartRepository.findByMemberId(memberId)
-			.orElseThrow(() -> new InvalidUserException(BaseResponseStatus.USER_NOT_FOUND));
-
-		CartItem cartItem = cartItemRepository.findByCartIdAndItemId(cart.getId(), itemId)
-			.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND_IN_CART));
-
+		Cart cart = getCart(memberId);
+		CartItem cartItem = getCartItem(cart.getId(), itemId);
 		cartItemRepository.delete(cartItem);
 	}
 
 	@Transactional
 	public CartItemFetchResponse modifyQuantity(Long memberId, Long itemId, int delta) {
-
-		Cart cart = cartRepository.findByMemberId(memberId)
-			.orElseThrow(() -> new InvalidUserException(BaseResponseStatus.USER_NOT_FOUND));
-
+		Cart cart = getCart(memberId);
 		CartItem cartItem = cartItemRepository.findWithItemJoinByCartIdAndItemId(cart.getId(), itemId)
 			.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND_IN_CART));
 
@@ -115,19 +79,47 @@ public class CartItemService {
 		}
 
 		Item item = cartItem.getItem();
-
-		ItemStock itemStock = itemStockRepository.findByItemId(itemId)
-			.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_STOCK_NOT_FOUND));
+		ItemStock itemStock = getItemStock(item.getId());
 		if (newQuantity > itemStock.getQuantity()) {
 			throw new InvalidItemException(BaseResponseStatus.CART_QUANTITY_EXCEEDS_STOCK);
 		}
 
 		cartItem.setQuantity(newQuantity);
-
-		TimeDealItem timeDealItem = item.getItemStatus() == ItemStatus.TIME_DEAL
-			? timeDealItemRepository.findActiveTimeDealItemByItemId(item.getId()).orElse(null)
-			: null;
-
+		TimeDealItem timeDealItem = getTimeDealItemIfApplicable(item);
 		return CartItemMapper.mapToCartItem(cartItem, itemStock, timeDealItem);
+	}
+
+	private Cart getOrCreateCart(Long memberId) {
+		return cartRepository.findByMemberId(memberId)
+			.orElseGet(() -> {
+				Member member = Member.builder().id(memberId).build();
+				return cartRepository.save(Cart.builder().member(member).build());
+			});
+	}
+
+	private Cart getCart(Long memberId) {
+		return cartRepository.findByMemberId(memberId)
+			.orElseThrow(() -> new InvalidUserException(BaseResponseStatus.USER_NOT_FOUND));
+	}
+
+	private CartItem getCartItem(Long cartId, Long itemId) {
+		return cartItemRepository.findByCartIdAndItemId(cartId, itemId)
+			.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND_IN_CART));
+	}
+
+	private Item getItemWithTypeJoin(Long itemId) {
+		return itemQueryRepository.findItemWithTypeJoin(itemId)
+			.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND));
+	}
+
+	private ItemStock getItemStock(Long itemId) {
+		return itemStockRepository.findByItemId(itemId)
+			.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_STOCK_NOT_FOUND));
+	}
+
+	private TimeDealItem getTimeDealItemIfApplicable(Item item) {
+		if (item.getItemStatus() != ItemStatus.TIME_DEAL)
+			return null;
+		return timeDealItemRepository.findActiveTimeDealItemByItemId(item.getId()).orElse(null);
 	}
 }

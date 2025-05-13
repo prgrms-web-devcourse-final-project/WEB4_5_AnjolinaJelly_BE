@@ -6,6 +6,7 @@ import static com.jelly.zzirit.domain.item.entity.QType.*;
 import static com.jelly.zzirit.domain.item.entity.QTypeBrand.*;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -62,6 +63,18 @@ public class ItemQueryRepositoryImpl implements ItemQueryRepository {
 				pageable,
 				total::fetchOne
 			);
+	}
+
+	@Override
+	public Optional<Item> findItemWithTypeJoin(Long itemId) {
+		return Optional.ofNullable(
+			queryFactory.selectFrom(item)
+				.join(item.typeBrand, typeBrand).fetchJoin()
+				.join(typeBrand.type, type).fetchJoin()
+				.join(typeBrand.brand, brand).fetchJoin()
+				.where(item.id.eq(itemId))
+				.fetchOne()
+		);
 	}
 
 	private OrderSpecifier<?> sortByPrice(String sort) {
