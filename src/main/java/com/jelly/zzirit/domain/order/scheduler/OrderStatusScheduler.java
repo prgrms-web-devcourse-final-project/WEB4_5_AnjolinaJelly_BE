@@ -1,6 +1,6 @@
 package com.jelly.zzirit.domain.order.scheduler;
 
-import static com.jelly.zzirit.domain.order.entity.Order.OrderStatus.*;
+import static com.jelly.zzirit.domain.order.entity.OrderStatus.*;
 
 import java.time.LocalDateTime;
 import java.util.List;

@@ -70,10 +70,6 @@ public class Order extends BaseTime {
 	@JoinColumn(name = "payment_id")
 	private Payment payment;
 
-	public enum OrderStatus {
-		PENDING, PAID, FAILED, CANCELLED, COMPLETED
-	}
-
 	public static String generateOrderNumber(long sequence) {
 		String date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 		return String.format("ORD%s-%06d", date, sequence);

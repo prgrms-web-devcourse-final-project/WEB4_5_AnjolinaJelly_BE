@@ -1,6 +1,7 @@
 package com.jelly.zzirit.domain.order.service.order;
 
 import com.jelly.zzirit.domain.order.entity.Order;
+import com.jelly.zzirit.domain.order.entity.OrderStatus;
 import com.jelly.zzirit.domain.order.repository.OrderRepository;
 
 import org.junit.jupiter.api.DisplayName;
@@ -14,7 +15,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 
-import static com.jelly.zzirit.domain.order.entity.Order.OrderStatus.*;
+import static com.jelly.zzirit.domain.order.entity.OrderStatus.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -34,7 +35,7 @@ public class QueryOrderServiceTest {
     void 주문_내역이_존재하는_경우_주문_전체를_조회하면_모든_주문을_반환한다() {
         // given
         Long memberId = 1L;
-        EnumSet<Order.OrderStatus> statuses = EnumSet.of(CANCELLED, COMPLETED, PAID);
+        EnumSet<OrderStatus> statuses = EnumSet.of(CANCELLED, COMPLETED, PAID);
 
         List<Order> mockOrders = List.of(mock(Order.class), mock(Order.class), mock(Order.class));
 

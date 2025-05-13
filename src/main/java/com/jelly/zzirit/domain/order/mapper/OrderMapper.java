@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.jelly.zzirit.domain.order.entity.OrderStatus;
 import org.springframework.stereotype.Component;
 
 import com.jelly.zzirit.domain.item.entity.Item;
@@ -29,7 +30,7 @@ public class OrderMapper {
 			.member(member)
 			.orderNumber(orderNumber)
 			.totalPrice(dto.totalAmount())
-			.status(Order.OrderStatus.PENDING)
+			.status(OrderStatus.PENDING)
 			.shippingRequest(dto.shippingRequest())
 			.address(dto.address())
 			.addressDetail(dto.addressDetail())
