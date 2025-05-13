@@ -16,16 +16,14 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jelly.zzirit.domain.item.dto.request.TimeDealCreateRequest;
-import com.jelly.zzirit.domain.member.entity.authenum.Role;
 import com.jelly.zzirit.global.security.util.JwtUtil;
+import com.jelly.zzirit.global.support.TestMemberConfig;
 import com.jelly.zzirit.testutil.TimeDealTestHelper;
-
-import jakarta.servlet.http.Cookie;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @Disabled
-public class TimeDealControllerTest {
+public class TimeDealControllerTest extends TestMemberConfig {
 
 	@Autowired
 	private MockMvc mockMvc;
@@ -42,10 +40,6 @@ public class TimeDealControllerTest {
 	@Test
 	void 타임딜_등록_성공() throws Exception {
 		// Given
-		Long userId = 1L;
-		Role role = Role.ROLE_ADMIN;
-		String accessToken = jwtUtil.createJwt("access", userId, role, 3600); // 1시간 유효한 access token
-
 		var request = new TimeDealCreateRequest(
 			"노트북 타임딜",
 			LocalDateTime.of(2025, 5, 10, 10, 0),
@@ -62,7 +56,7 @@ public class TimeDealControllerTest {
 		// When & Then
 		mockMvc.perform(
 				post("/api/admin/time-deals")
-					.cookie(new Cookie("access", accessToken))
+					.cookie(getAccessTokenCookie())
 					.contentType(MediaType.APPLICATION_JSON)
 					.content(objectMapper.writeValueAsString(request))
 			)
@@ -75,11 +69,6 @@ public class TimeDealControllerTest {
 	@Test
 	void 현재_진행중인_타임딜_조회_성공() throws Exception {
 		// Given
-		Long userId = 1L;
-		Role role = Role.ROLE_ADMIN;
-		String accessToken = jwtUtil.createJwt("access", userId, role, 3600); // 1시간 유효한 access token
-
-		// 테스트용 타임딜 데이터 생성
 		TimeDealCreateRequest request = new TimeDealCreateRequest(
 			"테스트 타임딜",
 			LocalDateTime.now().plusHours(1),
@@ -96,7 +85,7 @@ public class TimeDealControllerTest {
 
 		// When & Then
 		mockMvc.perform(get("/api/time-deals/now")
-				.cookie(new Cookie("access", accessToken)))
+				.cookie(getAccessTokenCookie()))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.result.timeDealId").isNumber())
 			.andExpect(jsonPath("$.result.timeDealName").isString())
@@ -105,12 +94,8 @@ public class TimeDealControllerTest {
 
 	@Test
 	void 타임딜_목록_검색_및_필터링_성공() throws Exception {
-		Long userId = 1L;
-		Role role = Role.ROLE_ADMIN;
-		String accessToken = jwtUtil.createJwt("access", userId, role, 3600); // 1시간 유효한 access token
-
 		mockMvc.perform(get("/api/admin/time-deals/search")
-				.cookie(new Cookie("access", accessToken))
+				.cookie(getAccessTokenCookie())
 				.param("timeDealName", "노트북")
 				.param("status", "ONGOING")
 				.param("page", "0")
