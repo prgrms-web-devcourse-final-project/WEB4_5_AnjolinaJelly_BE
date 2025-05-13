@@ -19,11 +19,24 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
+            
+            echo "🧹 기존 배포 관련 프로세스 정리 중..."
+
+            # 남아있는 배포 관련 프로세스 정리
+            pkill -f 'zzirit-0.0.1-SNAPSHOT.jar' || true
+            pkill -f 'git pull' || true
+            pkill -f 'git fetch' || true
+            pkill -f 'gradle' || true
+            pkill -f 'bash -c cd ~/WEB4_5_AnjolinaJelly_BE' || true
+
+            # git lock 제거
+            rm -f ~/WEB4_5_AnjolinaJelly_BE/.git/index.lock || true
+
+            echo "✅ 정리 완료"
+            
             cd ~/WEB4_5_AnjolinaJelly_BE
 
-            git stash
             git pull origin main
-            git stash pop
 
             cd ~
             sudo systemctl stop nginx || true
@@ -32,12 +45,9 @@ jobs:
             cd ~/WEB4_5_AnjolinaJelly_BE
             docker-compose -f docker-compose.dev.yaml up -d
             
-            # 실행 중인 스프링 앱 PID 찾아서 종료 (프로세스가 없는 경우 에러 방지)
-            ps aux | grep 'zzirit-0.0.1-SNAPSHOT.jar' | grep -v grep | awk '{print $2}' | xargs -r kill -9
-            
             ./gradlew build -x test # 테스트 제외해야 빌드 성공
             mv ./build/libs/zzirit-0.0.1-SNAPSHOT.jar ./src/main/resources/
             
             cd ./src/main/resources
             # java -jar zzirit-0.0.1-SNAPSHOT.jar
-            nohup java -jar zzirit-0.0.1-SNAPSHOT.jar > ../../../../log.txt 2>&1 &
+            nohup java -jar zzirit-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod > ../../../../log.txt 2>&1 &
