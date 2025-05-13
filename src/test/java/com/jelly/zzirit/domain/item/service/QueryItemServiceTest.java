@@ -21,7 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
-import com.jelly.zzirit.domain.item.dto.response.ItemResponse;
+import com.jelly.zzirit.domain.item.dto.response.ItemFetchResponse;
 import com.jelly.zzirit.domain.item.entity.Brand;
 import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.domain.item.entity.Type;
@@ -129,7 +129,7 @@ public class QueryItemServiceTest {
 		given(itemStockRepository.findByItemId(상품.getId())).willReturn(Optional.of(재고));
 
 		// when
-		ItemResponse 응답 = queryItemService.getById(상품.getId());
+		ItemFetchResponse 응답 = queryItemService.getById(상품.getId());
 
 		// then
 		assertThat(응답.itemId()).isEqualTo(상품.getId());

@@ -7,9 +7,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.jelly.zzirit.domain.item.dto.response.ItemResponse;
+import com.jelly.zzirit.domain.item.dto.response.ItemFetchResponse;
 import com.jelly.zzirit.domain.item.entity.Item;
-import com.jelly.zzirit.domain.item.entity.ItemStatus;
 import com.jelly.zzirit.domain.item.entity.stock.ItemStock;
 import com.jelly.zzirit.domain.item.entity.timedeal.TimeDealItem;
 import com.jelly.zzirit.domain.item.repository.ItemQueryRepository;
@@ -31,7 +30,7 @@ public class QueryItemService {
 	private final ItemStockRepository itemStockRepository;
 	private final TimeDealItemRepository timeDealItemRepository;
 
-	public ItemResponse getById(Long itemId) {
+	public ItemFetchResponse getById(Long itemId) {
 		Item item = itemRepository.getById(itemId);
 		ItemStock itemStock = itemStockRepository.findByItemId(item.getId())
 			.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND));
@@ -40,10 +39,10 @@ public class QueryItemService {
 			TimeDealItem timeDealItem = timeDealItemRepository.findActiveTimeDealItemByItemId(item.getId())
 				.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND));
 
-			return ItemResponse.from(timeDealItem, itemStock.getQuantity());
+			return ItemFetchResponse.from(timeDealItem, itemStock.getQuantity());
 		}
 
-		return ItemResponse.from(item, itemStock.getQuantity());
+		return ItemFetchResponse.from(item, itemStock.getQuantity());
 	}
 
 	public Page<Item> search(List<String> types, List<String> brands, String keyword, String sort, Pageable pageable) {

@@ -20,7 +20,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/cart/items")
+@RequestMapping("/cart/items")
 @RequiredArgsConstructor
 @Tag(name = "장바구니 API", description = "장바구니와 관련된 API를 설명합니다.")
 public class CartItemController {

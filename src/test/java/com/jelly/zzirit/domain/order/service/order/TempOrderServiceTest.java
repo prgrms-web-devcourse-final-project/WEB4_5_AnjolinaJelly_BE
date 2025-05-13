@@ -13,11 +13,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.jelly.zzirit.domain.item.entity.Item;
-import com.jelly.zzirit.domain.item.repository.ItemRepository;
 import com.jelly.zzirit.domain.member.entity.Member;
-import com.jelly.zzirit.domain.order.dto.request.OrderItemRequestDto;
-import com.jelly.zzirit.domain.order.dto.request.PaymentRequestDto;
+import com.jelly.zzirit.domain.order.dto.request.OrderItemCreateRequest;
+import com.jelly.zzirit.domain.order.dto.request.PaymentRequest;
 import com.jelly.zzirit.domain.order.dto.response.TossPaymentResponse;
 import com.jelly.zzirit.domain.order.entity.Order;
 import com.jelly.zzirit.domain.order.mapper.OrderMapper;
@@ -36,13 +34,10 @@ class TempOrderServiceTest {
 	private OrderRepository orderRepository;
 
 	@Mock
-	private ItemRepository itemRepository;
-
-	@Mock
 	private PaymentRepository paymentRepository;
 
 	@Mock
-	private OrderService orderService;
+	private CommandOrderService commandOrderService;
 
 	@Mock
 	private OrderMapper orderMapper;
@@ -51,8 +46,8 @@ class TempOrderServiceTest {
 	void 정상적으로_임시주문을_생성한다() {
 		// given
 		Member member = mock(Member.class);
-		PaymentRequestDto dto = new PaymentRequestDto(
-			List.of(new OrderItemRequestDto(1L, 2, "샘플", new BigDecimal("10000"))),
+		PaymentRequest dto = new PaymentRequest(
+			List.of(new OrderItemCreateRequest(1L, 2, "샘플", new BigDecimal("10000"))),
 			new BigDecimal("20000"), "요청사항", "서울", "101동"
 		);
 		Order order = mock(Order.class);
@@ -74,8 +69,8 @@ class TempOrderServiceTest {
 	void 존재하지_않는_아이템일_경우_예외() {
 		// given
 		Member member = mock(Member.class);
-		PaymentRequestDto dto = new PaymentRequestDto(
-			List.of(new OrderItemRequestDto(99L, 1, "없는상품", new BigDecimal("10000"))),
+		PaymentRequest dto = new PaymentRequest(
+			List.of(new OrderItemCreateRequest(99L, 1, "없는상품", new BigDecimal("10000"))),
 			new BigDecimal("10000"), null, null, null
 		);
 		Order order = mock(Order.class);
@@ -112,7 +107,7 @@ class TempOrderServiceTest {
 
 		// then
 		verify(paymentRepository).save(any());
-		verify(orderService).completeOrder(order, "pay_123");
+		verify(commandOrderService).completeOrder(order, "pay_123");
 	}
 
 	@Test

@@ -1,12 +1,15 @@
 package com.jelly.zzirit.domain.admin.dto.request;
 
-import com.jelly.zzirit.domain.item.entity.*;
+import java.math.BigDecimal;
+
+import com.jelly.zzirit.domain.item.entity.Item;
+import com.jelly.zzirit.domain.item.entity.ItemStatus;
+import com.jelly.zzirit.domain.item.entity.TypeBrand;
 import com.jelly.zzirit.domain.item.entity.stock.ItemStock;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
-
-import java.math.BigDecimal;
 
 public record ItemCreateRequest (
     @NotBlank String name, // validity check
@@ -20,9 +23,9 @@ public record ItemCreateRequest (
         return Item.builder()
                 .name(name)
                 .imageUrl(imageUrl)
-                .price(price) // todo: int->bigdecimal로 변경 필요
+                .price(price)
                 .typeBrand(typeBrand)
-                .itemStatus(ItemStatus.NONE) // todo: item status 업데이트 로직 추가
+                .itemStatus(ItemStatus.NONE)
                 .build();
     }
 

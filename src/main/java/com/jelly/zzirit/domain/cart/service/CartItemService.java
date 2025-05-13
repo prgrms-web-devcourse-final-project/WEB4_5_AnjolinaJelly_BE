@@ -35,8 +35,6 @@ public class CartItemService {
 	private final ItemRepository itemRepository;
 	private final ItemStockRepository itemStockRepository;
 
-	private final CartService cartService;
-
 	@Transactional
 	public CartItemFetchResponse addItemToCart(Long memberId, CartItemCreateRequest request) {
 
@@ -169,5 +167,4 @@ public class CartItemService {
 			isSoldOut
 		);
 	}
-
 }

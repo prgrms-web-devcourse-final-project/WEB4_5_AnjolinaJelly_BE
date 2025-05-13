@@ -1,12 +1,13 @@
 package com.jelly.zzirit.global.authorization;
 
+import static com.jelly.zzirit.global.dto.BaseResponseStatus.*;
+
+import org.springframework.stereotype.Service;
+
 import com.jelly.zzirit.domain.member.entity.Member;
 import com.jelly.zzirit.domain.member.entity.authenum.Role;
 import com.jelly.zzirit.domain.order.entity.Order;
 import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
-import org.springframework.stereotype.Service;
-
-import static com.jelly.zzirit.global.dto.BaseResponseStatus.ACCESS_DENIED;
 
 @Service
 public class AuthorizationService {

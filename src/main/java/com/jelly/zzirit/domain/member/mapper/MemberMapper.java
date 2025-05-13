@@ -2,8 +2,8 @@ package com.jelly.zzirit.domain.member.mapper;
 
 import org.springframework.stereotype.Component;
 
-import com.jelly.zzirit.domain.member.dto.request.SignupDTO;
-import com.jelly.zzirit.domain.member.dto.request.SocialSignupDTO;
+import com.jelly.zzirit.domain.member.dto.request.SignupRequest;
+import com.jelly.zzirit.domain.member.dto.request.SocialSignupRequest;
 import com.jelly.zzirit.domain.member.entity.Member;
 import com.jelly.zzirit.domain.member.entity.OAuthMember;
 import com.jelly.zzirit.domain.member.entity.authenum.ProviderInfo;
@@ -17,14 +17,14 @@ import lombok.RequiredArgsConstructor;
 public class MemberMapper {
 
 	// 자체 회원가입 시 Member 변환
-	public Member ofSignupDTO(SignupDTO signupDTO) {
+	public Member ofSignupDTO(SignupRequest signupRequest) {
 		return Member.builder()
-			.memberName(signupDTO.getMemberName())
-			.memberEmail(signupDTO.getMemberEmail())
-			.password(signupDTO.getMemberPassword())
+			.memberName(signupRequest.getMemberName())
+			.memberEmail(signupRequest.getMemberEmail())
+			.password(signupRequest.getMemberPassword())
 			.role(Role.ROLE_USER)
-			.memberAddress(signupDTO.getMemberAddress())
-			.memberAddressDetail(signupDTO.getMemberAddressDetail())
+			.memberAddress(signupRequest.getMemberAddress())
+			.memberAddressDetail(signupRequest.getMemberAddressDetail())
 			.build();
 	}
 
@@ -38,14 +38,14 @@ public class MemberMapper {
 	}
 
 	// [자체 회원없이 소셜로 첫 회원가입] 소셜 로그인 이후 추가 정보 입력받아 Member 생성
-	public Member ofSocialSignupDTO(SocialSignupDTO socialSignupDTO, String encodedPassword, String email) {
+	public Member ofSocialSignupDTO(SocialSignupRequest socialSignupRequest, String encodedPassword, String email) {
 		return Member.builder()
-			.memberName(socialSignupDTO.getMemberName())
+			.memberName(socialSignupRequest.getMemberName())
 			.memberEmail(email)
 			.password(encodedPassword)
 			.role(Role.ROLE_USER)
-			.memberAddress(socialSignupDTO.getMemberAddress())
-			.memberAddressDetail(socialSignupDTO.getMemberAddressDetail())
+			.memberAddress(socialSignupRequest.getMemberAddress())
+			.memberAddressDetail(socialSignupRequest.getMemberAddressDetail())
 			.build();
 	}
 
