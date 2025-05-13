@@ -3,6 +3,7 @@ package com.jelly.zzirit.domain.order.domain.fixture;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.UUID;
 
 import com.jelly.zzirit.domain.member.entity.Member;
 import com.jelly.zzirit.domain.order.entity.Order;
@@ -31,9 +32,8 @@ public class OrderFixture {
     }
 
     private static String generateUniqueOrderNumber() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
-        String timestamp = sdf.format(new Date());
-
-        return "order-" + timestamp + "-" + (System.currentTimeMillis() % 1000000);  // 밀리초 단위로 유니크 값 추가
+        String datePart = new SimpleDateFormat("yyyyMMdd").format(new Date()); // 8자
+        long nanoPart = System.nanoTime() % 1_000_000_000; // 최대 9자리
+        return "order-" + datePart + "-" + nanoPart; // 총 길이: 최대 24~28자
     }
 }
