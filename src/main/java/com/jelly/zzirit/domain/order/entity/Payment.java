@@ -35,9 +35,10 @@ public class Payment extends BaseTime {
 	}
 
 	public static Payment of(String paymentKey, String methodRaw) {
+		PaymentMethod method = PaymentMethod.from(methodRaw);
 		return Payment.builder()
 			.paymentKey(paymentKey)
-			.paymentMethod(PaymentMethod.from(methodRaw))
+			.paymentMethod(method)
 			.paymentStatus(PaymentStatus.DONE)
 			.build();
 	}

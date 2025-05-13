@@ -1,4 +1,4 @@
-package com.jelly.zzirit.domain.order.controller;
+package com.jelly.zzirit.domain.order.controller.pay;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -15,7 +15,9 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.jelly.zzirit.domain.order.controller.PaymentController;
 import com.jelly.zzirit.domain.order.service.order.TempOrderService;
+import com.jelly.zzirit.domain.order.service.pay.PaymentConfirmService;
 import com.jelly.zzirit.domain.order.service.pay.PaymentInitService;
 import com.jelly.zzirit.global.support.TestMemberConfig;
 
@@ -26,24 +28,24 @@ class PaymentControllerTest extends TestMemberConfig {
 
 	@Autowired private MockMvc mockMvc;
 	@Autowired private PaymentInitService paymentInitService;
-	@Autowired private TossConfirmService tossConfirmService;
 	@Autowired private TempOrderService tempOrderService;
+	@Autowired private PaymentConfirmService paymentConfirmService;
 
 	@TestConfiguration
 	static class TestConfig {
 		@Bean
-		public PaymentInitService tossPaymentService() {
+		public PaymentInitService paymentInitService() {
 			return Mockito.mock(PaymentInitService.class);
-		}
-
-		@Bean
-		public TossConfirmService tossConfirmService() {
-			return Mockito.mock(TossConfirmService.class);
 		}
 
 		@Bean
 		public TempOrderService tempOrderService() {
 			return Mockito.mock(TempOrderService.class);
+		}
+
+		@Bean
+		public PaymentConfirmService paymentConfirmService() {
+			return Mockito.mock(PaymentConfirmService.class);
 		}
 	}
 
@@ -59,16 +61,14 @@ class PaymentControllerTest extends TestMemberConfig {
               "orderItems": [
                 {
                   "itemId": 1,
-                  "timeDealItemId": 100,
-                  "quantity": 2,
-                  "itemName": "샘플상품",
-                  "price": 10000
+                  "quantity": 2
                 }
               ],
               "totalAmount": 20000,
               "shippingRequest": "문 앞에 두세요",
               "address": "서울특별시 강남구",
-              "addressDetail": "101동 1001호"
+              "addressDetail": "101동 1001호",
+              "provider": "toss"
             }
         """;
 
@@ -80,12 +80,12 @@ class PaymentControllerTest extends TestMemberConfig {
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.success").value(true))
 			.andExpect(jsonPath("$.result").value(mockOrderNumber));
-
 	}
 
 	@Test
 	void 결제성공_콜백_API는_쿠키인증으로_정상처리되어야_한다() throws Exception {
-		mockMvc.perform(get("/api/payments/toss/success")
+		// when & then
+		mockMvc.perform(get("/api/payments/success")
 				.cookie(getAccessTokenCookie())
 				.param("paymentKey", "pay_123")
 				.param("orderId", "ORDER-123")
@@ -93,21 +93,24 @@ class PaymentControllerTest extends TestMemberConfig {
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.success").value(true));
 
-		Mockito.verify(tossConfirmService)
+		Mockito.verify(paymentConfirmService)
 			.confirmPayment("pay_123", "ORDER-123", "10000");
 	}
 
 	@Test
 	void 결제실패_콜백_API는_쿠키없어도_에러응답_반환한다() throws Exception {
+		// given
 		String code = "USER_CANCEL";
 		String message = "사용자 취소";
 		String orderId = "ORDER-123";
 
-		mockMvc.perform(get("/api/payments/toss/fail")
+		// when & then
+		mockMvc.perform(get("/api/payments/fail")
 				.cookie(getAccessTokenCookie())
 				.param("code", code)
 				.param("message", message)
 				.param("orderId", orderId))
+			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.success").value(false))
 			.andExpect(jsonPath("$.message").value(containsString("토스 결제 요청에 실패했습니다.")));
 

@@ -4,7 +4,6 @@ package com.jelly.zzirit.domain.order.service.pay;
 import java.math.BigDecimal;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.jelly.zzirit.domain.order.entity.Payment;
 import com.jelly.zzirit.domain.order.repository.PaymentRepository;

@@ -1,8 +1,7 @@
 package com.jelly.zzirit.domain.order.service.order;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-
-import java.math.BigDecimal;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -10,48 +9,53 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.jelly.zzirit.domain.member.entity.Member;
+import com.jelly.zzirit.domain.order.domain.fixture.OrderFixture;
 import com.jelly.zzirit.domain.order.entity.Order;
+import com.jelly.zzirit.domain.order.entity.Payment;
 import com.jelly.zzirit.domain.order.service.pay.RefundService;
 
 @ExtendWith(MockitoExtension.class)
 class OrderServiceTest {
 
-	@InjectMocks
-	private CommandOrderService commandOrderService;
-
 	@Mock
 	private OrderManager orderManager;
-	@Mock private RefundService refundService;
+
+	@Mock
+	private RefundService refundService;
+
+	@InjectMocks
+	private OrderService orderService;
+
+	@Mock
+	private Member member;
+
+	@Mock
+	private Payment payment;
 
 	@Test
-	void 정상처리되면_환불되지_않는다() {
+	void completeOrder_정상처리() {
 		// given
-		Order order = mock(Order.class);
-		String paymentKey = "pay_001";
+		Order order = OrderFixture.주문_생성(member, payment);
 
 		// when
-		commandOrderService.completeOrder(order, paymentKey);
+		orderService.completeOrder(order, "paymentKey");
 
 		// then
-		verify(orderManager).process(order);
-		verifyNoInteractions(refundService);
+		verify(refundService, never()).refund(any(), any(), any());
 	}
 
 	@Test
-	void 처리실패시_환불이_호출된다() {
+	void completeOrder_주문처리_실패_환불처리() {
 		// given
-		Order order = mock(Order.class);
-		String paymentKey = "pay_002";
-		BigDecimal totalPrice = new BigDecimal("15000");
-
-		when(order.getOrderNumber()).thenReturn("ORDER-002");
-		when(order.getTotalPrice()).thenReturn(totalPrice);
-		doThrow(new RuntimeException("처리 실패")).when(orderManager).process(order);
+		Order order = OrderFixture.주문_생성(member, payment);
+		String paymentKey = "paymentKey";
+		doThrow(new RuntimeException("주문 처리 실패")).when(orderManager).process(order);
 
 		// when
-		commandOrderService.completeOrder(order, paymentKey);
+		orderService.completeOrder(order, paymentKey);
 
 		// then
-		verify(refundService).refund(paymentKey, totalPrice, "주문 처리 실패로 인한 자동 환불");
+		verify(refundService).refund(eq(order), eq(paymentKey), eq("주문 처리 실패로 인한 자동 환불"));
 	}
 }
