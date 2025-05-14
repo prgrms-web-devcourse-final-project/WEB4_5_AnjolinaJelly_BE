@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -32,239 +31,206 @@ import com.jelly.zzirit.domain.item.entity.timedeal.TimeDealItem;
 import com.jelly.zzirit.domain.item.repository.ItemStockRepository;
 import com.jelly.zzirit.domain.item.repository.TimeDealItemRepository;
 import com.jelly.zzirit.domain.member.entity.Member;
+import com.jelly.zzirit.domain.member.repository.MemberRepository;
+import com.jelly.zzirit.global.dto.BaseResponseStatus;
+import com.jelly.zzirit.global.exception.custom.InvalidItemException;
+import com.jelly.zzirit.global.exception.custom.InvalidUserException;
 
 @ExtendWith(MockitoExtension.class)
 class CartServiceTest {
 
-	@Mock
-	private CartRepository cartRepository;
-
-	@Mock
-	private CartItemRepository cartItemRepository;
-
-	@Mock
-	private TimeDealItemRepository timeDealItemRepository;
-
-	@Mock
-	private ItemStockRepository itemStockRepository;
-
-	@InjectMocks
-	private CartService cartService;
+	@Mock private CartRepository cartRepository;
+	@Mock private CartItemRepository cartItemRepository;
+	@Mock private MemberRepository memberRepository;
+	@Mock private TimeDealItemRepository timeDealItemRepository;
+	@Mock private ItemStockRepository itemStockRepository;
+	@InjectMocks private CartService cartService;
 
 	private final Long memberId = 1L;
 	private Cart cart;
-	private Item item;
-	private CartItem cartItem;
-	private ItemStock itemStock;
+	private TypeBrand sharedTypeBrand;
 
 	@BeforeEach
 	void setUp() {
-		// 아이템 종류와 브랜드 정보 생성
 		Type type = Type.builder().name("스마트폰").build();
 		Brand brand = Brand.builder().name("Apple").build();
-		TypeBrand typeBrand = TypeBrand.builder()
-			.type(type)
-			.brand(brand)
-			.build();
+		sharedTypeBrand = TypeBrand.builder().type(type).brand(brand).build();
 
-		// 테스트용 상품
-		item = Item.builder()
-			.id(10L)
-			.name("iPhone 15 Pro")
-			.price(BigDecimal.valueOf(1500000)) // 150만원
-			.itemStatus(ItemStatus.NONE)        // 타임딜 아님
-			.imageUrl("https://dummyimage.com/iphone.jpg")
-			.typeBrand(typeBrand)
-			.build();
-
-		// 재고
-		itemStock = ItemStock.builder()
-			.item(item)
-			.quantity(100)
-			.build();
-
-		// 테스트용 회원과 장바구니 객체 생성
 		cart = Cart.builder()
 			.member(Member.builder().id(memberId).build())
 			.build();
-		cart.setId(100L); // ID는 테스트용으로 수동 설정
+		cart.setId(100L);
+	}
 
-		// 장바구니에 iPhone 15 Pro를 2개 담은 항목 생성
-		cartItem = CartItem.of(cart, item, 2);
-		cartItem.setId(101L);
+	private Item createItem(Long id, String name, int price, ItemStatus status) {
+		return Item.builder()
+			.id(id)
+			.name(name)
+			.price(BigDecimal.valueOf(price))
+			.itemStatus(status)
+			.imageUrl("")
+			.typeBrand(sharedTypeBrand)
+			.build();
+	}
+
+	private CartItem createCartItem(Item item, int quantity) {
+		CartItem ci = CartItem.of(cart, item, quantity);
+		ci.setId(item.getId() * 10);
+		return ci;
+	}
+
+	private ItemStock createStock(Item item, int quantity) {
+		return ItemStock.builder().item(item).quantity(quantity).build();
+	}
+
+	private void givenCart(List<CartItem> items) {
+		given(cartRepository.findByMemberId(memberId)).willReturn(Optional.of(cart));
+		given(cartItemRepository.findAllWithItemByCartId(cart.getId())).willReturn(items);
 	}
 
 	@Test
-	@DisplayName("장바구니 상품 조회")
-	void getCartWithNormalItem() {
-		// given: 장바구니에 일반 상품이 담겨 있고 재고가 충분한 상태
-		given(cartRepository.findByMemberId(memberId)).willReturn(Optional.of(cart));
-		given(cartItemRepository.findAllByCartId(cart.getId())).willReturn(List.of(cartItem));
-		given(itemStockRepository.findByItemId(item.getId())).willReturn(Optional.of(itemStock));
+	void 장바구니_일반() {
+		Item item = createItem(10L, "iPhone", 1500000, ItemStatus.NONE);
+		CartItem ci = createCartItem(item, 2);
+		ItemStock stock = createStock(item, 100);
 
-		// when: 장바구니 조회 요청
+		givenCart(List.of(ci));
+		given(itemStockRepository.findAllByItemIdIn(List.of(item.getId()))).willReturn(List.of(stock));
+
 		CartFetchResponse result = cartService.getMyCart(memberId);
 
-		// then: 상품 수량, 가격, ID, 총합 정보가 정확히 응답되는지 검증
-		assertThat(result).isNotNull();
 		assertThat(result.cartId()).isEqualTo(cart.getId());
 		assertThat(result.items()).hasSize(1);
-		CartItemFetchResponse response = result.items().get(0);
-		assertThat(response.itemId()).isEqualTo(item.getId());
-		assertThat(response.quantity()).isEqualTo(2);
-		assertThat(result.cartTotalQuantity()).isEqualTo(2);
-		assertThat(result.cartTotalPrice()).isEqualTo(1500000 * 2);
+		CartItemFetchResponse res = result.items().get(0);
+		assertThat(res.itemId()).isEqualTo(item.getId());
+		assertThat(res.quantity()).isEqualTo(2);
+		assertThat(res.totalPrice()).isEqualTo(1500000 * 2);
 	}
 
 	@Test
-	@DisplayName("타임딜 상품 장바구니 조회")
-	void getCartWithTimeDealItem() {
-		// given: 타임딜 상태의 상품과 해당 타임딜 정보를 설정
-		item.changeItemStatus(ItemStatus.TIME_DEAL);
-
-		TimeDealItem timeDealItem = TimeDealItem.builder()
+	void 장바구니_타임딜() {
+		Item item = createItem(11L, "Z Fold", 2000000, ItemStatus.TIME_DEAL);
+		CartItem ci = createCartItem(item, 2);
+		ItemStock stock = createStock(item, 50);
+		TimeDealItem tdi = TimeDealItem.builder()
 			.item(item)
-			.price(BigDecimal.valueOf(1350000)) // 할인 가격
-			.timeDeal(TimeDeal.builder().discountRatio(10).build()) // 할인율
-			.build();
-
-		given(cartRepository.findByMemberId(memberId)).willReturn(Optional.of(cart));
-		given(cartItemRepository.findAllByCartId(cart.getId())).willReturn(List.of(cartItem));
-		given(itemStockRepository.findByItemId(item.getId())).willReturn(Optional.of(itemStock));
-		given(timeDealItemRepository.findActiveTimeDealItemByItemId(item.getId())).willReturn(Optional.of(timeDealItem));
-
-		// when: 장바구니 조회
-		CartFetchResponse result = cartService.getMyCart(memberId);
-
-		// then: 할인 정보가 정확히 반영되어 있는지 검증
-		CartItemFetchResponse response = result.items().get(0);
-		assertThat(response.originalPrice()).isEqualTo(1500000);
-		assertThat(response.discountedPrice()).isEqualTo(1350000);
-		assertThat(response.isTimeDeal()).isTrue();
-		assertThat(response.discountRatio()).isEqualTo(10);
-		assertThat(response.totalPrice()).isEqualTo(1350000 * 2);
-	}
-
-	@Test
-	@DisplayName("품절 상품 장바구니 조회")
-	void getCartWithSoldOutItem() {
-		// given: 재고 수량이 0인 품절 상품 설정
-		itemStock = ItemStock.builder()
-			.item(item)
-			.quantity(0)
-			.build();
-
-		given(cartRepository.findByMemberId(memberId)).willReturn(Optional.of(cart));
-		given(cartItemRepository.findAllByCartId(cart.getId())).willReturn(List.of(cartItem));
-		given(itemStockRepository.findByItemId(item.getId())).willReturn(Optional.of(itemStock));
-
-		// when: 장바구니 조회
-		CartFetchResponse result = cartService.getMyCart(memberId);
-
-		// then: 품절 상품의 표시 여부와 전체 합산 제외 여부 검증
-		CartItemFetchResponse response = result.items().get(0);
-
-		assertThat(response.itemId()).isEqualTo(item.getId());
-		assertThat(response.quantity()).isEqualTo(cartItem.getQuantity());
-		assertThat(response.isSoldOut()).isTrue(); // 품절 여부
-		assertThat(response.discountedPrice()).isEqualTo(item.getPrice().intValue());
-		assertThat(response.totalPrice()).isEqualTo(item.getPrice().intValue() * cartItem.getQuantity());
-
-		assertThat(result.cartTotalQuantity()).isEqualTo(0); // 품절 제외
-		assertThat(result.cartTotalPrice()).isEqualTo(0);    // 품절 제외
-	}
-
-	@Test
-	@DisplayName("혼합 상품 장바구니 조회")
-	void getCartWithMixedItems() {
-		// given: 일반 상품, 타임딜 상품, 품절 상품 각각 생성 및 mock 설정
-
-		// 일반 상품
-		Item normalItem = Item.builder()
-			.id(1L)
-			.name("노트북")
-			.price(BigDecimal.valueOf(1000000))
-			.itemStatus(ItemStatus.NONE)
-			.imageUrl("url")
-			.typeBrand(item.getTypeBrand())
-			.build();
-		CartItem normalCartItem = CartItem.of(cart, normalItem, 1);
-		ItemStock normalStock = ItemStock.builder().item(normalItem).quantity(10).build();
-
-		// 타임딜 상품
-		Item timeDealItem = Item.builder()
-			.id(2L)
-			.name("갤럭시 Z Fold")
-			.price(BigDecimal.valueOf(2000000))
-			.itemStatus(ItemStatus.TIME_DEAL)
-			.imageUrl("url")
-			.typeBrand(item.getTypeBrand())
-			.build();
-		CartItem timeDealCartItem = CartItem.of(cart, timeDealItem, 2);
-		ItemStock timeDealStock = ItemStock.builder().item(timeDealItem).quantity(5).build();
-		TimeDealItem timeDeal = TimeDealItem.builder()
-			.item(timeDealItem)
 			.price(BigDecimal.valueOf(1800000))
 			.timeDeal(TimeDeal.builder().discountRatio(10).build())
 			.build();
 
-		// 품절 상품
-		Item soldOutItem = Item.builder()
-			.id(3L)
-			.name("에어팟")
-			.price(BigDecimal.valueOf(500000))
-			.itemStatus(ItemStatus.NONE)
-			.imageUrl("url")
-			.typeBrand(item.getTypeBrand())
+		givenCart(List.of(ci));
+		given(itemStockRepository.findAllByItemIdIn(List.of(item.getId()))).willReturn(List.of(stock));
+		given(timeDealItemRepository.findActiveTimeDealItemByItemId(item.getId())).willReturn(Optional.of(tdi));
+
+		CartItemFetchResponse res = cartService.getMyCart(memberId).items().get(0);
+
+		assertThat(res.isTimeDeal()).isTrue();
+		assertThat(res.discountedPrice()).isEqualTo(1800000);
+		assertThat(res.totalPrice()).isEqualTo(1800000 * 2);
+	}
+
+	@Test
+	void 장바구니_품절() {
+		Item item = createItem(12L, "에어팟", 500000, ItemStatus.NONE);
+		CartItem ci = createCartItem(item, 1);
+		ItemStock stock = createStock(item, 0);
+
+		givenCart(List.of(ci));
+		given(itemStockRepository.findAllByItemIdIn(List.of(item.getId()))).willReturn(List.of(stock));
+
+		CartItemFetchResponse res = cartService.getMyCart(memberId).items().get(0);
+
+		assertThat(res.isSoldOut()).isTrue();
+		assertThat(res.totalPrice()).isEqualTo(500000);
+		assertThat(cartService.getMyCart(memberId).cartTotalPrice()).isEqualTo(0);
+	}
+
+	@Test
+	void 장바구니_혼합() {
+		Item normal = createItem(1L, "노트북", 1000000, ItemStatus.NONE);
+		Item timeDeal = createItem(2L, "Z Fold", 2000000, ItemStatus.TIME_DEAL);
+		Item soldOut = createItem(3L, "에어팟", 500000, ItemStatus.NONE);
+
+		CartItem ci1 = createCartItem(normal, 1);
+		CartItem ci2 = createCartItem(timeDeal, 2);
+		CartItem ci3 = createCartItem(soldOut, 1);
+
+		ItemStock s1 = createStock(normal, 10);
+		ItemStock s2 = createStock(timeDeal, 5);
+		ItemStock s3 = createStock(soldOut, 0);
+
+		TimeDealItem td = TimeDealItem.builder()
+			.item(timeDeal)
+			.price(BigDecimal.valueOf(1800000))
+			.timeDeal(TimeDeal.builder().discountRatio(10).build())
 			.build();
-		CartItem soldOutCartItem = CartItem.of(cart, soldOutItem, 1);
-		ItemStock soldOutStock = ItemStock.builder().item(soldOutItem).quantity(0).build();
 
-		// Mock 설정
-		given(cartRepository.findByMemberId(memberId)).willReturn(Optional.of(cart));
-		given(cartItemRepository.findAllByCartId(cart.getId()))
-			.willReturn(List.of(normalCartItem, timeDealCartItem, soldOutCartItem));
-		given(itemStockRepository.findByItemId(normalItem.getId())).willReturn(Optional.of(normalStock));
-		given(itemStockRepository.findByItemId(timeDealItem.getId())).willReturn(Optional.of(timeDealStock));
-		given(itemStockRepository.findByItemId(soldOutItem.getId())).willReturn(Optional.of(soldOutStock));
-		given(timeDealItemRepository.findActiveTimeDealItemByItemId(timeDealItem.getId())).willReturn(Optional.of(timeDeal));
+		givenCart(List.of(ci1, ci2, ci3));
+		given(itemStockRepository.findAllByItemIdIn(List.of(1L, 2L, 3L)))
+			.willReturn(List.of(s1, s2, s3));
+		given(timeDealItemRepository.findActiveTimeDealItemByItemId(2L))
+			.willReturn(Optional.of(td));
 
-		// when: 장바구니 조회
+		CartFetchResponse result = cartService.getMyCart(memberId);
+		assertThat(result.items()).hasSize(3);
+		assertThat(result.cartTotalQuantity()).isEqualTo(3);
+		assertThat(result.cartTotalPrice()).isEqualTo(1000000 + 1800000 * 2);
+	}
+
+	@Test
+	void 장바구니_생성() {
+		// given
+		Member member = Member.builder().id(memberId).build();
+		Cart newCart = Cart.builder().member(member).build();
+		newCart.setId(123L);
+
+		Item item = createItem(99L, "Galaxy S24", 1200000, ItemStatus.NONE);
+		CartItem cartItem = createCartItem(item, 1);
+		ItemStock stock = createStock(item, 5);
+
+		given(cartRepository.findByMemberId(memberId)).willReturn(Optional.empty());
+		given(memberRepository.findById(memberId)).willReturn(Optional.of(member));
+		given(cartRepository.save(any(Cart.class))).willReturn(newCart);
+		given(cartItemRepository.findAllWithItemByCartId(newCart.getId())).willReturn(List.of(cartItem));
+		given(itemStockRepository.findAllByItemIdIn(List.of(item.getId()))).willReturn(List.of(stock));
+
+		// when
 		CartFetchResponse result = cartService.getMyCart(memberId);
 
-		// then: 항목 개수 확인
-		assertThat(result).isNotNull();
-		assertThat(result.items()).hasSize(3);
+		// then
+		assertThat(result.cartId()).isEqualTo(123L);
+		assertThat(result.items()).hasSize(1);
+		verify(cartRepository).save(any(Cart.class));
+	}
 
-		// 일반 상품 검증
-		CartItemFetchResponse normalRes = result.items().stream()
-			.filter(r -> r.itemId().equals(normalItem.getId()))
-			.findFirst().orElseThrow();
-		assertThat(normalRes.isTimeDeal()).isFalse();
-		assertThat(normalRes.isSoldOut()).isFalse();
-		assertThat(normalRes.totalPrice()).isEqualTo(1000000);
+	@Test
+	void 장바구니_생성_예외() {
+		// given
+		given(cartRepository.findByMemberId(memberId)).willReturn(Optional.empty());
+		given(memberRepository.findById(memberId)).willReturn(Optional.empty());
 
-		// 타임딜 상품 검증
-		CartItemFetchResponse timeDealRes = result.items().stream()
-			.filter(r -> r.itemId().equals(timeDealItem.getId()))
-			.findFirst().orElseThrow();
-		assertThat(timeDealRes.isTimeDeal()).isTrue();
-		assertThat(timeDealRes.isSoldOut()).isFalse();
-		assertThat(timeDealRes.discountedPrice()).isEqualTo(1800000);
-		assertThat(timeDealRes.totalPrice()).isEqualTo(1800000 * 2);
+		// when & then
+		assertThatThrownBy(() -> cartService.getMyCart(memberId))
+			.isInstanceOf(InvalidUserException.class)
+			.hasMessageContaining(BaseResponseStatus.USER_NOT_FOUND.getMessage());
 
-		// 품절 상품 검증
-		CartItemFetchResponse soldOutRes = result.items().stream()
-			.filter(r -> r.itemId().equals(soldOutItem.getId()))
-			.findFirst().orElseThrow();
-		assertThat(soldOutRes.isSoldOut()).isTrue();
-		assertThat(soldOutRes.totalPrice()).isEqualTo(500000);
+		verify(cartRepository, never()).save(any()); // 저장 시도 안 함
+	}
 
-		// 총합 검증 (품절 상품 제외)
-		int expectedQuantity = 1 + 2;
-		int expectedPrice = 1000000 + 1800000 * 2;
-		assertThat(result.cartTotalQuantity()).isEqualTo(expectedQuantity);
-		assertThat(result.cartTotalPrice()).isEqualTo(expectedPrice);
+	@Test
+	void 장바구니_상품_재고_없음_예외() {
+		// given
+		Item item = createItem(77L, "Nothing Phone", 900000, ItemStatus.NONE);
+		CartItem ci = createCartItem(item, 1);
+
+		given(cartRepository.findByMemberId(memberId)).willReturn(Optional.of(cart));
+		given(cartItemRepository.findAllWithItemByCartId(cart.getId())).willReturn(List.of(ci));
+		given(itemStockRepository.findAllByItemIdIn(List.of(item.getId()))).willReturn(List.of()); // 재고 없음 → 비워서 반환
+
+		// when & then
+		assertThatThrownBy(() -> cartService.getMyCart(memberId))
+			.isInstanceOf(InvalidItemException.class)
+			.hasMessageContaining(BaseResponseStatus.ITEM_STOCK_NOT_FOUND.getMessage());
 	}
 
 }

@@ -7,7 +7,6 @@ import java.math.BigDecimal;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -28,10 +27,12 @@ import com.jelly.zzirit.domain.item.entity.TypeBrand;
 import com.jelly.zzirit.domain.item.entity.stock.ItemStock;
 import com.jelly.zzirit.domain.item.entity.timedeal.TimeDeal;
 import com.jelly.zzirit.domain.item.entity.timedeal.TimeDealItem;
-import com.jelly.zzirit.domain.item.repository.ItemRepository;
+import com.jelly.zzirit.domain.item.repository.ItemQueryRepository;
 import com.jelly.zzirit.domain.item.repository.ItemStockRepository;
 import com.jelly.zzirit.domain.item.repository.TimeDealItemRepository;
 import com.jelly.zzirit.domain.member.entity.Member;
+import com.jelly.zzirit.domain.member.repository.MemberRepository;
+import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.exception.custom.InvalidItemException;
 
 @ExtendWith(MockitoExtension.class)
@@ -42,232 +43,237 @@ class CartItemServiceTest {
 	@Mock
 	private CartItemRepository cartItemRepository;
 	@Mock
-	private ItemRepository itemRepository;
+	private MemberRepository memberRepository;
 	@Mock
-	private TimeDealItemRepository timeDealItemRepository;
+	private ItemQueryRepository itemQueryRepository;
 	@Mock
 	private ItemStockRepository itemStockRepository;
 	@Mock
-	private CartService cartService;
-
+	private TimeDealItemRepository timeDealItemRepository;
 	@InjectMocks
-	private CartItemService cartItemService;
+	CartItemService cartItemService;
 
 	private final Long memberId = 1L;
-
 	private Cart cart;
+	private TypeBrand typeBrand;
 	private Item item;
-	private CartItem cartItem;
 	private ItemStock itemStock;
 
 	@BeforeEach
 	void setUp() {
-		// 아이템 종류와 브랜드 정보 생성
 		Type type = Type.builder().name("노트북").build();
 		Brand brand = Brand.builder().name("Apple").build();
-		TypeBrand typeBrand = TypeBrand.builder()
-			.type(type)
-			.brand(brand)
-			.build();
+		typeBrand = TypeBrand.builder().type(type).brand(brand).build();
 
-		// 테스트용 상품
 		item = Item.builder()
 			.id(10L)
 			.name("MacBook Pro")
 			.price(BigDecimal.valueOf(2000000))
-			.imageUrl("https://dummyimage.com/macbook.jpg")
+			.imageUrl("url")
 			.itemStatus(ItemStatus.NONE)
 			.typeBrand(typeBrand)
 			.build();
 
-		// 상품 재고
-		itemStock = ItemStock.builder()
-			.item(item)
-			.quantity(10)
-			.build();
+		itemStock = ItemStock.builder().item(item).quantity(10).build();
 
-		// 장바구니 생성
-		cart = Cart.builder()
-			.member(Member.builder().id(memberId).build())
-			.build();
+		cart = Cart.builder().member(Member.builder().id(memberId).build()).build();
 		cart.setId(1L);
-
-		// 장바구니 항목
-		cartItem = CartItem.of(cart, item, 1);
-		cartItem.setId(100L);
 	}
 
 	@Test
-	@DisplayName("상품 장바구니 추가")
-	void addNewItem() {
-		// given: 상품 ID와 수량이 담긴 요청 객체를 생성하고,
-		// 장바구니, 상품, 재고가 모두 정상적으로 존재하는 상황을 가정
+	void 장바구니_상품_추가() {
 		CartItemCreateRequest request = new CartItemCreateRequest(item.getId(), 2);
-
-		given(cartRepository.findByMemberId(memberId)).willReturn(Optional.of(cart)); // 회원의 장바구니 존재
-		given(itemRepository.findById(item.getId())).willReturn(Optional.of(item));   // 상품 존재
-		given(cartItemRepository.findByCartIdAndItemId(cart.getId(), item.getId())).willReturn(Optional.empty()); // 장바구니에 해당 상품 없음
-		given(itemStockRepository.findByItemId(item.getId())).willReturn(Optional.of(itemStock)); // 재고 존재
-
-		// when: 장바구니 서비스에 상품 추가 요청을 수행
-		CartItemFetchResponse response = cartItemService.addItemToCart(memberId, request);
-
-		// then: 응답 결과가 요청한 상품 ID와 수량을 반영하고, 할인 없이 정가가 적용되며 품절 아님을 검증
-		assertThat(response.itemId()).isEqualTo(item.getId());
-		assertThat(response.quantity()).isEqualTo(2);
-		assertThat(response.discountedPrice()).isEqualTo(2000000); // 정가
-		assertThat(response.totalPrice()).isEqualTo(2000000 * 2);  // 총 가격
-		assertThat(response.isSoldOut()).isFalse();                   // 품절 아님
-	}
-
-	@Test
-	@DisplayName("타임딜 상품 할인 적용")
-	void addTimeDealItem() {
-		// given: 타임딜 상태 상품과 타임딜 정보, 요청, 재고 등 모든 mock 구성
-		item.changeItemStatus(ItemStatus.TIME_DEAL);
-
-		TimeDealItem timeDealItem = TimeDealItem.builder()
-			.item(item)
-			.price(BigDecimal.valueOf(1800000)) // 할인 가격
-			.timeDeal(TimeDeal.builder().discountRatio(10).build()) // 할인율
-			.build();
-
-		CartItemCreateRequest request = new CartItemCreateRequest(item.getId(), 2);
-
 		given(cartRepository.findByMemberId(memberId)).willReturn(Optional.of(cart));
-		given(itemRepository.findById(item.getId())).willReturn(Optional.of(item));
+		given(itemQueryRepository.findItemWithTypeJoin(item.getId())).willReturn(Optional.of(item));
 		given(cartItemRepository.findByCartIdAndItemId(cart.getId(), item.getId())).willReturn(Optional.empty());
 		given(itemStockRepository.findByItemId(item.getId())).willReturn(Optional.of(itemStock));
-		given(timeDealItemRepository.findActiveTimeDealItemByItemId(item.getId())).willReturn(Optional.of(timeDealItem));
 
-		// when: 타임딜 상품 장바구니 추가
-		CartItemFetchResponse response = cartItemService.addItemToCart(memberId, request);
+		CartItemFetchResponse result = cartItemService.addItemToCart(memberId, request);
 
-		// then: 할인 정보가 정확히 반영되어 응답되는지 검증
-		assertThat(response.isTimeDeal()).isTrue();
-		assertThat(response.discountedPrice()).isEqualTo(1800000);
-		assertThat(response.originalPrice()).isEqualTo(2000000);
-		assertThat(response.discountRatio()).isEqualTo(10);
-		assertThat(response.totalPrice()).isEqualTo(1800000 * 2);
+		assertThat(result.itemId()).isEqualTo(item.getId());
+		assertThat(result.quantity()).isEqualTo(2);
+		assertThat(result.isSoldOut()).isFalse();
+		assertThat(result.discountedPrice()).isEqualTo(2000000);
+		assertThat(result.totalPrice()).isEqualTo(2000000 * 2);
 	}
 
 	@Test
-	@DisplayName("품절 상품 장바구니 추가")
-	void addSoldOutItem() {
-		// given: 재고가 0인 상품과 장바구니 요청 객체, mock 리턴 설정
-		ItemStock soldOutStock = ItemStock.builder()
+	void 장바구니_상품_할인() {
+		item.changeItemStatus(ItemStatus.TIME_DEAL);
+		TimeDealItem timeDealItem = TimeDealItem.builder()
 			.item(item)
-			.quantity(0)
+			.price(BigDecimal.valueOf(1800000))
+			.timeDeal(TimeDeal.builder().discountRatio(10).build())
 			.build();
 
-		CartItemCreateRequest request = new CartItemCreateRequest(item.getId(), 1);
-
+		CartItemCreateRequest request = new CartItemCreateRequest(item.getId(), 2);
 		given(cartRepository.findByMemberId(memberId)).willReturn(Optional.of(cart));
-		given(itemRepository.findById(item.getId())).willReturn(Optional.of(item));
+		given(itemQueryRepository.findItemWithTypeJoin(item.getId())).willReturn(Optional.of(item));
 		given(cartItemRepository.findByCartIdAndItemId(cart.getId(), item.getId())).willReturn(Optional.empty());
-		given(itemStockRepository.findByItemId(item.getId())).willReturn(Optional.of(soldOutStock));
+		given(itemStockRepository.findByItemId(item.getId())).willReturn(Optional.of(itemStock));
+		given(timeDealItemRepository.findActiveTimeDealItemByItemId(item.getId())).willReturn(
+			Optional.of(timeDealItem));
 
-		// when: 품절 상품을 장바구니에 추가
-		CartItemFetchResponse response = cartItemService.addItemToCart(memberId, request);
+		CartItemFetchResponse result = cartItemService.addItemToCart(memberId, request);
 
-		// then: 품절 여부가 true이고 가격 정보는 그대로 반영되었는지 검증
-		assertThat(response.itemId()).isEqualTo(item.getId());
-		assertThat(response.quantity()).isEqualTo(1);
-		assertThat(response.isSoldOut()).isTrue();
-		assertThat(response.discountedPrice()).isEqualTo(2000000); // 정가
-		assertThat(response.totalPrice()).isEqualTo(2000000); // 정가 * 수량
+		assertThat(result.isTimeDeal()).isTrue();
+		assertThat(result.discountedPrice()).isEqualTo(1800000);
+		assertThat(result.originalPrice()).isEqualTo(2000000);
+		assertThat(result.discountRatio()).isEqualTo(10);
+		assertThat(result.totalPrice()).isEqualTo(1800000 * 2);
 	}
 
 	@Test
-	@DisplayName("장바구니 상품 삭제")
-	void removeItem() {
-		// given: 장바구니와 해당 상품이 존재하는 상황을 가정
+	void 장바구니_상품_품절() {
+		itemStock = ItemStock.builder().item(item).quantity(0).build();
+		CartItemCreateRequest request = new CartItemCreateRequest(item.getId(), 1);
+		given(cartRepository.findByMemberId(memberId)).willReturn(Optional.of(cart));
+		given(itemQueryRepository.findItemWithTypeJoin(item.getId())).willReturn(Optional.of(item));
+		given(cartItemRepository.findByCartIdAndItemId(cart.getId(), item.getId())).willReturn(Optional.empty());
+		given(itemStockRepository.findByItemId(item.getId())).willReturn(Optional.of(itemStock));
+
+		CartItemFetchResponse result = cartItemService.addItemToCart(memberId, request);
+
+		assertThat(result.isSoldOut()).isTrue();
+		assertThat(result.totalPrice()).isEqualTo(item.getPrice().intValue());
+	}
+
+	@Test
+	void 장바구니_상품_증감() {
+		CartItem cartItem = CartItem.of(cart, item, 2);
+		given(cartRepository.findByMemberId(memberId)).willReturn(Optional.of(cart));
+		given(cartItemRepository.findWithItemJoinByCartIdAndItemId(cart.getId(), item.getId())).willReturn(
+			Optional.of(cartItem));
+		given(itemStockRepository.findByItemId(item.getId())).willReturn(Optional.of(itemStock));
+
+		CartItemFetchResponse increased = cartItemService.modifyQuantity(memberId, item.getId(), +1);
+		assertThat(increased.quantity()).isEqualTo(3);
+
+		CartItemFetchResponse decreased = cartItemService.modifyQuantity(memberId, item.getId(), -2);
+		assertThat(decreased.quantity()).isEqualTo(1);
+	}
+
+	@Test
+	void 장바구니_상품_수량_예외() {
+		CartItem cartItem = CartItem.of(cart, item, 1);
+		itemStock = ItemStock.builder().item(item).quantity(1).build();
+
+		given(cartRepository.findByMemberId(memberId)).willReturn(Optional.of(cart));
+		given(cartItemRepository.findWithItemJoinByCartIdAndItemId(cart.getId(), item.getId())).willReturn(
+			Optional.of(cartItem));
+		given(itemStockRepository.findByItemId(item.getId())).willReturn(Optional.of(itemStock));
+
+		assertThatThrownBy(() -> cartItemService.modifyQuantity(memberId, item.getId(), -1))
+			.isInstanceOf(InvalidItemException.class)
+			.hasMessageContaining("장바구니 수량은 1개 이상");
+
+		assertThatThrownBy(() -> cartItemService.modifyQuantity(memberId, item.getId(), +1))
+			.isInstanceOf(InvalidItemException.class)
+			.hasMessageContaining("장바구니 수량이 재고를 초과");
+	}
+
+	@Test
+	void 장바구니_상품_삭제() {
+		CartItem cartItem = CartItem.of(cart, item, 1);
 		given(cartRepository.findByMemberId(memberId)).willReturn(Optional.of(cart));
 		given(cartItemRepository.findByCartIdAndItemId(cart.getId(), item.getId())).willReturn(Optional.of(cartItem));
 
-		// when: 상품 삭제 메서드 실행
-		// then: 예외 없이 실행되고, 실제로 삭제 메서드가 호출되었는지 검증
-		assertThatCode(() -> cartItemService.removeItemToCart(memberId, item.getId()))
-			.doesNotThrowAnyException();
-
+		assertThatCode(() -> cartItemService.removeItemToCart(memberId, item.getId())).doesNotThrowAnyException();
 		verify(cartItemRepository).delete(cartItem);
 	}
 
-
 	@Test
-	@DisplayName("장바구니 상품 수량 증가")
-	void increaseItemQuantity() {
-		// given: 장바구니에 해당 상품이 1개 담겨 있는 상태
-		cartItem.setQuantity(1);
-		given(cartRepository.findByMemberId(memberId)).willReturn(Optional.of(cart));
-		given(itemRepository.findById(item.getId())).willReturn(Optional.of(item));
-		given(cartItemRepository.findByCartIdAndItemId(cart.getId(), item.getId())).willReturn(Optional.of(cartItem));
+	void 장바구니_생성() {
+		// given
+		Member member = Member.builder().id(memberId).build();
+		Cart newCart = Cart.builder().member(member).build();
+		newCart.setId(99L); // 저장된 후 ID 할당
+
+		CartItemCreateRequest request = new CartItemCreateRequest(item.getId(), 1);
+
+		given(cartRepository.findByMemberId(memberId)).willReturn(Optional.empty());
+		given(memberRepository.findById(memberId)).willReturn(Optional.of(member));
+		given(cartRepository.save(any(Cart.class))).willReturn(newCart);
+		given(itemQueryRepository.findItemWithTypeJoin(item.getId())).willReturn(Optional.of(item));
+		given(cartItemRepository.findByCartIdAndItemId(newCart.getId(), item.getId())).willReturn(Optional.empty());
 		given(itemStockRepository.findByItemId(item.getId())).willReturn(Optional.of(itemStock));
 
-		// when: 동일 상품 2개를 addItemToCart로 재추가
-		CartItemCreateRequest request = new CartItemCreateRequest(item.getId(), 2);
-		CartItemFetchResponse responseViaAdd = cartItemService.addItemToCart(memberId, request);
+		// when
+		CartItemFetchResponse result = cartItemService.addItemToCart(memberId, request);
 
-		// then: 기존 수량 1 + 추가 2 = 총 3이 반영되어야 함
-		assertThat(responseViaAdd.quantity()).isEqualTo(3);
-		assertThat(responseViaAdd.totalPrice()).isEqualTo(responseViaAdd.discountedPrice() * 3);
-		assertThat(responseViaAdd.isSoldOut()).isFalse();
-		verify(cartItemRepository, never()).save(any()); // 기존 항목에 수량만 증가했으므로 save 호출되지 않음
-
-		// when: modifyQuantity를 통해 수량을 +1 증가
-		CartItemFetchResponse responseViaModify = cartItemService.modifyQuantity(memberId, item.getId(), +1);
-
-		// then: 총 수량 4가 반영되어야 함
-		assertThat(responseViaModify.quantity()).isEqualTo(4);
-		assertThat(responseViaModify.totalPrice()).isEqualTo(responseViaModify.discountedPrice() * 4);
+		// then
+		assertThat(result.itemId()).isEqualTo(item.getId());
+		assertThat(result.quantity()).isEqualTo(1);
+		verify(cartRepository).save(any(Cart.class)); // 장바구니 저장됨
+		verify(memberRepository).findById(memberId); // 회원 조회됨
 	}
 
 	@Test
-	@DisplayName("장바구니 수량 감소")
-	void decreaseItemQuantity() {
-		// given: 초기 수량이 3인 상태에서 수량 감소 요청
-		cartItem.setQuantity(3);
+	void 장바구니_상품_재고_초과_예외() {
+		// given
+		CartItemCreateRequest request = new CartItemCreateRequest(item.getId(), 9);
+		CartItem existingCartItem = CartItem.of(cart, item, 3); // 기존 수량 있음
+		itemStock = ItemStock.builder().item(item).quantity(10).build(); // 재고 10 → 총 12 > 10 → 예외
+
 		given(cartRepository.findByMemberId(memberId)).willReturn(Optional.of(cart));
-		given(cartItemRepository.findByCartIdAndItemId(cart.getId(), item.getId())).willReturn(Optional.of(cartItem));
+		given(itemQueryRepository.findItemWithTypeJoin(item.getId())).willReturn(Optional.of(item));
+		given(cartItemRepository.findByCartIdAndItemId(cart.getId(), item.getId())).willReturn(
+			Optional.of(existingCartItem));
 		given(itemStockRepository.findByItemId(item.getId())).willReturn(Optional.of(itemStock));
 
-		// when: 수량 1 감소 요청
-		CartItemFetchResponse result = cartItemService.modifyQuantity(memberId, item.getId(), -1);
-
-		// then: 수량이 2로 줄고 총 가격이 할인 가격 * 2로 계산되는지 검증
-		assertThat(cartItem.getQuantity()).isEqualTo(2);
-		assertThat(result).isNotNull();
-		assertThat(result.quantity()).isEqualTo(2);
-		assertThat(result.totalPrice()).isEqualTo(result.discountedPrice() * 2);
-	}
-
-	@Test
-	@DisplayName("장바구니 수량 0 예외")
-	void decreaseToZero_throws() {
-		// given: 수량이 1인 상품이 장바구니에 담긴 상태
-		cartItem.setQuantity(1);
-		given(cartRepository.findByMemberId(memberId)).willReturn(Optional.of(cart));
-		given(cartItemRepository.findByCartIdAndItemId(cart.getId(), item.getId())).willReturn(Optional.of(cartItem));
-
-		// when / then: 수량 -1 요청 시 예외 발생 확인
-		assertThatThrownBy(() -> cartItemService.modifyQuantity(memberId, item.getId(), -1))
+		// when & then
+		assertThatThrownBy(() -> cartItemService.addItemToCart(memberId, request))
 			.isInstanceOf(InvalidItemException.class)
-			.hasMessageContaining("장바구니 수량은 1개 이상이어야 합니다.");
+			.hasMessageContaining(BaseResponseStatus.CART_QUANTITY_EXCEEDS_STOCK.getMessage());
 	}
 
 	@Test
-	@DisplayName("재고 초과 예외")
-	void increaseOverStock_throws() {
-		// given: 현재 수량과 재고가 동일한 상태에서 수량을 추가하려는 요청
-		cartItem.setQuantity(10);
-		itemStock = ItemStock.builder().item(item).quantity(10).build(); // 재고 = 10
+	void 장바구니_상품_삭제_예외() {
+		// given
 		given(cartRepository.findByMemberId(memberId)).willReturn(Optional.of(cart));
-		given(cartItemRepository.findByCartIdAndItemId(cart.getId(), item.getId())).willReturn(Optional.of(cartItem));
-		given(itemStockRepository.findByItemId(item.getId())).willReturn(Optional.of(itemStock));
+		given(cartItemRepository.findByCartIdAndItemId(cart.getId(), item.getId())).willReturn(Optional.empty());
 
-		// when / then: 수량 +1 요청 시 재고 초과로 예외 발생 확인
-		assertThatThrownBy(() -> cartItemService.modifyQuantity(memberId, item.getId(), +1))
+		// when & then
+		assertThatThrownBy(() -> cartItemService.removeItemToCart(memberId, item.getId()))
 			.isInstanceOf(InvalidItemException.class)
-			.hasMessageContaining("장바구니 수량이 재고를 초과할 수 없습니다.");
+			.hasMessageContaining(BaseResponseStatus.ITEM_NOT_FOUND_IN_CART.getMessage());
+
+		verify(cartItemRepository).findByCartIdAndItemId(cart.getId(), item.getId());
+	}
+
+	@Test
+	void 장바구니_조회_사용자_예외() {
+		given(cartRepository.findByMemberId(memberId)).willReturn(Optional.empty());
+
+		assertThatThrownBy(() -> cartItemService.removeItemToCart(memberId, item.getId()))
+			.isInstanceOf(com.jelly.zzirit.global.exception.custom.InvalidUserException.class)
+			.hasMessageContaining(BaseResponseStatus.USER_NOT_FOUND.getMessage());
+
+		verify(cartRepository).findByMemberId(memberId);
+	}
+
+	@Test
+	void 장바구니_상품_추가_상품_예외() {
+		CartItemCreateRequest request = new CartItemCreateRequest(999L, 1);
+
+		given(cartRepository.findByMemberId(memberId)).willReturn(Optional.of(cart));
+		given(itemQueryRepository.findItemWithTypeJoin(999L)).willReturn(Optional.empty());
+
+		assertThatThrownBy(() -> cartItemService.addItemToCart(memberId, request))
+			.isInstanceOf(InvalidItemException.class)
+			.hasMessageContaining(BaseResponseStatus.ITEM_NOT_FOUND.getMessage());
+	}
+
+	@Test
+	void 장바구니_상품_추가_재고_예외() {
+		CartItemCreateRequest request = new CartItemCreateRequest(item.getId(), 1);
+
+		given(cartRepository.findByMemberId(memberId)).willReturn(Optional.of(cart));
+		given(itemQueryRepository.findItemWithTypeJoin(item.getId())).willReturn(Optional.of(item));
+		given(itemStockRepository.findByItemId(item.getId())).willReturn(Optional.empty());
+
+		assertThatThrownBy(() -> cartItemService.addItemToCart(memberId, request))
+			.isInstanceOf(InvalidItemException.class)
+			.hasMessageContaining(BaseResponseStatus.ITEM_STOCK_NOT_FOUND.getMessage());
 	}
 }

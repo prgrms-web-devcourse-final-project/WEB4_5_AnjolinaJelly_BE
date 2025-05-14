@@ -18,7 +18,10 @@ public interface ItemQueryRepository {
 		Pageable pageable
 	);
 
+	Optional<Item> findItemWithTypeJoin(Long itemId);
+
 	Optional<AdminItemFetchResponse> findAdminItemById(Long itemId);
 
 	Page<AdminItemFetchResponse> findAdminItems(String name, Pageable pageable);
+
 }

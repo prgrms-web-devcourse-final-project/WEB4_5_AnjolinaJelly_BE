@@ -70,6 +70,18 @@ public class ItemQueryRepositoryImpl implements ItemQueryRepository {
 			);
 	}
 
+	@Override
+	public Optional<Item> findItemWithTypeJoin(Long itemId) {
+		return Optional.ofNullable(
+			queryFactory.selectFrom(item)
+				.join(item.typeBrand, typeBrand).fetchJoin()
+				.join(typeBrand.type, type).fetchJoin()
+				.join(typeBrand.brand, brand).fetchJoin()
+				.where(item.id.eq(itemId))
+				.fetchOne()
+		);
+	}
+
 	private OrderSpecifier<?> sortByPrice(String sort) {
 		if (sort.equals("priceDesc")) {
 			return item.price.desc();
