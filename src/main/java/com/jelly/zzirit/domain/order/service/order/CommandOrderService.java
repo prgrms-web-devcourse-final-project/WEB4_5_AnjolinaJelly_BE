@@ -36,9 +36,10 @@ public class CommandOrderService {
 		Payment payment = order.getPayment();
 
 		if (isRefundSuccessful) {
-			order.cancel();
+			order.markCancelled();
 			payment.markCancelled();
 		} else {
+			order.markPaid();
 			payment.markFailed();
 		}
 	}

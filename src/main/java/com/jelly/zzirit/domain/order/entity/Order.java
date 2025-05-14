@@ -97,7 +97,11 @@ public class Order extends BaseTime {
 		}
 	}
 
-	public void cancel() {
+	public void markPaid() {
+		this.status = OrderStatus.PAID;
+	}
+
+	public void markCancelled() {
 		this.status = OrderStatus.CANCELLED;
 	}
 
