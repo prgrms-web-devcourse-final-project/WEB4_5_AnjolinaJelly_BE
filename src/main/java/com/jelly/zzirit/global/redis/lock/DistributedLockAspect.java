@@ -43,13 +43,7 @@ public class DistributedLockAspect {
 		} catch (InterruptedException e) {
 			throw new InterruptedException();
 		} finally {
-			try {
-				rLock.unlock();
-			} catch (IllegalMonitorStateException e) {
-				log.info("Redisson Lock Already UnLock serviceName : {}, key : {}", method.getName(), key);
-			}
+			rLock.unlock();
 		}
 	}
 }
-
-// DistributedLock 어노테이션이 붙은 메서드를 호출할 때, 분산락을 획득/해제하는 부가적인 작업을 할 수 있도록 하는 Aspect

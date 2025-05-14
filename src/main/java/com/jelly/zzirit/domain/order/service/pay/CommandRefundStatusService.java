@@ -8,7 +8,7 @@ import com.jelly.zzirit.domain.order.entity.Order;
 import com.jelly.zzirit.domain.order.entity.Payment;
 
 @Service
-public class RefundStatusService {
+public class CommandRefundStatusService {
 
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void markAsRefunded(Order order, Payment payment) {

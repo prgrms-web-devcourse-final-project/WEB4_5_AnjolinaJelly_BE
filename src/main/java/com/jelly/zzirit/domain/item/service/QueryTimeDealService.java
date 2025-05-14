@@ -9,7 +9,7 @@ import com.jelly.zzirit.domain.item.dto.request.TimeDealSearchCondition;
 import com.jelly.zzirit.domain.item.dto.response.TimeDealFetchResponse;
 import com.jelly.zzirit.domain.item.entity.timedeal.TimeDeal;
 import com.jelly.zzirit.domain.item.entity.timedeal.TimeDealItem;
-import com.jelly.zzirit.domain.item.repository.ItemStockRepository;
+import com.jelly.zzirit.domain.item.repository.stock.ItemStockRepository;
 import com.jelly.zzirit.domain.item.repository.TimeDealItemRepository;
 import com.jelly.zzirit.domain.item.repository.TimeDealRepository;
 import com.jelly.zzirit.global.dto.PageResponse;

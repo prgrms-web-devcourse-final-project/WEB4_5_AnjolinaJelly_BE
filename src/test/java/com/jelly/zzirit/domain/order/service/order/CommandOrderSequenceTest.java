@@ -16,10 +16,10 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
 @ExtendWith(MockitoExtension.class)
-class OrderSequenceGeneratorTest {
+class CommandOrderSequenceTest {
 
 	@InjectMocks
-	private OrderSequenceGenerator orderSequenceGenerator;
+	private CommandOrderSequence commandOrderSequence;
 
 	@Mock
 	private StringRedisTemplate redisTemplate;
@@ -38,7 +38,7 @@ class OrderSequenceGeneratorTest {
 		given(valueOperations.increment(todayKey)).willReturn(expectedSeq);
 
 		// when
-		Long sequence = orderSequenceGenerator.getTodaySequence();
+		Long sequence = commandOrderSequence.getTodaySequence();
 
 		// then
 		assertEquals(expectedSeq, sequence);

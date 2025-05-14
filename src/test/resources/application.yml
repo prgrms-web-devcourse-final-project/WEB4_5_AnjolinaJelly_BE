@@ -82,6 +82,7 @@ logging:
 toss:
   payments:
     secret-key: dummy
+    client-key: dummy
 
 discord:
   webhook:

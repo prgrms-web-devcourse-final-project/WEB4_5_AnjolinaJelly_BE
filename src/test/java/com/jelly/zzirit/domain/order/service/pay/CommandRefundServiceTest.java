@@ -17,32 +17,32 @@ import com.jelly.zzirit.domain.order.domain.fixture.PaymentFixture;
 import com.jelly.zzirit.domain.order.entity.Order;
 import com.jelly.zzirit.domain.order.entity.Payment;
 import com.jelly.zzirit.domain.order.repository.PaymentRepository;
-import com.jelly.zzirit.domain.order.service.order.DiscordNotifier;
+import com.jelly.zzirit.domain.order.service.order.CommandDiscordService;
 import com.jelly.zzirit.domain.order.util.PaymentGateway;
 import com.jelly.zzirit.domain.order.util.PaymentGatewayResolver;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
 
 @ExtendWith(MockitoExtension.class)
-public class RefundServiceTest {
+public class CommandRefundServiceTest {
 
 	@Mock
 	private PaymentRepository paymentRepository;
 
 	@Mock
-	private DiscordNotifier discordNotifier;
+	private CommandDiscordService commandDiscordService;
 
 	@Mock
 	private PaymentGatewayResolver paymentGatewayResolver;
 
 	@Mock
-	private RefundStatusService refundStatusService;
+	private CommandRefundStatusService commandRefundStatusService;
 
 	@Mock
 	private PaymentGateway mockPaymentGateway;
 
 	@InjectMocks
-	private RefundService refundService;
+	private CommandRefundService commandRefundService;
 
 	private Order mockOrder;
 	private Payment mockPayment;
@@ -63,10 +63,10 @@ public class RefundServiceTest {
 
 		doNothing().when(mockPaymentGateway).refund(paymentKey, mockOrder.getTotalPrice(), reason);
 
-		refundService.refund(mockOrder, paymentKey, reason);
+		commandRefundService.refund(mockOrder, paymentKey, reason);
 
 		verify(mockPaymentGateway, times(1)).refund(paymentKey, mockOrder.getTotalPrice(), reason);
-		verify(refundStatusService, times(1)).markAsRefunded(mockOrder, mockPayment);
+		verify(commandRefundStatusService, times(1)).markAsRefunded(mockOrder, mockPayment);
 	}
 
 	@Test
@@ -77,7 +77,7 @@ public class RefundServiceTest {
 		when(paymentRepository.findByPaymentKey(paymentKey)).thenReturn(Optional.empty());
 
 		InvalidOrderException exception = assertThrows(InvalidOrderException.class, () -> {
-			refundService.refund(mockOrder, paymentKey, reason);
+			commandRefundService.refund(mockOrder, paymentKey, reason);
 		});
 
 		assertEquals(BaseResponseStatus.PAYMENT_NOT_FOUND, exception.getStatus());
@@ -93,10 +93,10 @@ public class RefundServiceTest {
 		doThrow(new RuntimeException("환불 실패")).when(mockPaymentGateway).refund(paymentKey, mockOrder.getTotalPrice(), reason);
 
 		InvalidOrderException exception = assertThrows(InvalidOrderException.class, () -> {
-			refundService.refund(mockOrder, paymentKey, reason);
+			commandRefundService.refund(mockOrder, paymentKey, reason);
 		});
 
-		verify(discordNotifier, times(1)).notifyRefundFailure(mockOrder.getOrderNumber(), paymentKey, mockOrder.getTotalPrice(), "환불 실패");
+		verify(commandDiscordService, times(1)).notifyRefundFailure(mockOrder.getOrderNumber(), paymentKey, mockOrder.getTotalPrice(), "환불 실패");
 		assertEquals(BaseResponseStatus.ORDER_REFUND_FAILED, exception.getStatus());
 	}
 }

@@ -16,7 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.jelly.zzirit.domain.order.controller.PaymentController;
-import com.jelly.zzirit.domain.order.service.order.TempOrderService;
+import com.jelly.zzirit.domain.order.service.order.CommandTempOrderService;
 import com.jelly.zzirit.domain.order.service.pay.PaymentConfirmService;
 import com.jelly.zzirit.domain.order.service.pay.PaymentInitService;
 import com.jelly.zzirit.global.support.TestMemberConfig;
@@ -28,7 +28,7 @@ class PaymentControllerTest extends TestMemberConfig {
 
 	@Autowired private MockMvc mockMvc;
 	@Autowired private PaymentInitService paymentInitService;
-	@Autowired private TempOrderService tempOrderService;
+	@Autowired private CommandTempOrderService commandTempOrderService;
 	@Autowired private PaymentConfirmService paymentConfirmService;
 
 	@TestConfiguration
@@ -39,8 +39,8 @@ class PaymentControllerTest extends TestMemberConfig {
 		}
 
 		@Bean
-		public TempOrderService tempOrderService() {
-			return Mockito.mock(TempOrderService.class);
+		public CommandTempOrderService tempOrderService() {
+			return Mockito.mock(CommandTempOrderService.class);
 		}
 
 		@Bean
@@ -114,7 +114,7 @@ class PaymentControllerTest extends TestMemberConfig {
 			.andExpect(jsonPath("$.success").value(false))
 			.andExpect(jsonPath("$.message").value(containsString("토스 결제 요청에 실패했습니다.")));
 
-		Mockito.verify(tempOrderService)
+		Mockito.verify(commandTempOrderService)
 			.deleteTempOrder(orderId);
 	}
 }

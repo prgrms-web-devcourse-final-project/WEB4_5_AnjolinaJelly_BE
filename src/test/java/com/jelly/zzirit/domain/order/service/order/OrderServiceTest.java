@@ -1,6 +1,5 @@
 package com.jelly.zzirit.domain.order.service.order;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import org.junit.jupiter.api.Test;
@@ -13,19 +12,19 @@ import com.jelly.zzirit.domain.member.entity.Member;
 import com.jelly.zzirit.domain.order.domain.fixture.OrderFixture;
 import com.jelly.zzirit.domain.order.entity.Order;
 import com.jelly.zzirit.domain.order.entity.Payment;
-import com.jelly.zzirit.domain.order.service.pay.RefundService;
+import com.jelly.zzirit.domain.order.service.pay.CommandRefundService;
 
 @ExtendWith(MockitoExtension.class)
 class OrderServiceTest {
 
 	@Mock
-	private OrderManager orderManager;
+	private CommandOrderManager commandOrderManager;
 
 	@Mock
-	private RefundService refundService;
+	private CommandRefundService commandRefundService;
 
 	@InjectMocks
-	private OrderService orderService;
+	private CommandOrderService orderService;
 
 	@Mock
 	private Member member;
@@ -42,7 +41,7 @@ class OrderServiceTest {
 		orderService.completeOrder(order, "paymentKey");
 
 		// then
-		verify(refundService, never()).refund(any(), any(), any());
+		verify(commandRefundService, never()).refund(any(), any(), any());
 	}
 
 	@Test
@@ -50,12 +49,12 @@ class OrderServiceTest {
 		// given
 		Order order = OrderFixture.주문_생성(member, payment);
 		String paymentKey = "paymentKey";
-		doThrow(new RuntimeException("주문 처리 실패")).when(orderManager).process(order);
+		doThrow(new RuntimeException("주문 처리 실패")).when(commandOrderManager).process(order);
 
 		// when
 		orderService.completeOrder(order, paymentKey);
 
 		// then
-		verify(refundService).refund(eq(order), eq(paymentKey), eq("주문 처리 실패로 인한 자동 환불"));
+		verify(commandRefundService).refund(eq(order), eq(paymentKey), eq("주문 처리 실패로 인한 자동 환불"));
 	}
 }

@@ -10,7 +10,7 @@ import org.springframework.test.annotation.Commit;
 import org.springframework.test.context.ActiveProfiles;
 
 import com.jelly.zzirit.domain.item.entity.stock.ItemStock;
-import com.jelly.zzirit.domain.item.repository.ItemStockRepository;
+import com.jelly.zzirit.domain.item.repository.stock.ItemStockRepository;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
 import com.jelly.zzirit.global.redis.RedisTestContainerConfig;
@@ -20,10 +20,10 @@ import com.jelly.zzirit.global.redis.TestRedisTemplateConfig;
 @ActiveProfiles("test")
 @Import(TestRedisTemplateConfig.class)
 @Commit
-class ItemStockServiceTest extends RedisTestContainerConfig {
+class CommandStockServiceTest extends RedisTestContainerConfig {
 
 	@Autowired
-	private ItemStockService itemStockService;
+	private CommandStockService commandStockService;
 
 	@Autowired
 	private ItemStockRepository itemStockRepository;
@@ -34,7 +34,7 @@ class ItemStockServiceTest extends RedisTestContainerConfig {
 		Long itemId = 1L;
 
 		// when
-		itemStockService.decrease(itemId, 3);
+		commandStockService.decrease(itemId, 3);
 
 		// then
 		ItemStock stock = itemStockRepository.findByItemId(itemId)

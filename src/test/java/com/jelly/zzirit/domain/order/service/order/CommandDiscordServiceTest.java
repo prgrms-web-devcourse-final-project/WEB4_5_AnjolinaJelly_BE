@@ -14,10 +14,10 @@ import com.jelly.zzirit.global.redis.TestRedissonConfig;
 @SpringBootTest
 @ActiveProfiles("test")
 @Import({TestRedissonConfig.class, TestRedisTemplateConfig.class})
-class DiscordNotifierTest {
+class CommandDiscordServiceTest {
 
 	@Autowired
-	private DiscordNotifier discordNotifier;
+	private CommandDiscordService commandDiscordService;
 
 	@Test
 	void 디스코드_환불_실패_알림_테스트() {
@@ -26,6 +26,6 @@ class DiscordNotifierTest {
 		BigDecimal amount = new BigDecimal("12345.67");
 		String reason = "테스트용 환불 실패 사유입니다.";
 
-		discordNotifier.notifyRefundFailure(orderNumber, paymentKey, amount, reason);
+		commandDiscordService.notifyRefundFailure(orderNumber, paymentKey, amount, reason);
 	}
 }

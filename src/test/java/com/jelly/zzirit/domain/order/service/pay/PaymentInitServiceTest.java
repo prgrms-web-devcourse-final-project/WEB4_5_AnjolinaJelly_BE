@@ -14,8 +14,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.jelly.zzirit.domain.member.entity.Member;
 import com.jelly.zzirit.domain.order.dto.request.PaymentRequest;
 import com.jelly.zzirit.domain.order.entity.Order;
-import com.jelly.zzirit.domain.order.service.order.OrderSequenceGenerator;
-import com.jelly.zzirit.domain.order.service.order.TempOrderService;
+import com.jelly.zzirit.domain.order.service.order.CommandOrderSequence;
+import com.jelly.zzirit.domain.order.service.order.CommandTempOrderService;
 import com.jelly.zzirit.global.AuthMember;
 
 @ExtendWith(MockitoExtension.class)
@@ -25,10 +25,10 @@ class PaymentInitServiceTest {
 	private PaymentInitService paymentInitService;
 
 	@Mock
-	private OrderSequenceGenerator orderSequenceGenerator;
+	private CommandOrderSequence commandOrderSequence;
 
 	@Mock
-	private TempOrderService tempOrderService;
+	private CommandTempOrderService commandTempOrderService;
 
 	@Test
 	void 정상적으로_주문번호를_반환한다() {
@@ -43,8 +43,8 @@ class PaymentInitServiceTest {
 		try (MockedStatic<AuthMember> mockedAuth = Mockito.mockStatic(AuthMember.class)) {
 			mockedAuth.when(AuthMember::getAuthUser).thenReturn(member);
 
-			when(orderSequenceGenerator.getTodaySequence()).thenReturn(sequence);
-			when(tempOrderService.createTempOrder(dto, member, expectedOrderNumber)).thenReturn(mockOrder);
+			when(commandOrderSequence.getTodaySequence()).thenReturn(sequence);
+			when(commandTempOrderService.createTempOrder(dto, member, expectedOrderNumber)).thenReturn(mockOrder);
 			when(mockOrder.getOrderNumber()).thenReturn(expectedOrderNumber);
 
 			// when
@@ -52,8 +52,8 @@ class PaymentInitServiceTest {
 
 			// then
 			assertEquals(expectedOrderNumber, result);
-			verify(orderSequenceGenerator).getTodaySequence();
-			verify(tempOrderService).createTempOrder(dto, member, expectedOrderNumber);
+			verify(commandOrderSequence).getTodaySequence();
+			verify(commandTempOrderService).createTempOrder(dto, member, expectedOrderNumber);
 		}
 	}
 }
