@@ -67,7 +67,7 @@ public class CommandTimeDealService {
 					originItem.getName(),
 					originItem.getImageUrl(),
 					originItem.getPrice(),
-					ItemStatus.TIME_DEAL,    // 타입만 변경
+					ItemStatus.TIME_DEAL,
 					originItem.getTypeBrand()
 				)
 			);
