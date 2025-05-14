@@ -60,11 +60,8 @@ public class CommandTimeDealService {
 			Item clonedItemForTimeDeal = itemRepository.save(Item.from(originalItem));
 
 			// 2-2. 저장된 타임딜과, 타입이 타임딜인 아이템을 이용해 중간 엔티티인 타임딜 아이템을 저장합니다.
-
-			// 타임딜 할인율 적용 가격 계산
-			BigDecimal discountedPrice = clonedItemForTimeDeal.getPrice().multiply(
-				BigDecimal.ONE.subtract(BigDecimal.valueOf(timeDeal.getDiscountRatio()).divide(BigDecimal.valueOf(100)))
-			);
+			BigDecimal discountedPrice = calculateDiscountedPrice(clonedItemForTimeDeal.getPrice(),
+				timeDeal.getDiscountRatio());
 
 			// 타임딜 아이템 저장
 			timeDealItemRepository.save(new TimeDealItem(discountedPrice, timeDeal, clonedItemForTimeDeal));
@@ -145,5 +142,10 @@ public class CommandTimeDealService {
 		return existingDeals.stream().anyMatch(deal ->
 			!(deal.getEndTime().isBefore(start) || deal.getStartTime().isAfter(end))
 		);
+	}
+
+	private BigDecimal calculateDiscountedPrice(BigDecimal originalPrice, int discountRatio) {
+		BigDecimal discountRate = BigDecimal.valueOf(discountRatio).divide(BigDecimal.valueOf(100));
+		return originalPrice.multiply(BigDecimal.ONE.subtract(discountRate));
 	}
 }
