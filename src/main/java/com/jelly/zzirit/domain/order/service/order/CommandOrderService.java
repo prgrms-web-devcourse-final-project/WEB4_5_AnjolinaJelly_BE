@@ -1,5 +1,7 @@
 package com.jelly.zzirit.domain.order.service.order;
 
+import static com.jelly.zzirit.domain.order.entity.OrderStatus.COMPLETED;
+import static com.jelly.zzirit.domain.order.entity.OrderStatus.PAID;
 import static com.jelly.zzirit.global.dto.BaseResponseStatus.*;
 
 import org.springframework.stereotype.Service;
@@ -13,6 +15,9 @@ import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -52,4 +57,20 @@ public class CommandOrderService {
 			refundService.refundImmediately(paymentKey, order.getTotalPrice());
 		}
 	}
+
+	/**
+	 * 24시간이 지난 주문을 COMPLETED 상태로 변경
+	 * @return 변경된 주문의 개수
+	 */
+	@Transactional
+	public int completeExpiredOrders() {
+		LocalDateTime deadline = LocalDateTime.now().minusHours(24);
+
+		// 결제 완료(PAID) 상태이면서 24시간이 지난 주문 목록의 상태 변경
+		List<Order> expiredOrders = orderRepository.findAllByStatusAndCreatedAtBefore(PAID, deadline);
+		expiredOrders.forEach(order -> order.changeStatus(COMPLETED));
+
+		return expiredOrders.size();
+	}
+
 }
