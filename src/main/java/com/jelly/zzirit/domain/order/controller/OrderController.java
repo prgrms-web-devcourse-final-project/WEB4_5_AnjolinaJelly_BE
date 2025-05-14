@@ -35,7 +35,7 @@ public class OrderController {
     private final OrderCancellationFacade orderCancellationFacade;
 
     @GetMapping
-    @Operation(summary = "주문 전체 조회 API", description = "전체 주문을 페이징 처리하여 최신순으로 조회합니다.")
+    @Operation(summary = "주문 전체 조회 API", description = "전체 주문을 페이징 및 정렬 처리해 조회합니다.")
     public BaseResponse<PageResponse<OrderFetchResponse>> fetchAllOrders(
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size,
