@@ -94,7 +94,7 @@ public class AdminController {
 	}
 	
 	@Operation(summary = "관리자 상품 이미지 수정", description = "상품 ID로 기존 상품의 이미지를 새 이미지로 교체")
-	@PutMapping("/items/{itemId}/image")
+	@PutMapping(value = "/items/{itemId}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public BaseResponse<ImageUploadResponse> updateImage(
 		@PathVariable Long itemId,
 		@RequestPart("image") MultipartFile image
