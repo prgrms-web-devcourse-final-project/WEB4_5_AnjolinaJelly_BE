@@ -31,8 +31,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     @Query("SELECT o.id FROM Order o " +
            "WHERE o.member.id = :memberId " +
-           "AND o.status IN :statuses " +
-           "ORDER BY o.createdAt DESC")
+           "AND o.status IN :statuses")
     Page<Long> findOrderIdsByMemberIdAndStatuses(
         @Param("memberId") Long memberId,
         @Param("statuses") Collection<OrderStatus> statuses,
