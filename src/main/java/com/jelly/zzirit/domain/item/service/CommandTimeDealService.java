@@ -40,7 +40,7 @@ public class CommandTimeDealService {
 		TimeDeal timeDeal = timeDealRepository.save(
 			new TimeDeal(
 				request.title(),
-				TimeDeal.TimeDealStatus.SCHEDULED,
+				determineTimeDealStatus(request.startTime(), request.endTime(), LocalDateTime.now()),
 				request.startTime(),
 				request.endTime(),
 				request.discountRatio()));
@@ -145,5 +145,15 @@ public class CommandTimeDealService {
 		toEndDeals.forEach(deal -> deal.updateStatus(TimeDeal.TimeDealStatus.ENDED));
 
 		return toEndDeals.size();
+	}
+
+	private TimeDeal.TimeDealStatus determineTimeDealStatus(LocalDateTime start, LocalDateTime end, LocalDateTime now) {
+		if (now.isBefore(start)) {
+			return TimeDeal.TimeDealStatus.SCHEDULED;
+		} else if (!now.isAfter(end)) {
+			return TimeDeal.TimeDealStatus.ONGOING;
+		} else {
+			return TimeDeal.TimeDealStatus.ENDED;
+		}
 	}
 }
