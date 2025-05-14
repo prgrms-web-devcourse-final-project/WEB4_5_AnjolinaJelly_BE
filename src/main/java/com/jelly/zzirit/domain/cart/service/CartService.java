@@ -20,8 +20,10 @@ import com.jelly.zzirit.domain.item.entity.timedeal.TimeDealItem;
 import com.jelly.zzirit.domain.item.repository.ItemStockRepository;
 import com.jelly.zzirit.domain.item.repository.TimeDealItemRepository;
 import com.jelly.zzirit.domain.member.entity.Member;
+import com.jelly.zzirit.domain.member.repository.MemberRepository;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.exception.custom.InvalidItemException;
+import com.jelly.zzirit.global.exception.custom.InvalidUserException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -31,6 +33,7 @@ public class CartService {
 
 	private final CartRepository cartRepository;
 	private final CartItemRepository cartItemRepository;
+	private final MemberRepository memberRepository;
 	private final TimeDealItemRepository timeDealItemRepository;
 	private final ItemStockRepository itemStockRepository;
 
@@ -48,17 +51,15 @@ public class CartService {
 		);
 	}
 
-	// 회원의 장바구니가 없으면 새로 생성하여 반환
 	private Cart getOrCreateCart(Long memberId) {
 		return cartRepository.findByMemberId(memberId)
 			.orElseGet(() -> {
-				Member member = Member.builder().id(memberId).build();
-				Cart newCart = Cart.builder().member(member).build();
-				return cartRepository.save(newCart);
+				Member member = memberRepository.findById(memberId)
+					.orElseThrow(() -> new InvalidUserException(BaseResponseStatus.USER_NOT_FOUND));
+				return cartRepository.save(Cart.builder().member(member).build());
 			});
 	}
 
-	// 장바구니 상품들의 itemId로 재고 목록을 일괄 조회하여 Map으로 반환
 	private Map<Long, ItemStock> loadItemStockMap(List<CartItem> cartItems) {
 		List<Long> itemIds = cartItems.stream()
 			.map(cartItem -> cartItem.getItem().getId())
@@ -69,7 +70,6 @@ public class CartService {
 			.collect(Collectors.toMap(stock -> stock.getItem().getId(), stock -> stock));
 	}
 
-	// CartItem 목록을 CartItemFetchResponse 목록으로 변환
 	private List<CartItemFetchResponse> convertToResponses(List<CartItem> cartItems, Map<Long, ItemStock> stockMap) {
 		return cartItems.stream()
 			.map(cartItem -> {
@@ -87,7 +87,6 @@ public class CartService {
 			}).toList();
 	}
 
-	// 품절 제외 총 수량 계산
 	private int calculateTotalQuantity(List<CartItemFetchResponse> responses) {
 		return responses.stream()
 			.filter(res -> !res.isSoldOut())
@@ -95,7 +94,6 @@ public class CartService {
 			.sum();
 	}
 
-	// 품절 제외 총 금액 계산
 	private int calculateTotalPrice(List<CartItemFetchResponse> responses) {
 		return responses.stream()
 			.filter(res -> !res.isSoldOut())
