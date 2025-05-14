@@ -47,7 +47,6 @@ class CartControllerTest extends AcceptanceTest {
 		// given
 		Member 유저 = memberRepository.save(
 			Member.builder()
-				.id(1L)
 				.memberEmail("test@gamil.com")
 				.memberName("테스트유저")
 				.password("test1234!")
@@ -78,7 +77,7 @@ class CartControllerTest extends AcceptanceTest {
 
 		// when & then
 		given(spec)
-			.cookie(getCookie())
+			.cookie(getCookie(유저.getId()))
 			.filter(OpenApiDocumentationFilter.ofWithResponseFields(
 				"내 장바구니 조회",
 				new FieldDescriptor[] {

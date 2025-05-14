@@ -1,9 +1,11 @@
 package com.jelly.zzirit.domain.admin.controller;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,6 +36,9 @@ import com.jelly.zzirit.global.dto.Empty;
 import com.jelly.zzirit.global.dto.PageResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -44,28 +49,41 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Tag(name = "관리자 상품 API", description = "관리자 상품 기능을 제공합니다.")
 public class AdminController {
-	private final QueryAdminService queryAdminItemService;
+	private final QueryAdminService queryAdminService;
 	private final CommandAdminService commandAdminItemService;
 	private final QueryTimeDealService queryTimeDealService;
 	private final CommandTimeDealService timeDealService;
 	private final CommandS3Service commandS3Service;
 
+	@Operation(summary = "관리자 상품 단건 조회", description = "관리자가 id로 상품을 단건 조회합니다.")
+	@GetMapping("/items/{item-id}")
+	public BaseResponse<?> getItem(
+			@PathVariable("item-id") Long itemId
+	) {
+		Optional<AdminItemFetchResponse> itemOpt = queryAdminService.getItemById(itemId);
+		if (itemOpt.isPresent()) {
+			return BaseResponse.success(itemOpt.get());
+		} else {
+			return BaseResponse.success(Empty.getInstance());
+		}
+	}
 
-	@Operation(summary = "관리자 상품 조회 & 검색", description = "관리자가 id/이름으로 상품 목록을 조회합니다.")
+	@Operation(summary = "관리자 상품 이름 검색 & 목록 조회", description = "관리자가 이름으로 상품을 검색 / 상품 목록을 조회합니다.")
 	@GetMapping("/items")
 	public BaseResponse<PageResponse<AdminItemFetchResponse>> getItems(
-		@RequestParam(required = false) String name,
-		@RequestParam(required = false) Long itemId,
-		@RequestParam(defaultValue = "0") int page,
-		@RequestParam(defaultValue = "10") int size
+			@RequestParam(required = false) String name,
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size
 	) {
 		Pageable pageable = PageRequest.of(page, size);
-		return BaseResponse.success(queryAdminItemService.getItems(name, itemId, pageable));
+		return BaseResponse.success(queryAdminService.getSearchItems(name, pageable));
 	}
 
 	@Operation(summary = "관리자 상품 이미지 업로드", description = "상품 등록 전 이미지를 S3에 업로드하고 URL 반환")
-	@PostMapping("/items/image")
-	public BaseResponse<ImageUploadResponse> uploadImage(@RequestPart("image") MultipartFile image) throws IOException {
+	@PostMapping(value = "/items/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public BaseResponse<ImageUploadResponse> uploadImage(
+		@RequestPart("image") MultipartFile image
+	) throws IOException {
 		String uploadedUrl = commandS3Service.upload(image, "item-images");
 		return BaseResponse.success(new ImageUploadResponse(uploadedUrl));
 	}
@@ -88,7 +106,7 @@ public class AdminController {
 	}
 	
 	@Operation(summary = "관리자 상품 이미지 수정", description = "상품 ID로 기존 상품의 이미지를 새 이미지로 교체")
-	@PutMapping("/items/{itemId}/image")
+	@PutMapping(value = "/items/{itemId}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public BaseResponse<ImageUploadResponse> updateImage(
 		@PathVariable Long itemId,
 		@RequestPart("image") MultipartFile image

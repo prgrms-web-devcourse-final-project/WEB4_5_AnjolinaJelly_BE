@@ -23,7 +23,7 @@ custom:
   site:
     domain: api.zzirit.shop
     back-url: https://api.zzirit.shop
-    front-url: http://localhost:3000,https://zzirit.vercel.app,https://www.app4.qwas.shop,https://login.aleph.kr
+    front-url: http://localhost:3000,https://zzirit.vercel.app,https://www.app4.qwas.shop,https://login.aleph.kr,http://3.34.152.225,https://zzirit-test.vercel.app
   file:
     upload-dir: uploads/
 

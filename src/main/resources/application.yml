@@ -14,6 +14,11 @@ spring:
     generate-ddl: true
     hibernate:
       ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        highlight_sql: true
+        use_sql_comments: true
 
   decorator:
     datasource:
@@ -41,3 +46,12 @@ logging:
     org:
       hibernate:
         SQL: debug
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, prometheus
+  endpoint:
+    health:
+      show-details: always

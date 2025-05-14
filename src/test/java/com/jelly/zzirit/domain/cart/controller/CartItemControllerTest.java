@@ -33,6 +33,9 @@ import com.jelly.zzirit.domain.member.repository.MemberRepository;
 import com.jelly.zzirit.global.support.AcceptanceTest;
 import com.jelly.zzirit.global.support.OpenApiDocumentationFilter;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+
 class CartItemControllerTest extends AcceptanceTest {
 
 	@Autowired private MemberRepository memberRepository;
@@ -46,10 +49,11 @@ class CartItemControllerTest extends AcceptanceTest {
 
 	private Long itemId;
 
+	private Member member;
+
 	@BeforeEach
 	void setUp() {
-		Member member = memberRepository.save(Member.builder()
-			.id(1L)
+		member = memberRepository.save(Member.builder()
 			.memberEmail("test@example.com")
 			.memberName("테스트")
 			.password("test1234!")
@@ -69,6 +73,7 @@ class CartItemControllerTest extends AcceptanceTest {
 
 		itemId = item.getId();
 	}
+
 	@Test
 	void 장바구니_상품_추가() {
 		CartItemCreateRequest request = new CartItemCreateRequest(itemId, 2);
@@ -173,14 +178,14 @@ class CartItemControllerTest extends AcceptanceTest {
 	@Test
 	void 장바구니_수량_감소_실패() {
 		// 수량 1로 재설정
-		Cart cart = cartRepository.findByMemberId(1L).orElseThrow();
+		Cart cart = cartRepository.findByMemberId(member.getId()).orElseThrow();
 		Item item = itemRepository.findById(itemId).orElseThrow();
 		cartItemRepository.deleteAll();
 		cartItemRepository.save(CartItem.of(cart, item, 1));
 
 		// 요청 및 문서화
 		given(spec)
-			.cookie(getCookie())
+			.cookie(getCookie(member.getId()))
 			.filter(OpenApiDocumentationFilter.ofWithPathParamsAndResponseFields(
 				"장바구니 수량 감소 - 실패",
 				new ParameterDescriptor[]{ parameterWithName("itemId").description("상품 ID") },
