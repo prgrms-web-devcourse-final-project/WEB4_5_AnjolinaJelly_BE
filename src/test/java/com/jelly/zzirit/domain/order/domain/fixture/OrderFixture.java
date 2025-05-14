@@ -6,7 +6,7 @@ import java.util.Date;
 
 import com.jelly.zzirit.domain.member.entity.Member;
 import com.jelly.zzirit.domain.order.entity.Order;
-import com.jelly.zzirit.domain.order.entity.Order.OrderStatus;
+import com.jelly.zzirit.domain.order.entity.OrderStatus;
 import com.jelly.zzirit.domain.order.entity.Payment;
 
 import static com.jelly.zzirit.domain.order.domain.fixture.PaymentFixture.결제_정보_생성;

@@ -1,5 +1,6 @@
 package com.jelly.zzirit.domain.order.service.order;
 
+import com.jelly.zzirit.domain.order.entity.OrderStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -26,6 +27,6 @@ public class OrderManager {
 			itemStockService.decrease(orderItem.getItem().getId(), orderItem.getQuantity());
 		}
 
-		order.changeStatus(Order.OrderStatus.COMPLETED);
+		order.changeStatus(OrderStatus.COMPLETED);
 	}
 }

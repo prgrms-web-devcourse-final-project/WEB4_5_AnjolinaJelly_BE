@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
+import com.jelly.zzirit.domain.order.entity.OrderStatus;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -100,7 +101,7 @@ class TempOrderServiceTest {
 		when(orderRepository.findByOrderNumber("ORDER-001")).thenReturn(Optional.of(order));
 		when(order.getTotalPrice()).thenReturn(new BigDecimal("10000"));
 		when(order.getOrderNumber()).thenReturn("ORDER-001");
-		when(order.getStatus()).thenReturn(Order.OrderStatus.PENDING);
+		when(order.getStatus()).thenReturn(OrderStatus.PENDING);
 
 		// when
 		tempOrderService.confirmTempOrder(response);

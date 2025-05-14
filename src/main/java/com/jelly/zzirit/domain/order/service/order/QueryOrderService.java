@@ -1,6 +1,6 @@
 package com.jelly.zzirit.domain.order.service.order;
 
-import static com.jelly.zzirit.domain.order.entity.Order.OrderStatus.*;
+import static com.jelly.zzirit.domain.order.entity.OrderStatus.*;
 
 import java.util.Collections;
 import java.util.EnumSet;
@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.jelly.zzirit.domain.order.entity.OrderStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -43,7 +44,7 @@ public class QueryOrderService {
      * @return 페이징이 적용된 주문 리스트
      */
     public Page<Order> findPagedOrders(Long memberId, Pageable pageable) {
-        EnumSet<Order.OrderStatus> orderStatus = EnumSet.of(CANCELLED, COMPLETED, PAID);
+        EnumSet<OrderStatus> orderStatus = EnumSet.of(CANCELLED, COMPLETED, PAID);
 
         // Order가 페이징의 대상이므로, Order의 Id를 페이징 처리
         Page<Long> pagedIds = orderRepository.findOrderIdsByMemberIdAndStatuses(memberId, orderStatus, pageable);

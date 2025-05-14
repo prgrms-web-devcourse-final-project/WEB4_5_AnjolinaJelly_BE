@@ -13,7 +13,7 @@ import com.jelly.zzirit.domain.member.repository.MemberRepository;
 import com.jelly.zzirit.domain.order.entity.Order;
 import com.jelly.zzirit.domain.order.repository.OrderRepository;
 import com.jelly.zzirit.domain.order.service.pay.RefundService;
-import com.jelly.zzirit.global.authorization.AuthorizationService;
+import com.jelly.zzirit.domain.order.service.order.OrderCancelValidator;
 import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
 import com.jelly.zzirit.global.support.AcceptanceTest;
 import io.restassured.response.Response;
@@ -41,8 +41,7 @@ import static com.jelly.zzirit.domain.order.domain.fixture.OrderFixture.결제�
 import static com.jelly.zzirit.domain.order.domain.fixture.OrderItemFixture.주문_상품_생성;
 import static com.jelly.zzirit.global.dto.BaseResponseStatus.*;
 import static io.restassured.RestAssured.given;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.*;
 import static org.springframework.restdocs.payload.JsonFieldType.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
@@ -72,7 +71,7 @@ public class OrderControllerTest extends AcceptanceTest {
     private RefundService refundService;
 
     @MockitoSpyBean // 실제 동작을 기본으로 하되, 특정 메서드만 모킹하기 위해 spy 객체 사용
-    private AuthorizationService authorizationService;
+    private OrderCancelValidator orderCancelValidator;
 
     private Member 유저;
     private List<Order> 주문_목록;
@@ -177,7 +176,7 @@ public class OrderControllerTest extends AcceptanceTest {
             String 결제_정보_키 = 취소할_주문.getPayment().getPaymentKey();
             Long 유저_아이디 = 유저.getId();
 
-            doNothing().when(refundService).refund(취소할_주문_아이디, 결제_정보_키); // 외부 API 호출 모킹
+            when(refundService.tryRefund(취소할_주문_아이디, 결제_정보_키)).thenReturn(true); // 외부 API 호출 모킹
 
             RequestSpecification 요청 = given(spec)
                 .cookie(getCookie(유저_아이디))
@@ -200,8 +199,8 @@ public class OrderControllerTest extends AcceptanceTest {
             Long 취소할_주문_아이디 = 취소할_주문.getId();
             Long 유저_아이디 = 유저.getId();
 
-            doThrow(new InvalidOrderException(ACCESS_DENIED)).when(authorizationService)
-                .checkOrderCancelPermission(취소할_주문, 유저);
+            doThrow(new InvalidOrderException(ACCESS_DENIED)).when(orderCancelValidator)
+                .validate(취소할_주문, 유저);
 
             RequestSpecification 요청 = given(spec)
                 .cookie(getCookie(유저_아이디))
@@ -224,8 +223,8 @@ public class OrderControllerTest extends AcceptanceTest {
             Long 취소할_주문_아이디 = 취소할_주문.getId();
             Long 유저_아이디 = 유저.getId();
 
-            doThrow(new InvalidOrderException(EXPIRED_CANCEL_TIME)).when(authorizationService)
-                .checkOrderCancelPermission(취소할_주문, 유저);
+            doThrow(new InvalidOrderException(EXPIRED_CANCEL_TIME)).when(orderCancelValidator)
+                .validate(취소할_주문, 유저);
 
             RequestSpecification 요청 = given(spec)
                 .cookie(getCookie(유저_아이디))
@@ -248,8 +247,8 @@ public class OrderControllerTest extends AcceptanceTest {
             Long 취소할_주문_아이디 = 취소할_주문.getId();
             Long 유저_아이디 = 유저.getId();
 
-            doThrow(new InvalidOrderException(NOT_PAID_ORDER)).when(authorizationService)
-                .checkOrderCancelPermission(취소할_주문, 유저);
+            doThrow(new InvalidOrderException(NOT_PAID_ORDER)).when(orderCancelValidator)
+                .validate(취소할_주문, 유저);
 
             RequestSpecification 요청 = given(spec)
                 .cookie(getCookie(유저_아이디))
@@ -273,7 +272,7 @@ public class OrderControllerTest extends AcceptanceTest {
             String 결제_정보_키 = 취소할_주문.getPayment().getPaymentKey();
             Long 유저_아이디 = 유저.getId();
 
-            doThrow(IllegalArgumentException.class).when(refundService).refund(취소할_주문_아이디, 결제_정보_키); // 외부 API 호출 모킹
+            when(refundService.tryRefund(취소할_주문_아이디, 결제_정보_키)).thenReturn(false); // 외부 API 호출 모킹
 
             RequestSpecification 요청 = given(spec)
                 .cookie(getCookie(유저_아이디))
