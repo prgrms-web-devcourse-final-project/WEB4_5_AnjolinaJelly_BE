@@ -106,14 +106,18 @@ public enum BaseResponseStatus {
 
 	// 장바구니 수량 조정 관련
 	INVALID_CART_QUANTITY(false, 60010, "장바구니 수량은 1개 이상이어야 합니다.", HttpStatus.BAD_REQUEST),
-	CART_QUANTITY_EXCEEDS_STOCK(false, 60011, "장바구니 수량이 재고를 초과할 수 없습니다.", HttpStatus.BAD_REQUEST);
+	CART_QUANTITY_EXCEEDS_STOCK(false, 60011, "장바구니 수량이 재고를 초과할 수 없습니다.", HttpStatus.BAD_REQUEST),
+
+	// 타임딜 관련
+	TIME_DEAL_TIME_OVERLAP(false, 70001, "해당 기간에 이미 존재하는 타임딜이 있습니다.", HttpStatus.CONFLICT),
+	TIME_DEAL_START_TIME_PAST(false, 70002, "타임딜 시작 시간은 현재보다 이전일 수 없습니다.", HttpStatus.BAD_REQUEST);
 
 	private final boolean isSuccess;
 	private final int code;
 	private final String message;
 	private final int httpStatusCode;
 
-	BaseResponseStatus(boolean isSuccess , int code, String message, HttpStatus httpStatus) {
+	BaseResponseStatus(boolean isSuccess, int code, String message, HttpStatus httpStatus) {
 		this.isSuccess = isSuccess;
 		this.code = code;
 		this.message = message;

@@ -1,5 +1,7 @@
 package com.jelly.zzirit.domain.item.service;
 
+import static com.jelly.zzirit.global.dto.BaseResponseStatus.*;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,6 +22,7 @@ import com.jelly.zzirit.domain.item.repository.ItemStockRepository;
 import com.jelly.zzirit.domain.item.repository.TimeDealItemRepository;
 import com.jelly.zzirit.domain.item.repository.TimeDealRepository;
 import com.jelly.zzirit.global.dto.PageResponse;
+import com.jelly.zzirit.global.exception.custom.InvalidTimeDealException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -36,7 +39,17 @@ public class CommandTimeDealService {
 	@Transactional
 	public TimeDealCreateResponse createTimeDeal(TimeDealCreateRequest request) {
 
-		// 1. 요청 정보로 타임딜을 먼저 저장합니다.(타임딜 아이템 제외)
+		// 겹치는 타임딜이 있는지 검증
+		if (isOverlappingTimeDeal(request.startTime(), request.endTime())) {
+			throw new InvalidTimeDealException(TIME_DEAL_TIME_OVERLAP);
+		}
+
+		// 타임딜 시작 시간이 현재 시간보다 과거인 경우 예외 처리
+		if (request.startTime().isBefore(LocalDateTime.now())) {
+			throw new InvalidTimeDealException(TIME_DEAL_START_TIME_PAST);
+		}
+
+		// 1. 요청 정보로 타임딜을 먼저 저장합니다.
 		TimeDeal timeDeal = timeDealRepository.save(
 			new TimeDeal(
 				request.title(),
@@ -49,12 +62,12 @@ public class CommandTimeDealService {
 		request.items().forEach(item -> {
 
 			// 2-1. 타임딜에 등록된 아이템은 기존 아이템(originItem)내용에 Type만 TIME_DEAL인 새로운 아이템으로 새롭게 저장됩니다.
-			Item originItem = itemRepository.findById(item.itemId()).orElseThrow();    // 해당 상품이 없다면? -> 예외처리 필요.
+			Item originItem = itemRepository.findById(item.itemId()).orElseThrow();
 			Item clonedItemForTimeDeal = itemRepository.saveAndFlush(new Item(
 					originItem.getName(),
 					originItem.getImageUrl(),
 					originItem.getPrice(),
-					ItemStatus.TIME_DEAL,    // 타입만 변경
+					ItemStatus.TIME_DEAL,
 					originItem.getTypeBrand()
 				)
 			);
@@ -145,5 +158,12 @@ public class CommandTimeDealService {
 		toEndDeals.forEach(deal -> deal.updateStatus(TimeDeal.TimeDealStatus.ENDED));
 
 		return toEndDeals.size();
+	}
+
+	private boolean isOverlappingTimeDeal(LocalDateTime start, LocalDateTime end) {
+		List<TimeDeal> existingDeals = timeDealRepository.findAll();
+		return existingDeals.stream().anyMatch(deal ->
+			!(deal.getEndTime().isBefore(start) || deal.getStartTime().isAfter(end))
+		);
 	}
 }
