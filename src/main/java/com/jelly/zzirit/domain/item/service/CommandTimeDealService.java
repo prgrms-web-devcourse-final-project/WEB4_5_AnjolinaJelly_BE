@@ -38,15 +38,8 @@ public class CommandTimeDealService {
 	@Transactional
 	public TimeDealCreateResponse createTimeDeal(TimeDealCreateRequest request) {
 
-		// 겹치는 타임딜이 있는지 검증
-		if (isOverlappingTimeDeal(request.startTime(), request.endTime())) {
-			throw new InvalidTimeDealException(TIME_DEAL_TIME_OVERLAP);
-		}
-
-		// 타임딜 시작 시간이 현재 시간보다 과거인 경우 예외 처리
-		if (request.startTime().isBefore(LocalDateTime.now())) {
-			throw new InvalidTimeDealException(TIME_DEAL_START_TIME_PAST);
-		}
+		// 겹치는 타임딜이 있는지 & 시작 시간이 과거인지 검증
+		validateTimeDealRequest(request);
 
 		// 1. 요청 정보로 타임딜을 먼저 저장합니다.
 		TimeDeal timeDeal = timeDealRepository.save(TimeDeal.from(request));
@@ -58,6 +51,19 @@ public class CommandTimeDealService {
 		List<TimeDealCreateResponse.TimeDealCreateItem> responseItems = mapToResponseItems(timeDeal);
 
 		return TimeDealCreateResponse.from(timeDeal, responseItems);
+	}
+
+	// 타임딜 유효성 검사
+	private void validateTimeDealRequest(TimeDealCreateRequest request) {
+		LocalDateTime now = LocalDateTime.now();
+
+		if (request.startTime().isBefore(now)) {
+			throw new InvalidTimeDealException(TIME_DEAL_START_TIME_PAST);
+		}
+
+		if (isOverlappingTimeDeal(request.startTime(), request.endTime())) {
+			throw new InvalidTimeDealException(TIME_DEAL_TIME_OVERLAP);
+		}
 	}
 
 	// 응답 생성
