@@ -50,7 +50,7 @@ public class CommandTimeDealService {
 
 			// 2-1. 타임딜에 등록된 아이템은 기존 아이템(originItem)내용에 Type만 TIME_DEAL인 새로운 아이템으로 새롭게 저장됩니다.
 			Item originItem = itemRepository.findById(item.itemId()).orElseThrow();    // 해당 상품이 없다면? -> 예외처리 필요.
-			Item clonedItemForTimeDeal = itemRepository.save(new Item(
+			Item clonedItemForTimeDeal = itemRepository.saveAndFlush(new Item(
 					originItem.getName(),
 					originItem.getImageUrl(),
 					originItem.getPrice(),
@@ -58,7 +58,6 @@ public class CommandTimeDealService {
 					originItem.getTypeBrand()
 				)
 			);
-			itemRepository.flush();
 
 			// 2-2. 저장된 타임딜과, 타입이 타임딜인 아이템을 이용해 중간 엔티티인 타임딜 아이템을 저장합니다.
 
