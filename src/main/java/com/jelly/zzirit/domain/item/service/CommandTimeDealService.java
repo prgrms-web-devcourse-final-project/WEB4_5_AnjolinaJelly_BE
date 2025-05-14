@@ -37,48 +37,23 @@ public class CommandTimeDealService {
 	@Transactional
 	public TimeDealCreateResponse createTimeDeal(TimeDealCreateRequest request) {
 
-		// 1. 요청 정보로 타임딜을 먼저 저장합니다.(타임딜 아이템 제외)
 		TimeDeal timeDeal = timeDealRepository.save(
 			new TimeDeal(
 				request.title(),
 				TimeDeal.TimeDealStatus.SCHEDULED,
 				request.startTime(),
 				request.endTime(),
-				request.discountRatio()));
+				request.discountRatio()
+			)
+		);
 
-		// 2. 요청으로 들어온 items(id, quantity)와 위에서 저장한 타임딜 정보로 타임딜 아이템을 저장합니다.
-		request.items().forEach(item -> {
-
-			// 2-1. 타임딜에 등록된 아이템은 기존 아이템(originItem)내용에 Type만 TIME_DEAL인 새로운 아이템으로 새롭게 저장됩니다.
-			Item originItem = itemRepository.findById(item.itemId()).orElseThrow();
-			Item clonedItemForTimeDeal = itemRepository.save(new Item(
-					originItem.getName(),
-					originItem.getImageUrl(),
-					originItem.getPrice(),
-					ItemStatus.TIME_DEAL,    // 타입만 변경
-					originItem.getTypeBrand()
-				)
-			);
-
-			// 2-2. 저장된 타임딜과, 타입이 타임딜인 아이템을 이용해 중간 엔티티인 타임딜 아이템을 저장합니다.
-			BigDecimal discountedPrice = clonedItemForTimeDeal.getPrice().multiply(
-				BigDecimal.ONE.subtract(BigDecimal.valueOf(timeDeal.getDiscountRatio()).divide(BigDecimal.valueOf(100)))
-			);
-
-			timeDealItemRepository.save(new TimeDealItem(discountedPrice, timeDeal, clonedItemForTimeDeal));
-
-			// 2-3. 요청에 포함된 quantity을 이용해 상품 재고를 저장합니다.
-			itemStockRepository.save(new ItemStock(clonedItemForTimeDeal, item.quantity(), item.quantity()));
-		});
-
-		// 3. 응답 생성
 		List<TimeDealCreateResponse.TimeDealCreateItem> responseItems = new ArrayList<>();
 
 		request.items().forEach(item -> {
 			Item originItem = itemRepository.findById(item.itemId())
 				.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품입니다."));
 
-			Item clonedItemForTimeDeal = itemRepository.save(new Item(
+			Item clonedItem = itemRepository.save(new Item(
 				originItem.getName(),
 				originItem.getImageUrl(),
 				originItem.getPrice(),
@@ -86,15 +61,14 @@ public class CommandTimeDealService {
 				originItem.getTypeBrand()
 			));
 
-			BigDecimal discountedPrice = clonedItemForTimeDeal.getPrice().multiply(
+			BigDecimal discountedPrice = clonedItem.getPrice().multiply(
 				BigDecimal.ONE.subtract(BigDecimal.valueOf(timeDeal.getDiscountRatio()).divide(BigDecimal.valueOf(100)))
 			);
 
-			timeDealItemRepository.save(new TimeDealItem(discountedPrice, timeDeal, clonedItemForTimeDeal));
-			itemStockRepository.save(new ItemStock(clonedItemForTimeDeal, item.quantity(), item.quantity()));
+			timeDealItemRepository.save(new TimeDealItem(discountedPrice, timeDeal, clonedItem));
+			itemStockRepository.save(new ItemStock(clonedItem, item.quantity(), item.quantity()));
 
-			responseItems.add(
-				TimeDealCreateResponse.TimeDealCreateItem.from(clonedItemForTimeDeal.getId(), item.quantity()));
+			responseItems.add(TimeDealCreateResponse.TimeDealCreateItem.from(clonedItem.getId(), item.quantity()));
 		});
 
 		return TimeDealCreateResponse.from(
