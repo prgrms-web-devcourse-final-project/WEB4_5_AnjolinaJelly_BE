@@ -73,7 +73,7 @@ public class CommandTimeDealService {
 			itemStockRepository.save(new ItemStock(clonedItemForTimeDeal, item.quantity(), item.quantity()));
 		});
 
-		// 응답
+		// 응답 생성 (직접 접근 Lazy 객체 접근 포함)
 		List<TimeDealCreateResponse.TimeDealCreateItem> responseItems =
 			timeDealItemRepository.findAllByTimeDeal(timeDeal).stream()
 				.map(tdi -> {
