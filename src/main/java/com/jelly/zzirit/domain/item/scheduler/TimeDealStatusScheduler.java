@@ -21,8 +21,8 @@ public class TimeDealStatusScheduler {
 	public void updateTimeDealStatuses() {
 		LocalDateTime now = LocalDateTime.now();
 
-		int toStartDeals = timeDealSchedulerService.convertTimeDealStatusScheduledToOngoing(now);
-		int toEndDeals = timeDealSchedulerService.convertTimeDealStatusOngoingToEnded(now);
+		int toStartDeals = timeDealSchedulerService.startScheduledDeals(now);
+		int toEndDeals = timeDealSchedulerService.endOngoingDeals(now);
 
 		log.info("시작된 타임딜: {}개, 종료된 타임딜: {}개", toStartDeals, toEndDeals);
 	}
