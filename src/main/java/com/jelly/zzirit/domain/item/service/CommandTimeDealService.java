@@ -101,7 +101,7 @@ public class CommandTimeDealService {
 	private void validateTimeDealRequest(TimeDealCreateRequest request) {
 		LocalDateTime now = LocalDateTime.now();
 
-		if (request.startTime().isBefore(now)) {
+		if (isStartTimeInPast(request.startTime(), now)) {
 			throw new InvalidTimeDealException(TIME_DEAL_START_TIME_PAST);
 		}
 
@@ -147,7 +147,7 @@ public class CommandTimeDealService {
 	private boolean isOverlappingTimeDeal(LocalDateTime start, LocalDateTime end) {
 		List<TimeDeal> existingDeals = timeDealRepository.findAll();
 		return existingDeals.stream().anyMatch(deal ->
-			!(deal.getEndTime().isBefore(start) || deal.getStartTime().isAfter(end))
+			isTimeRangeOverlapping(deal.getStartTime(), deal.getEndTime(), start, end)
 		);
 	}
 }
