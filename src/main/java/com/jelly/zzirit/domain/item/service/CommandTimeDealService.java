@@ -12,11 +12,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.jelly.zzirit.domain.item.dto.request.TimeDealCreateRequest;
 import com.jelly.zzirit.domain.item.dto.response.CurrentTimeDealFetchResponse;
+import com.jelly.zzirit.domain.item.dto.response.CurrentTimeDealFetchResponse.CurrentTimeDealItem;
 import com.jelly.zzirit.domain.item.dto.response.TimeDealCreateResponse;
+import com.jelly.zzirit.domain.item.dto.response.TimeDealCreateResponse.TimeDealCreateItem;
 import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.domain.item.entity.stock.ItemStock;
 import com.jelly.zzirit.domain.item.entity.timedeal.TimeDeal;
 import com.jelly.zzirit.domain.item.entity.timedeal.TimeDealItem;
+import com.jelly.zzirit.domain.item.mapper.TimeDealMapper;
 import com.jelly.zzirit.domain.item.repository.ItemRepository;
 import com.jelly.zzirit.domain.item.repository.ItemStockRepository;
 import com.jelly.zzirit.domain.item.repository.TimeDealItemRepository;
@@ -49,7 +52,7 @@ public class CommandTimeDealService {
 		request.items().forEach(item -> createTimeDealItemAndStock(timeDeal, item));
 
 		// 3. 응답 생성
-		List<TimeDealCreateResponse.TimeDealCreateItem> responseItems = mapToResponseItems(timeDeal);
+		List<TimeDealCreateItem> responseItems = mapToResponseItems(timeDeal);
 
 		return TimeDealCreateResponse.from(timeDeal, responseItems);
 	}
@@ -124,26 +127,29 @@ public class CommandTimeDealService {
 	}
 
 	// 응답용 타임딜 아이템 리스트 생성
-	private List<TimeDealCreateResponse.TimeDealCreateItem> mapToResponseItems(TimeDeal timeDeal) {
+	private List<TimeDealCreateItem> mapToResponseItems(TimeDeal timeDeal) {
 		return timeDealItemRepository.findAllByTimeDeal(timeDeal).stream()
 			.map(tdi -> {
 				Long itemId = tdi.getItem().getId();
 				int quantity = itemStockRepository.findByItemId(itemId)
 					.map(ItemStock::getQuantity)
 					.orElse(0);
-				return TimeDealCreateResponse.TimeDealCreateItem.from(itemId, quantity);
-			}).toList();
+				return TimeDealMapper.toTimeDealCreateItem(tdi, quantity);
+			})
+			.toList();
 	}
 
 	// 진행중인 타임딜에 해당하는 아이템 응답 리스트 생성
-	private List<CurrentTimeDealFetchResponse.CurrentTimeDealItem> mapToCurrentTimeDealItemList(TimeDeal timeDeal) {
+	private List<CurrentTimeDealItem> mapToCurrentTimeDealItemList(TimeDeal timeDeal) {
 		return timeDealItemRepository.findAllByTimeDeal(timeDeal).stream()
-			.map(tdi -> {
-				Item item = itemRepository.findById(tdi.getItem().getId())
-					.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 아이템입니다."));
-				return CurrentTimeDealFetchResponse.CurrentTimeDealItem.from(item, tdi.getPrice());
-			})
+			.map(this::toCurrentTimeDealItem)
 			.toList();
+	}
+
+	// 타임딜아이템에서 응답용 아이템 정보로 변환
+	private CurrentTimeDealItem toCurrentTimeDealItem(TimeDealItem timeDealItem) {
+		Item item = itemRepository.getById(timeDealItem.getItem().getId());
+		return CurrentTimeDealItem.from(item, timeDealItem.getPrice());
 	}
 
 	// 기존 타임딜과 겹치는 기간이 있는지 여부 확인
