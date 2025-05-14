@@ -3,6 +3,7 @@ package com.jelly.zzirit.global.support;
 import static io.restassured.RestAssured.*;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
 import static org.springframework.restdocs.restassured.RestAssuredRestDocumentation.*;
+import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -14,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.jelly.zzirit.domain.member.entity.authenum.Role;
@@ -30,6 +32,7 @@ import io.restassured.specification.RequestSpecification;
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ExtendWith({RestDocumentationExtension.class, SpringExtension.class})
+@Sql(scripts = {"classpath:truncate.sql"}, executionPhase = AFTER_TEST_METHOD)
 public abstract class AcceptanceTest extends RedisTestContainerConfig {
 
 	@LocalServerPort

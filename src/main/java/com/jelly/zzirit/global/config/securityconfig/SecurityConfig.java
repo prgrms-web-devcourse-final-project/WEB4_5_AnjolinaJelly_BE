@@ -90,11 +90,10 @@ public class SecurityConfig {
 					"/docs/**",
 					"/swagger-ui/**",
 					"/v3/api-docs/**",
+					"/actuator/**",
 					"/favicon.ico"
 				).permitAll()
-				.requestMatchers("/api/admin/item/**").hasRole(Role.ROLE_ADMIN.getKey())
-				.requestMatchers("/api/time-deals/**").permitAll() // 수정 필요
-				.requestMatchers("/api/cart/**").authenticated()
+				.requestMatchers("/api/admin/**").hasRole(Role.ROLE_ADMIN.getKey())
 				.anyRequest().authenticated()
 			);
 
