@@ -80,26 +80,6 @@ public class CommandTimeDealService {
 		);
 	}
 
-	// 시작 시간이 현재보다 이전인 SCHEDULED 상태 타임딜을 ONGOING 상태로 변경
-	@Transactional
-	public int convertTimeDealStatusScheduledToOngoing(LocalDateTime now) {
-		List<TimeDeal> toStartDeals = timeDealRepository.findAllByStatusAndStartTimeLessThanEqual(
-			TimeDeal.TimeDealStatus.SCHEDULED, now);
-		toStartDeals.forEach(deal -> deal.updateStatus(TimeDeal.TimeDealStatus.ONGOING));
-
-		return toStartDeals.size();
-	}
-
-	// 종료 시간이 현재보다 이전인 ONGOING 상태 타임딜을 ENDED 상태로 변경
-	@Transactional
-	public int convertTimeDealStatusOngoingToEnded(LocalDateTime now) {
-		List<TimeDeal> toEndDeals = timeDealRepository.findAllByStatusAndEndTimeBefore(TimeDeal.TimeDealStatus.ONGOING,
-			now);
-		toEndDeals.forEach(deal -> deal.updateStatus(TimeDeal.TimeDealStatus.ENDED));
-
-		return toEndDeals.size();
-	}
-
 	// 타임딜 유효성 검사
 	private void validateTimeDealRequest(TimeDealCreateRequest request) {
 		LocalDateTime now = LocalDateTime.now();
