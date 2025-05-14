@@ -83,11 +83,11 @@ public class Order extends BaseTime {
 		orderItems.add(orderItem);
 	}
 
-	public boolean isOwnedBy(Long memberId) {
+	public boolean wasOrderedBy(Long memberId) {
 		return this.getMember().getId().equals(memberId);
 	}
 
-	public void checkCancellation() {
+	public void validateCancellable() {
 		if (status != OrderStatus.PAID) { // 결제 완료 상태인 주문만 취소 가능
 			throw new InvalidOrderException(NOT_PAID_ORDER);
 		}
