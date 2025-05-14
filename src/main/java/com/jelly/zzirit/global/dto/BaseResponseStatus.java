@@ -109,7 +109,8 @@ public enum BaseResponseStatus {
 	CART_QUANTITY_EXCEEDS_STOCK(false, 60011, "장바구니 수량이 재고를 초과할 수 없습니다.", HttpStatus.BAD_REQUEST),
 
 	// 타임딜 관련
-	TIME_DEAL_TIME_OVERLAP(false, 70001, "해당 기간에 이미 존재하는 타임딜이 있습니다.", HttpStatus.CONFLICT);
+	TIME_DEAL_TIME_OVERLAP(false, 70001, "해당 기간에 이미 존재하는 타임딜이 있습니다.", HttpStatus.CONFLICT),
+	TIME_DEAL_START_TIME_PAST(false, 70002, "타임딜 시작 시간은 현재보다 이전일 수 없습니다.", HttpStatus.BAD_REQUEST);
 
 	private final boolean isSuccess;
 	private final int code;

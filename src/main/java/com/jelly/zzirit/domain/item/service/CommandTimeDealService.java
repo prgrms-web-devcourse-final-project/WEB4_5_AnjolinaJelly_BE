@@ -1,5 +1,7 @@
 package com.jelly.zzirit.domain.item.service;
 
+import static com.jelly.zzirit.global.dto.BaseResponseStatus.*;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,7 +21,6 @@ import com.jelly.zzirit.domain.item.repository.ItemRepository;
 import com.jelly.zzirit.domain.item.repository.ItemStockRepository;
 import com.jelly.zzirit.domain.item.repository.TimeDealItemRepository;
 import com.jelly.zzirit.domain.item.repository.TimeDealRepository;
-import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.dto.PageResponse;
 import com.jelly.zzirit.global.exception.custom.InvalidTimeDealException;
 
@@ -40,14 +41,19 @@ public class CommandTimeDealService {
 
 		// 겹치는 타임딜이 있는지 검증
 		if (isOverlappingTimeDeal(request.startTime(), request.endTime())) {
-			throw new InvalidTimeDealException(BaseResponseStatus.TIME_DEAL_TIME_OVERLAP);
+			throw new InvalidTimeDealException(TIME_DEAL_TIME_OVERLAP);
+		}
+
+		// 타임딜 시작 시간이 현재 시간보다 과거인 경우 예외 처리
+		if (request.startTime().isBefore(LocalDateTime.now())) {
+			throw new InvalidTimeDealException(TIME_DEAL_START_TIME_PAST);
 		}
 
 		// 1. 요청 정보로 타임딜을 먼저 저장합니다.
 		TimeDeal timeDeal = timeDealRepository.save(
 			new TimeDeal(
 				request.title(),
-				determineTimeDealStatus(request.startTime(), request.endTime(), LocalDateTime.now()),
+				TimeDeal.TimeDealStatus.SCHEDULED,
 				request.startTime(),
 				request.endTime(),
 				request.discountRatio()));
@@ -152,16 +158,6 @@ public class CommandTimeDealService {
 		toEndDeals.forEach(deal -> deal.updateStatus(TimeDeal.TimeDealStatus.ENDED));
 
 		return toEndDeals.size();
-	}
-
-	private TimeDeal.TimeDealStatus determineTimeDealStatus(LocalDateTime start, LocalDateTime end, LocalDateTime now) {
-		if (now.isBefore(start)) {
-			return TimeDeal.TimeDealStatus.SCHEDULED;
-		} else if (!now.isAfter(end)) {
-			return TimeDeal.TimeDealStatus.ONGOING;
-		} else {
-			return TimeDeal.TimeDealStatus.ENDED;
-		}
 	}
 
 	private boolean isOverlappingTimeDeal(LocalDateTime start, LocalDateTime end) {
