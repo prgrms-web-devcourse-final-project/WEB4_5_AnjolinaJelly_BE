@@ -4,6 +4,7 @@ import static org.mockito.Mockito.*;
 
 import java.util.List;
 
+import com.jelly.zzirit.domain.order.entity.OrderStatus;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -50,6 +51,6 @@ class OrderManagerTest {
 		// then
 		verify(itemStockService).decrease(1L, 2);
 		verify(itemStockService).decrease(2L, 3);
-		verify(order).changeStatus(Order.OrderStatus.COMPLETED);
+		verify(order).changeStatus(OrderStatus.COMPLETED);
 	}
 }

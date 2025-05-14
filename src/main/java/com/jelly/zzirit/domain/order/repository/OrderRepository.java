@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+import com.jelly.zzirit.domain.order.entity.OrderStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -25,7 +26,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
            "ORDER BY o.createdAt DESC")
     List<Order> findAllByMemberIdWithItems(
         @Param("memberId") Long memberId,
-        @Param("statuses") Collection<Order.OrderStatus> orderStatuses
+        @Param("statuses") Collection<OrderStatus> orderStatuses
     );
 
     @Query("SELECT o.id FROM Order o " +
@@ -34,7 +35,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
            "ORDER BY o.createdAt DESC")
     Page<Long> findOrderIdsByMemberIdAndStatuses(
         @Param("memberId") Long memberId,
-        @Param("statuses") Collection<Order.OrderStatus> statuses,
+        @Param("statuses") Collection<OrderStatus> statuses,
         Pageable pageable
     );
 
@@ -51,6 +52,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
            "WHERE o.id = :orderId")
     Optional<Order> findByIdWithPayment(@Param("orderId") Long orderId);
 
-    List<Order> findAllByStatusAndCreatedAtBefore(Order.OrderStatus orderStatus, LocalDateTime deadline);
+    List<Order> findAllByStatusAndCreatedAtBefore(OrderStatus orderStatus, LocalDateTime deadline);
 
 }

@@ -70,10 +70,6 @@ public class Order extends BaseTime {
 	@JoinColumn(name = "payment_id")
 	private Payment payment;
 
-	public enum OrderStatus {
-		PENDING, PAID, FAILED, CANCELLED, COMPLETED
-	}
-
 	public static String generateOrderNumber(long sequence) {
 		String date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 		return String.format("ORD%s-%06d", date, sequence);
@@ -87,11 +83,11 @@ public class Order extends BaseTime {
 		orderItems.add(orderItem);
 	}
 
-	public boolean isOwnedBy(Long memberId) {
+	public boolean wasOrderedBy(Long memberId) {
 		return this.getMember().getId().equals(memberId);
 	}
 
-	public void checkCancellation() {
+	public void validateCancellable() {
 		if (status != OrderStatus.PAID) { // 결제 완료 상태인 주문만 취소 가능
 			throw new InvalidOrderException(NOT_PAID_ORDER);
 		}
@@ -101,7 +97,11 @@ public class Order extends BaseTime {
 		}
 	}
 
-	public void cancel() {
+	public void markPaid() {
+		this.status = OrderStatus.PAID;
+	}
+
+	public void markCancelled() {
 		this.status = OrderStatus.CANCELLED;
 	}
 

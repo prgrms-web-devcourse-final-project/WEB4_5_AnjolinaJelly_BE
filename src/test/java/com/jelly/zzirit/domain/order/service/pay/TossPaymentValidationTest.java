@@ -5,6 +5,7 @@ import static org.mockito.Mockito.*;
 
 import java.math.BigDecimal;
 
+import com.jelly.zzirit.domain.order.entity.OrderStatus;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -42,7 +43,7 @@ class TossPaymentValidationTest {
 	@Test
 	void 상태가_PENDING_이_아니면_예외() {
 		Order order = mock(Order.class);
-		when(order.getStatus()).thenReturn(Order.OrderStatus.COMPLETED);
+		when(order.getStatus()).thenReturn(OrderStatus.COMPLETED);
 
 		TossPaymentResponse response = mock(TossPaymentResponse.class);
 
@@ -76,7 +77,7 @@ class TossPaymentValidationTest {
 
 	@Test
 	void validateAll_정상입력시_예외없음() {
-		Order order = mockOrder("ORDER123", new BigDecimal("1000"), Order.OrderStatus.PENDING);
+		Order order = mockOrder("ORDER123", new BigDecimal("1000"), OrderStatus.PENDING);
 		TossPaymentResponse response = mockResponse("ORDER123", "DONE", new BigDecimal("1000"));
 
 		assertDoesNotThrow(() ->
@@ -84,7 +85,7 @@ class TossPaymentValidationTest {
 	}
 
 
-	private Order mockOrder(String orderNumber, BigDecimal price, Order.OrderStatus status) {
+	private Order mockOrder(String orderNumber, BigDecimal price, OrderStatus status) {
 		Order order = mock(Order.class);
 		when(order.getOrderNumber()).thenReturn(orderNumber);
 		when(order.getTotalPrice()).thenReturn(price);
