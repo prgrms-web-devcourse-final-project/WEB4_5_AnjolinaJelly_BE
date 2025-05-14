@@ -13,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class EmailService {
+public class CommandEmailService {
 
 	private final EmailVerificationService emailVerificationService;
 	private final EmailAsyncProcessor emailAsyncProcessor;

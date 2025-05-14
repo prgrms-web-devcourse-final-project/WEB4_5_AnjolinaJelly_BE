@@ -68,5 +68,4 @@ public class QueryOrderService {
 
         return new PageImpl<>(sortedOrders, pageable, pagedIds.getTotalElements());
     }
-
 }

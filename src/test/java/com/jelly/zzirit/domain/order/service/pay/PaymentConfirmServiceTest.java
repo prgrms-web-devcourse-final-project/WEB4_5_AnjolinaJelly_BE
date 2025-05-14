@@ -15,7 +15,7 @@ import com.jelly.zzirit.domain.order.domain.fixture.OrderFixture;
 import com.jelly.zzirit.domain.order.dto.response.PaymentResponse;
 import com.jelly.zzirit.domain.order.entity.Order;
 import com.jelly.zzirit.domain.order.repository.OrderRepository;
-import com.jelly.zzirit.domain.order.service.order.TempOrderService;
+import com.jelly.zzirit.domain.order.service.order.CommandTempOrderService;
 import com.jelly.zzirit.domain.order.util.PaymentGateway;
 import com.jelly.zzirit.domain.order.util.PaymentGatewayResolver;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
@@ -26,7 +26,7 @@ import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
 public class PaymentConfirmServiceTest {
 
 	@Mock
-	private TempOrderService tempOrderService;
+	private CommandTempOrderService commandTempOrderService;
 
 	@Mock
 	private PaymentGatewayResolver paymentGatewayResolver;
@@ -57,7 +57,7 @@ public class PaymentConfirmServiceTest {
 		paymentConfirmService.confirmPayment(paymentKey, orderNumber, amount);
 
 		verify(mockGateway, times(1)).confirmPayment(paymentKey, orderNumber, amount);
-		verify(tempOrderService, times(1)).confirmTempOrder(mockPaymentResponse);
+		verify(commandTempOrderService, times(1)).confirmTempOrder(mockPaymentResponse);
 	}
 
 	@Test

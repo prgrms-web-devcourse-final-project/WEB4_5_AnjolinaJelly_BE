@@ -7,8 +7,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.jelly.zzirit.domain.order.dto.request.PaymentRequestDto;
-import com.jelly.zzirit.domain.order.service.order.TempOrderService;
+import com.jelly.zzirit.domain.order.dto.request.PaymentRequest;
+import com.jelly.zzirit.domain.order.dto.response.PaymentInitResponse;
+import com.jelly.zzirit.domain.order.service.order.CommandTempOrderService;
 import com.jelly.zzirit.domain.order.service.pay.PaymentConfirmService;
 import com.jelly.zzirit.domain.order.service.pay.PaymentInitService;
 import com.jelly.zzirit.global.dto.BaseResponse;
@@ -29,7 +30,7 @@ import lombok.RequiredArgsConstructor;
 public class PaymentController {
 
 	private final PaymentInitService paymentInitService;
-	private final TempOrderService tempOrderService;
+	private final CommandTempOrderService commandTempOrderService;
 	private final PaymentConfirmService paymentConfirmService;
 
 	@Operation(
@@ -37,9 +38,9 @@ public class PaymentController {
 		description = "결제를 위한 주문번호를 생성하고 임시 주문을 저장합니다."
 	)
 	@PostMapping("/init")
-	public BaseResponse<String> initOrder(@RequestBody @Valid PaymentRequestDto requestDto) {
-		String orderNumber = paymentInitService.createOrderAndReturnOrderNumber(requestDto);
-		return BaseResponse.success(orderNumber);
+	public BaseResponse<PaymentInitResponse> initOrder(@RequestBody @Valid PaymentRequest requestDto) {
+		PaymentInitResponse orderAndReturnInit = paymentInitService.createOrderAndReturnInit(requestDto);
+		return BaseResponse.success(orderAndReturnInit);
 	}
 
 	@Operation(
@@ -66,7 +67,7 @@ public class PaymentController {
 		@RequestParam(required = false) String message,
 		@RequestParam(required = false) String orderId
 	) {
-		tempOrderService.deleteTempOrder(orderId);
+		commandTempOrderService.deleteTempOrder(orderId);
 		String failReason = String.format("결제 실패 (%s): %s | 주문번호: %s", code, message, orderId);
 		return BaseResponse.error(BaseResponseStatus.TOSS_PAYMENT_REQUEST_FAILED, failReason);
 	}

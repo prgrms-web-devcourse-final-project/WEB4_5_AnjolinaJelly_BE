@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class OrderSequenceGenerator {
+public class CommandOrderSequence {
 
 	private final StringRedisTemplate cachingStringRedisTemplate;
 
