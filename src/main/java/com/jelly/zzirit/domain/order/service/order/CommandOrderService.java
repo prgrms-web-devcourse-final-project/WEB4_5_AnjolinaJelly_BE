@@ -29,7 +29,7 @@ public class CommandOrderService {
 	 * @param isRefundSuccessful 결제 취소 성공 여부
 	 */
 	@Transactional
-	public void updateOrderAndPaymentStatusAfterRefund(Long orderId, boolean isRefundSuccessful) {
+	public void applyRefundResult(Long orderId, boolean isRefundSuccessful) {
 		Order order = orderRepository.findByIdWithPayment(orderId)
 			.orElseThrow(() -> new InvalidOrderException(ORDER_NOT_FOUND));
 

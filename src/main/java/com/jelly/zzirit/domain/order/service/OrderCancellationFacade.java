@@ -41,7 +41,7 @@ public class OrderCancellationFacade {
         boolean isRefundSuccessful = refundService.tryRefund(orderId, order.getPayment().getPaymentKey());
 
         // 트랜잭션 내부에서 주문 상태 및 결제 상태 변경
-        commandOrderService.updateOrderAndPaymentStatusAfterRefund(orderId, isRefundSuccessful);
+        commandOrderService.applyRefundResult(orderId, isRefundSuccessful);
 
         // 결제 취소에 실패한 경우에만 예외 발생
         if (!isRefundSuccessful) {
