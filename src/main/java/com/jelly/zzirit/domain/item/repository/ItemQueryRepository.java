@@ -7,14 +7,13 @@ import com.jelly.zzirit.domain.admin.dto.response.AdminItemFetchResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import com.jelly.zzirit.domain.item.dto.request.ItemFilterRequest;
 import com.jelly.zzirit.domain.item.entity.Item;
 
 public interface ItemQueryRepository {
 
 	Page<Item> findItems(
-		List<String> types,
-		List<String> brands,
-		String keyword,
+		ItemFilterRequest filter,
 		String sort,
 		Pageable pageable
 	);
