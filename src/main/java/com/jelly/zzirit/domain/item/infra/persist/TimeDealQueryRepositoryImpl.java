@@ -106,6 +106,7 @@ public class TimeDealQueryRepositoryImpl implements TimeDealQueryRepository {
 				itemIdEq(condition.timeDealItemId()),
 				statusEq(condition.status())
 			)
+			.orderBy(timeDeal.createdAt.desc())
 			.offset(page * size)
 			.limit(size)
 			.fetch();
