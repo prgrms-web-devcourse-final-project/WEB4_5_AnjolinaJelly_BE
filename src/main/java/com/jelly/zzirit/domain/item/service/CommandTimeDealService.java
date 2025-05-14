@@ -38,26 +38,30 @@ public class CommandTimeDealService {
 	private final TimeDealItemRepository timeDealItemRepository;
 	private final ItemStockRepository itemStockRepository;
 
-	// 타임딜 생성
+	/**
+	 * 타임딜을 생성합니다.
+	 * 유효성 검사 → 타임딜 저장 → 타임딜 아이템 및 재고 저장 → 응답 반환
+	 *
+	 * @param request 타임딜 생성 요청
+	 * @return TimeDealCreateResponse 응답 DTO
+	 */
 	@Transactional
 	public TimeDealCreateResponse createTimeDeal(TimeDealCreateRequest request) {
-
-		// 겹치는 타임딜이 있는지 & 시작 시간이 과거인지 검증
 		validateTimeDealRequest(request);
-
-		// 1. 요청 정보로 타임딜을 먼저 저장합니다.
 		TimeDeal timeDeal = timeDealRepository.save(TimeDeal.from(request));
-
-		// 2. 요청으로 들어온 items(id, quantity)와 위에서 저장한 타임딜 정보로 타임딜 아이템을 저장합니다.
 		request.items().forEach(item -> createTimeDealItemAndStock(timeDeal, item));
-
-		// 3. 응답 생성
 		List<TimeDealCreateItem> responseItems = mapToResponseItems(timeDeal);
 
 		return TimeDealCreateResponse.from(timeDeal, responseItems);
 	}
 
-	// 진행중인 타임딜 조회
+	/**
+	 * 현재 진행 중인 타임딜들을 페이징하여 조회합니다.
+	 *
+	 * @param page 페이지 번호
+	 * @param size 페이지 크기
+	 * @return PageResponse<CurrentTimeDealFetchResponse> 응답 DTO
+	 */
 	public PageResponse<CurrentTimeDealFetchResponse> getCurrentTimeDeals(int page, int size) {
 		List<CurrentTimeDealFetchResponse> fullList = timeDealRepository.getOngoingTimeDeal().stream()
 			.map(timeDeal -> CurrentTimeDealFetchResponse.from(
