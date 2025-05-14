@@ -55,17 +55,21 @@ public class CommandTimeDealService {
 		request.items().forEach(item -> createTimeDealItemAndStock(timeDeal, item));
 
 		// 응답
-		List<TimeDealCreateResponse.TimeDealCreateItem> responseItems =
-			timeDealItemRepository.findAllByTimeDeal(timeDeal).stream()
-				.map(tdi -> {
-					Long itemId = tdi.getItem().getId();
-					int quantity = itemStockRepository.findByItemId(itemId)
-						.map(ItemStock::getQuantity)
-						.orElse(0);
-					return TimeDealCreateResponse.TimeDealCreateItem.from(itemId, quantity);
-				}).toList();
+		List<TimeDealCreateResponse.TimeDealCreateItem> responseItems = mapToResponseItems(timeDeal);
 
 		return TimeDealCreateResponse.from(timeDeal, responseItems);
+	}
+
+	// 응답 생성
+	private List<TimeDealCreateResponse.TimeDealCreateItem> mapToResponseItems(TimeDeal timeDeal) {
+		return timeDealItemRepository.findAllByTimeDeal(timeDeal).stream()
+			.map(tdi -> {
+				Long itemId = tdi.getItem().getId();
+				int quantity = itemStockRepository.findByItemId(itemId)
+					.map(ItemStock::getQuantity)
+					.orElse(0);
+				return TimeDealCreateResponse.TimeDealCreateItem.from(itemId, quantity);
+			}).toList();
 	}
 
 	private void createTimeDealItemAndStock(TimeDeal timeDeal, TimeDealCreateRequest.TimeDealCreateItemDetail item) {
