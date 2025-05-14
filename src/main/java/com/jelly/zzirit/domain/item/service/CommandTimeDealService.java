@@ -1,5 +1,6 @@
 package com.jelly.zzirit.domain.item.service;
 
+import static com.jelly.zzirit.domain.item.util.TimeDealUtil.*;
 import static com.jelly.zzirit.global.dto.BaseResponseStatus.*;
 
 import java.math.BigDecimal;
@@ -148,10 +149,5 @@ public class CommandTimeDealService {
 		return existingDeals.stream().anyMatch(deal ->
 			!(deal.getEndTime().isBefore(start) || deal.getStartTime().isAfter(end))
 		);
-	}
-
-	private BigDecimal calculateDiscountedPrice(BigDecimal originalPrice, int discountRatio) {
-		BigDecimal discountRate = BigDecimal.valueOf(discountRatio).divide(BigDecimal.valueOf(100));
-		return originalPrice.multiply(BigDecimal.ONE.subtract(discountRate));
 	}
 }
