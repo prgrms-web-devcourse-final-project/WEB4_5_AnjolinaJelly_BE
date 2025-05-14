@@ -21,7 +21,7 @@ import com.jelly.zzirit.domain.item.repository.TimeDealItemRepository;
 import com.jelly.zzirit.domain.item.repository.TimeDealRepository;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.dto.PageResponse;
-import com.jelly.zzirit.global.exception.custom.InvalidCustomException;
+import com.jelly.zzirit.global.exception.custom.InvalidTimeDealException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -40,7 +40,7 @@ public class CommandTimeDealService {
 
 		// 겹치는 타임딜이 있는지 검증
 		if (isOverlappingTimeDeal(request.startTime(), request.endTime())) {
-			throw new InvalidCustomException(BaseResponseStatus.TIME_DEAL_TIME_OVERLAP);
+			throw new InvalidTimeDealException(BaseResponseStatus.TIME_DEAL_TIME_OVERLAP);
 		}
 
 		// 1. 요청 정보로 타임딜을 먼저 저장합니다.
