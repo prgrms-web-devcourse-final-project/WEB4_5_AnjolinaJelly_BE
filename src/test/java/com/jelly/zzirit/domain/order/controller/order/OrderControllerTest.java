@@ -41,8 +41,7 @@ import static com.jelly.zzirit.domain.order.domain.fixture.OrderFixture.결제�
 import static com.jelly.zzirit.domain.order.domain.fixture.OrderItemFixture.주문_상품_생성;
 import static com.jelly.zzirit.global.dto.BaseResponseStatus.*;
 import static io.restassured.RestAssured.given;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.*;
 import static org.springframework.restdocs.payload.JsonFieldType.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
@@ -177,7 +176,7 @@ public class OrderControllerTest extends AcceptanceTest {
             String 결제_정보_키 = 취소할_주문.getPayment().getPaymentKey();
             Long 유저_아이디 = 유저.getId();
 
-            doNothing().when(refundService).refund(취소할_주문_아이디, 결제_정보_키); // 외부 API 호출 모킹
+            when(refundService.tryRefund(취소할_주문_아이디, 결제_정보_키)).thenReturn(true); // 외부 API 호출 모킹
 
             RequestSpecification 요청 = given(spec)
                 .cookie(getCookie(유저_아이디))
@@ -273,7 +272,7 @@ public class OrderControllerTest extends AcceptanceTest {
             String 결제_정보_키 = 취소할_주문.getPayment().getPaymentKey();
             Long 유저_아이디 = 유저.getId();
 
-            doThrow(IllegalArgumentException.class).when(refundService).refund(취소할_주문_아이디, 결제_정보_키); // 외부 API 호출 모킹
+            when(refundService.tryRefund(취소할_주문_아이디, 결제_정보_키)).thenReturn(false); // 외부 API 호출 모킹
 
             RequestSpecification 요청 = given(spec)
                 .cookie(getCookie(유저_아이디))

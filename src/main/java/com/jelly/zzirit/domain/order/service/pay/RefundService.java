@@ -15,7 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.*;
 
 import com.jelly.zzirit.domain.order.entity.Payment;
 import com.jelly.zzirit.domain.order.repository.PaymentRepository;
@@ -78,7 +78,7 @@ public class RefundService {
 	 * @param orderId 취소할 주문의 아이디
 	 * @param paymentKey 결제 정보 키
 	 */
-	public void refund(Long orderId, String paymentKey) {
+	public boolean tryRefund(Long orderId, String paymentKey) {
 		String url = "https://api.tosspayments.com/v1/payments/" + paymentKey + "/cancel";
 
 		HttpHeaders headers = getHeaders(); // 헤더 생성
@@ -95,13 +95,21 @@ public class RefundService {
 			);
 
 			if (!response.getStatusCode().is2xxSuccessful()) {
-				log.error("환불 실패: status={}, body={}", response.getStatusCode(), response.getBody());
-				throw new IllegalStateException("토스 결제 취소 API 실패");
+				log.error("환불 실패: orderId={}, status={}, body={}", orderId, response.getStatusCode(), response.getBody());
+				return false;
 			}
-		} catch (Exception e) {
-			log.error("환불 실패: orderId={}, message={}", orderId, e.getMessage(), e);
-			throw new IllegalStateException("환불 처리 실패");
+
+			return true;
+		} catch (HttpClientErrorException | HttpServerErrorException e) {
+			log.error("HTTP 오류로 인한 환불 실패: orderId={}, status={}, body={}",
+				orderId, e.getStatusCode(), e.getResponseBodyAsString(), e);
+		} catch (ResourceAccessException e) {
+			log.error("접속 실패로 인한 환불 실패: orderId={}, {}", orderId, e.getMessage(), e);
+		} catch (RestClientException e) {
+			log.error("기타 RestTemplate 오류로 인한 환불 실패: orderId={}, {}", orderId, e.getMessage(), e);
 		}
+
+		return false;
 	}
 
 	private HttpHeaders getHeaders() {
