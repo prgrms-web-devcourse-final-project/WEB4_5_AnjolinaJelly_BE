@@ -9,7 +9,7 @@ import com.jelly.zzirit.domain.order.entity.Order;
 import com.jelly.zzirit.domain.order.repository.OrderRepository;
 import com.jelly.zzirit.domain.order.service.order.CommandOrderService;
 import com.jelly.zzirit.domain.order.service.pay.RefundService;
-import com.jelly.zzirit.global.authorization.AuthorizationService;
+import com.jelly.zzirit.domain.order.service.order.OrderCancelValidator;
 import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
 
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class OrderCancellationFacade {
 
-    private final AuthorizationService authorizationService;
+    private final OrderCancelValidator orderCancelValidator;
     private final RefundService refundService;
     private final CommandOrderService commandOrderService;
     private final OrderRepository orderRepository;
@@ -34,8 +34,8 @@ public class OrderCancellationFacade {
         Order order = orderRepository.findByIdWithPayment(orderId)
             .orElseThrow(() -> new InvalidOrderException(ORDER_NOT_FOUND));
 
-        // 주문 취소 권한 확인
-        authorizationService.checkOrderCancelPermission(order, member);
+        // 주문 취소 가능 여부 검증
+        orderCancelValidator.validate(order, member);
 
         boolean isRefundSuccessful = true;
 

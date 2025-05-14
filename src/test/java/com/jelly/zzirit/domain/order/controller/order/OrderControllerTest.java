@@ -13,7 +13,7 @@ import com.jelly.zzirit.domain.member.repository.MemberRepository;
 import com.jelly.zzirit.domain.order.entity.Order;
 import com.jelly.zzirit.domain.order.repository.OrderRepository;
 import com.jelly.zzirit.domain.order.service.pay.RefundService;
-import com.jelly.zzirit.global.authorization.AuthorizationService;
+import com.jelly.zzirit.domain.order.service.order.OrderCancelValidator;
 import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
 import com.jelly.zzirit.global.support.AcceptanceTest;
 import io.restassured.response.Response;
@@ -72,7 +72,7 @@ public class OrderControllerTest extends AcceptanceTest {
     private RefundService refundService;
 
     @MockitoSpyBean // 실제 동작을 기본으로 하되, 특정 메서드만 모킹하기 위해 spy 객체 사용
-    private AuthorizationService authorizationService;
+    private OrderCancelValidator orderCancelValidator;
 
     private Member 유저;
     private List<Order> 주문_목록;
@@ -200,8 +200,8 @@ public class OrderControllerTest extends AcceptanceTest {
             Long 취소할_주문_아이디 = 취소할_주문.getId();
             Long 유저_아이디 = 유저.getId();
 
-            doThrow(new InvalidOrderException(ACCESS_DENIED)).when(authorizationService)
-                .checkOrderCancelPermission(취소할_주문, 유저);
+            doThrow(new InvalidOrderException(ACCESS_DENIED)).when(orderCancelValidator)
+                .validate(취소할_주문, 유저);
 
             RequestSpecification 요청 = given(spec)
                 .cookie(getCookie(유저_아이디))
@@ -224,8 +224,8 @@ public class OrderControllerTest extends AcceptanceTest {
             Long 취소할_주문_아이디 = 취소할_주문.getId();
             Long 유저_아이디 = 유저.getId();
 
-            doThrow(new InvalidOrderException(EXPIRED_CANCEL_TIME)).when(authorizationService)
-                .checkOrderCancelPermission(취소할_주문, 유저);
+            doThrow(new InvalidOrderException(EXPIRED_CANCEL_TIME)).when(orderCancelValidator)
+                .validate(취소할_주문, 유저);
 
             RequestSpecification 요청 = given(spec)
                 .cookie(getCookie(유저_아이디))
@@ -248,8 +248,8 @@ public class OrderControllerTest extends AcceptanceTest {
             Long 취소할_주문_아이디 = 취소할_주문.getId();
             Long 유저_아이디 = 유저.getId();
 
-            doThrow(new InvalidOrderException(NOT_PAID_ORDER)).when(authorizationService)
-                .checkOrderCancelPermission(취소할_주문, 유저);
+            doThrow(new InvalidOrderException(NOT_PAID_ORDER)).when(orderCancelValidator)
+                .validate(취소할_주문, 유저);
 
             RequestSpecification 요청 = given(spec)
                 .cookie(getCookie(유저_아이디))
