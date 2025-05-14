@@ -2,6 +2,7 @@ package com.jelly.zzirit.domain.item.entity.timedeal;
 
 import java.time.LocalDateTime;
 
+import com.jelly.zzirit.domain.item.dto.request.TimeDealCreateRequest;
 import com.jelly.zzirit.global.entity.BaseTime;
 
 import jakarta.persistence.Column;
@@ -39,6 +40,16 @@ public class TimeDeal extends BaseTime {
 
 	public enum TimeDealStatus {
 		SCHEDULED, ONGOING, ENDED
+	}
+
+	public static TimeDeal from(TimeDealCreateRequest request) {
+		return new TimeDeal(
+			request.title(),
+			TimeDealStatus.SCHEDULED,
+			request.startTime(),
+			request.endTime(),
+			request.discountRatio()
+		);
 	}
 
 	public void updateStatus(TimeDealStatus timeDealStatus) {

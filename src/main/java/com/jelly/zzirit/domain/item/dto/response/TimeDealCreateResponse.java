@@ -2,6 +2,8 @@ package com.jelly.zzirit.domain.item.dto.response;
 
 import java.util.List;
 
+import com.jelly.zzirit.domain.item.entity.timedeal.TimeDeal;
+
 public record TimeDealCreateResponse(
 	Long timeDealId,
 	String timeDealName,
@@ -10,9 +12,15 @@ public record TimeDealCreateResponse(
 	Integer discountRatio,
 	List<TimeDealCreateItem> items
 ) {
-	public static TimeDealCreateResponse from(Long timeDealId, String timeDealName, String startTime, String endTime,
-		Integer discountRatio, List<TimeDealCreateItem> items) {
-		return new TimeDealCreateResponse(timeDealId, timeDealName, startTime, endTime, discountRatio, items);
+	public static TimeDealCreateResponse from(TimeDeal timeDeal, List<TimeDealCreateItem> items) {
+		return new TimeDealCreateResponse(
+			timeDeal.getId(),
+			timeDeal.getName(),
+			timeDeal.getStartTime().toString(),
+			timeDeal.getEndTime().toString(),
+			timeDeal.getDiscountRatio(),
+			items
+		);
 	}
 
 	public record TimeDealCreateItem(

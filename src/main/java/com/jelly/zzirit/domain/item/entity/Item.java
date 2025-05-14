@@ -47,6 +47,16 @@ public class Item extends BaseTime {
 	@JoinColumn(name = "type_brand_id", nullable = false)
 	private TypeBrand typeBrand;
 
+	public static Item from(Item originalItem) {
+		return new Item(
+			originalItem.getName(),
+			originalItem.getImageUrl(),
+			originalItem.getPrice(),
+			ItemStatus.TIME_DEAL,    // 타입만 변경
+			originalItem.getTypeBrand()
+		);
+	}
+
 	// update함수는 entity 수정 pr 머지 이후에 수정하는 게 좋을 것 같아요!
 	public Empty update(ItemCreateRequest request, TypeBrand typeBrand) {
 		this.name = request.name();
