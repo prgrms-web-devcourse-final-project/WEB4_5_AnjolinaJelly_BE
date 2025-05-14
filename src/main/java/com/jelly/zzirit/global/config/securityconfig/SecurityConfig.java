@@ -90,6 +90,7 @@ public class SecurityConfig {
 					"/docs/**",
 					"/swagger-ui/**",
 					"/v3/api-docs/**",
+					"/actuator/**",
 					"/favicon.ico"
 				).permitAll()
 				.requestMatchers("/api/admin/**").hasRole(Role.ROLE_ADMIN.getKey())

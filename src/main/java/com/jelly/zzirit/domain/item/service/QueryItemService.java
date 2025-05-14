@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.jelly.zzirit.domain.item.dto.request.ItemFilterRequest;
 import com.jelly.zzirit.domain.item.dto.response.ItemFetchResponse;
 import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.domain.item.entity.stock.ItemStock;
@@ -45,7 +46,7 @@ public class QueryItemService {
 		return ItemFetchResponse.from(item, itemStock.getQuantity());
 	}
 
-	public Page<Item> search(List<String> types, List<String> brands, String keyword, String sort, Pageable pageable) {
-		return itemQueryRepository.findItems(types, brands, keyword, sort, pageable);
+	public Page<Item> search(ItemFilterRequest request, String sort, Pageable pageable) {
+		return itemQueryRepository.findItems(request, sort, pageable);
 	}
 }

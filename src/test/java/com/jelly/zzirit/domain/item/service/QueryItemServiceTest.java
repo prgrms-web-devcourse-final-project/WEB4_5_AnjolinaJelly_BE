@@ -21,6 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
+import com.jelly.zzirit.domain.item.dto.request.ItemFilterRequest;
 import com.jelly.zzirit.domain.item.dto.response.ItemFetchResponse;
 import com.jelly.zzirit.domain.item.entity.Brand;
 import com.jelly.zzirit.domain.item.entity.Item;
@@ -62,18 +63,22 @@ public class QueryItemServiceTest {
 			PageRequest pageable = PageRequest.of(0, Integer.MAX_VALUE);
 			PageImpl<Item> mockPage = new PageImpl<>(상품들, pageable, 상품들.size());
 			given(itemQueryRepository.findItems(
-				List.of(노트북.getName()),
-				List.of(),
-				"노트북",
+				ItemFilterRequest.of(
+					"노트북",
+					"",
+					"노트북"
+				),
 				"priceAsc",
 				pageable
 			)).willReturn(mockPage);
 
 			// when
 			Page<Item> 응답 = queryItemService.search(
-				List.of(노트북.getName()),
-				List.of(),
-				"노트북",
+				ItemFilterRequest.of(
+					"노트북",
+					"",
+					"노트북"
+				),
 				"priceAsc",
 				pageable
 			);
@@ -97,18 +102,22 @@ public class QueryItemServiceTest {
 			PageRequest pageable = PageRequest.of(0, Integer.MAX_VALUE);
 			PageImpl<Item> mockPage = new PageImpl<>(상품들, pageable, 상품들.size());
 			given(itemQueryRepository.findItems(
-				List.of(노트북.getName(), 스마트폰.getName()),
-				List.of(삼성.getName(), 애플.getName()),
-				"",
+				ItemFilterRequest.of(
+					"노트북,스마트폰",
+					"삼성,애플",
+					""
+				),
 				"priceAsc",
 				pageable
 			)).willReturn(mockPage);
 
 			// when
 			Page<Item> 응답 = queryItemService.search(
-				List.of(노트북.getName(), 스마트폰.getName()),
-				List.of(삼성.getName(), 애플.getName()),
-				"",
+				ItemFilterRequest.of(
+					"노트북,스마트폰",
+					"삼성,애플",
+					""
+				),
 				"priceAsc",
 				pageable
 			);

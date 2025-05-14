@@ -13,6 +13,7 @@ import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.jelly.zzirit.domain.item.dto.request.ItemFilterRequest;
 import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.domain.item.repository.ItemQueryRepository;
 import com.querydsl.core.types.OrderSpecifier;
@@ -30,15 +31,15 @@ public class ItemQueryRepositoryImpl implements ItemQueryRepository {
 	private final JPAQueryFactory queryFactory;
 
 	@Override
-	public Page<Item> findItems(List<String> types, List<String> brands, String keyword, String sort, Pageable pageable) {
+	public Page<Item> findItems(ItemFilterRequest filter, String sort, Pageable pageable) {
 		List<Item> pagingItems = queryFactory.selectFrom(item)
 			.join(item.typeBrand, typeBrand).fetchJoin()
 			.join(typeBrand.type, type).fetchJoin()
 			.join(typeBrand.brand, brand).fetchJoin()
 			.where(
-				isContainKeyword(keyword),
-				isTypeContain(types),
-				isBrandContain(brands)
+				isKeywordContain(filter.keyword()),
+				isTypeContain(filter.types()),
+				isBrandContain(filter.brands())
 			)
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
@@ -51,9 +52,9 @@ public class ItemQueryRepositoryImpl implements ItemQueryRepository {
 			.join(typeBrand.type, type)
 			.join(typeBrand.brand, brand)
 			.where(
-				isContainKeyword(keyword),
-				isTypeContain(types),
-				isBrandContain(brands)
+				isKeywordContain(filter.keyword()),
+				isTypeContain(filter.types()),
+				isBrandContain(filter.brands())
 			);
 
 		return PageableExecutionUtils
@@ -71,7 +72,7 @@ public class ItemQueryRepositoryImpl implements ItemQueryRepository {
 		return item.price.asc();
 	}
 
-	private BooleanExpression isContainKeyword(String keyword) {
+	private BooleanExpression isKeywordContain(String keyword) {
 		if (keyword == null) {
 			return null;
 		}

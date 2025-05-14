@@ -43,6 +43,7 @@ public class JwtFilter extends OncePerRequestFilter {
 			requestURI.startsWith("/docs") ||
 			requestURI.startsWith("/swagger-ui") ||
 			requestURI.startsWith("/v3/api-docs") ||
+			requestURI.startsWith("/actuator") ||
 			requestURI.equals("/api/info/temp-check") ||
 			requestURI.equals("/favicon.ico")
 		) {
