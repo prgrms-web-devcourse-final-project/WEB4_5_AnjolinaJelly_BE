@@ -47,47 +47,10 @@ public class CommandTimeDealService {
 		// 2. 요청으로 들어온 items(id, quantity)와 위에서 저장한 타임딜 정보로 타임딜 아이템을 저장합니다.
 		request.items().forEach(item -> createTimeDealItemAndStock(timeDeal, item));
 
-		// 응답
+		// 3. 응답 생성
 		List<TimeDealCreateResponse.TimeDealCreateItem> responseItems = mapToResponseItems(timeDeal);
 
 		return TimeDealCreateResponse.from(timeDeal, responseItems);
-	}
-
-	// 타임딜 유효성 검사
-	private void validateTimeDealRequest(TimeDealCreateRequest request) {
-		LocalDateTime now = LocalDateTime.now();
-
-		if (request.startTime().isBefore(now)) {
-			throw new InvalidTimeDealException(TIME_DEAL_START_TIME_PAST);
-		}
-
-		if (isOverlappingTimeDeal(request.startTime(), request.endTime())) {
-			throw new InvalidTimeDealException(TIME_DEAL_TIME_OVERLAP);
-		}
-	}
-
-	// 응답 생성
-	private List<TimeDealCreateResponse.TimeDealCreateItem> mapToResponseItems(TimeDeal timeDeal) {
-		return timeDealItemRepository.findAllByTimeDeal(timeDeal).stream()
-			.map(tdi -> {
-				Long itemId = tdi.getItem().getId();
-				int quantity = itemStockRepository.findByItemId(itemId)
-					.map(ItemStock::getQuantity)
-					.orElse(0);
-				return TimeDealCreateResponse.TimeDealCreateItem.from(itemId, quantity);
-			}).toList();
-	}
-
-	private void createTimeDealItemAndStock(TimeDeal timeDeal, TimeDealCreateRequest.TimeDealCreateItemDetail item) {
-		Item originalItem = itemRepository.getById(item.itemId());
-		Item clonedItemForTimeDeal = itemRepository.save(Item.from(originalItem));
-
-		BigDecimal discountedPrice = calculateDiscountedPrice(clonedItemForTimeDeal.getPrice(),
-			timeDeal.getDiscountRatio());
-
-		timeDealItemRepository.save(new TimeDealItem(discountedPrice, timeDeal, clonedItemForTimeDeal));
-
-		itemStockRepository.save(new ItemStock(clonedItemForTimeDeal, item.quantity(), 0));
 	}
 
 	// 진행중인 타임딜 조회
@@ -113,16 +76,6 @@ public class CommandTimeDealService {
 		);
 	}
 
-	private List<CurrentTimeDealFetchResponse.CurrentTimeDealItem> mapToCurrentTimeDealItemList(TimeDeal timeDeal) {
-		return timeDealItemRepository.findAllByTimeDeal(timeDeal).stream()
-			.map(tdi -> {
-				Item item = itemRepository.findById(tdi.getItem().getId())
-					.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 아이템입니다."));
-				return CurrentTimeDealFetchResponse.CurrentTimeDealItem.from(item, tdi.getPrice());
-			})
-			.toList();
-	}
-
 	@Transactional
 	public int convertTimeDealStatusScheduledToOngoing(LocalDateTime now) {
 		// 시작 시간이 지났지만 아직 시작되지 않은 타임딜 (SCHEDULED → ONGOING)
@@ -141,6 +94,53 @@ public class CommandTimeDealService {
 		toEndDeals.forEach(deal -> deal.updateStatus(TimeDeal.TimeDealStatus.ENDED));
 
 		return toEndDeals.size();
+	}
+
+	// 타임딜 유효성 검사
+	private void validateTimeDealRequest(TimeDealCreateRequest request) {
+		LocalDateTime now = LocalDateTime.now();
+
+		if (request.startTime().isBefore(now)) {
+			throw new InvalidTimeDealException(TIME_DEAL_START_TIME_PAST);
+		}
+
+		if (isOverlappingTimeDeal(request.startTime(), request.endTime())) {
+			throw new InvalidTimeDealException(TIME_DEAL_TIME_OVERLAP);
+		}
+	}
+
+	private void createTimeDealItemAndStock(TimeDeal timeDeal, TimeDealCreateRequest.TimeDealCreateItemDetail item) {
+		Item originalItem = itemRepository.getById(item.itemId());
+		Item clonedItemForTimeDeal = itemRepository.save(Item.from(originalItem));
+
+		BigDecimal discountedPrice = calculateDiscountedPrice(clonedItemForTimeDeal.getPrice(),
+			timeDeal.getDiscountRatio());
+
+		timeDealItemRepository.save(new TimeDealItem(discountedPrice, timeDeal, clonedItemForTimeDeal));
+
+		itemStockRepository.save(new ItemStock(clonedItemForTimeDeal, item.quantity(), 0));
+	}
+
+	// 응답 생성
+	private List<TimeDealCreateResponse.TimeDealCreateItem> mapToResponseItems(TimeDeal timeDeal) {
+		return timeDealItemRepository.findAllByTimeDeal(timeDeal).stream()
+			.map(tdi -> {
+				Long itemId = tdi.getItem().getId();
+				int quantity = itemStockRepository.findByItemId(itemId)
+					.map(ItemStock::getQuantity)
+					.orElse(0);
+				return TimeDealCreateResponse.TimeDealCreateItem.from(itemId, quantity);
+			}).toList();
+	}
+
+	private List<CurrentTimeDealFetchResponse.CurrentTimeDealItem> mapToCurrentTimeDealItemList(TimeDeal timeDeal) {
+		return timeDealItemRepository.findAllByTimeDeal(timeDeal).stream()
+			.map(tdi -> {
+				Item item = itemRepository.findById(tdi.getItem().getId())
+					.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 아이템입니다."));
+				return CurrentTimeDealFetchResponse.CurrentTimeDealItem.from(item, tdi.getPrice());
+			})
+			.toList();
 	}
 
 	private boolean isOverlappingTimeDeal(LocalDateTime start, LocalDateTime end) {
