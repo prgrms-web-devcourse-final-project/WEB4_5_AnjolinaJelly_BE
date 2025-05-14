@@ -77,9 +77,9 @@ public class CommandTimeDealService {
 		);
 	}
 
+	// 시작 시간이 현재보다 이전인 SCHEDULED 상태 타임딜을 ONGOING 상태로 변경
 	@Transactional
 	public int convertTimeDealStatusScheduledToOngoing(LocalDateTime now) {
-		// 시작 시간이 지났지만 아직 시작되지 않은 타임딜 (SCHEDULED → ONGOING)
 		List<TimeDeal> toStartDeals = timeDealRepository.findAllByStatusAndStartTimeLessThanEqual(
 			TimeDeal.TimeDealStatus.SCHEDULED, now);
 		toStartDeals.forEach(deal -> deal.updateStatus(TimeDeal.TimeDealStatus.ONGOING));
@@ -87,9 +87,9 @@ public class CommandTimeDealService {
 		return toStartDeals.size();
 	}
 
+	// 종료 시간이 현재보다 이전인 ONGOING 상태 타임딜을 ENDED 상태로 변경
 	@Transactional
 	public int convertTimeDealStatusOngoingToEnded(LocalDateTime now) {
-		// 종료 시간이 지난 타임딜 (ONGOING → ENDED)
 		List<TimeDeal> toEndDeals = timeDealRepository.findAllByStatusAndEndTimeBefore(TimeDeal.TimeDealStatus.ONGOING,
 			now);
 		toEndDeals.forEach(deal -> deal.updateStatus(TimeDeal.TimeDealStatus.ENDED));
@@ -110,6 +110,7 @@ public class CommandTimeDealService {
 		}
 	}
 
+	// 타임딜 아이템 생성 및 해당 재고 저장
 	private void createTimeDealItemAndStock(TimeDeal timeDeal, TimeDealCreateRequest.TimeDealCreateItemDetail item) {
 		Item originalItem = itemRepository.getById(item.itemId());
 		Item clonedItemForTimeDeal = itemRepository.save(Item.from(originalItem));
@@ -122,7 +123,7 @@ public class CommandTimeDealService {
 		itemStockRepository.save(new ItemStock(clonedItemForTimeDeal, item.quantity(), 0));
 	}
 
-	// 응답 생성
+	// 응답용 타임딜 아이템 리스트 생성
 	private List<TimeDealCreateResponse.TimeDealCreateItem> mapToResponseItems(TimeDeal timeDeal) {
 		return timeDealItemRepository.findAllByTimeDeal(timeDeal).stream()
 			.map(tdi -> {
@@ -134,6 +135,7 @@ public class CommandTimeDealService {
 			}).toList();
 	}
 
+	// 진행중인 타임딜에 해당하는 아이템 응답 리스트 생성
 	private List<CurrentTimeDealFetchResponse.CurrentTimeDealItem> mapToCurrentTimeDealItemList(TimeDeal timeDeal) {
 		return timeDealItemRepository.findAllByTimeDeal(timeDeal).stream()
 			.map(tdi -> {
@@ -144,6 +146,7 @@ public class CommandTimeDealService {
 			.toList();
 	}
 
+	// 기존 타임딜과 겹치는 기간이 있는지 여부 확인
 	private boolean isOverlappingTimeDeal(LocalDateTime start, LocalDateTime end) {
 		List<TimeDeal> existingDeals = timeDealRepository.findAll();
 		return existingDeals.stream().anyMatch(deal ->
