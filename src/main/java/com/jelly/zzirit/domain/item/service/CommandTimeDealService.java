@@ -52,23 +52,7 @@ public class CommandTimeDealService {
 		TimeDeal timeDeal = timeDealRepository.save(TimeDeal.from(request));
 
 		// 2. 요청으로 들어온 items(id, quantity)와 위에서 저장한 타임딜 정보로 타임딜 아이템을 저장합니다.
-		request.items().forEach(item -> {
-
-			// 2-1. 타임딜에 등록된 아이템은 기존 아이템(originItem)내용에 Type만 TIME_DEAL인 새로운 아이템으로 새롭게 저장됩니다.
-			Item originalItem = itemRepository.getById(item.itemId());    // 해당 상품이 없다면? -> 예외처리 필요.
-
-			Item clonedItemForTimeDeal = itemRepository.save(Item.from(originalItem));
-
-			// 2-2. 저장된 타임딜과, 타입이 타임딜인 아이템을 이용해 중간 엔티티인 타임딜 아이템을 저장합니다.
-			BigDecimal discountedPrice = calculateDiscountedPrice(clonedItemForTimeDeal.getPrice(),
-				timeDeal.getDiscountRatio());
-
-			// 타임딜 아이템 저장
-			timeDealItemRepository.save(new TimeDealItem(discountedPrice, timeDeal, clonedItemForTimeDeal));
-
-			// 2-3. 요청에 포함된 quantity을 이용해 상품 재고를 저장합니다.
-			itemStockRepository.save(new ItemStock(clonedItemForTimeDeal, item.quantity(), 0));
-		});
+		request.items().forEach(item -> createTimeDealItemAndStock(timeDeal, item));
 
 		// 응답
 		List<TimeDealCreateResponse.TimeDealCreateItem> responseItems =
@@ -82,6 +66,18 @@ public class CommandTimeDealService {
 				}).toList();
 
 		return TimeDealCreateResponse.from(timeDeal, responseItems);
+	}
+
+	private void createTimeDealItemAndStock(TimeDeal timeDeal, TimeDealCreateRequest.TimeDealCreateItemDetail item) {
+		Item originalItem = itemRepository.getById(item.itemId());
+		Item clonedItemForTimeDeal = itemRepository.save(Item.from(originalItem));
+
+		BigDecimal discountedPrice = calculateDiscountedPrice(clonedItemForTimeDeal.getPrice(),
+			timeDeal.getDiscountRatio());
+
+		timeDealItemRepository.save(new TimeDealItem(discountedPrice, timeDeal, clonedItemForTimeDeal));
+
+		itemStockRepository.save(new ItemStock(clonedItemForTimeDeal, item.quantity(), 0));
 	}
 
 	// 진행중인 타임딜 조회
