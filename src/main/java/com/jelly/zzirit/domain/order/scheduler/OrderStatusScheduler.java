@@ -14,7 +14,7 @@ public class OrderStatusScheduler {
 
     private final CommandOrderService commandOrderService;
 
-    @Scheduled(cron = "0 0 * * * *") // 매 정시마다 실행
+    @Scheduled(cron = "0 */10 * * * *") // 매 10분마다 실행
     public void updatePaidOrdersToCompleted() {
         int updatedOrderCount = commandOrderService.completeExpiredOrders();
         log.info("총 {}개의 주문을 COMPLETED 상태로 변경했습니다.", updatedOrderCount);
