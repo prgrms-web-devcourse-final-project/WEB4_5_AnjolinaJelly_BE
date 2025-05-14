@@ -76,7 +76,7 @@ public class CartService {
 				Item item = cartItem.getItem();
 				ItemStock itemStock = stockMap.get(item.getId());
 				if (itemStock == null) {
-					throw new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND);
+					throw new InvalidItemException(BaseResponseStatus.ITEM_STOCK_NOT_FOUND);
 				}
 
 				TimeDealItem timeDealItem = item.getItemStatus() == ItemStatus.TIME_DEAL

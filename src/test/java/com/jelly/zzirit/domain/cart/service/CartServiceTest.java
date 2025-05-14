@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -32,12 +31,17 @@ import com.jelly.zzirit.domain.item.entity.timedeal.TimeDealItem;
 import com.jelly.zzirit.domain.item.repository.ItemStockRepository;
 import com.jelly.zzirit.domain.item.repository.TimeDealItemRepository;
 import com.jelly.zzirit.domain.member.entity.Member;
+import com.jelly.zzirit.domain.member.repository.MemberRepository;
+import com.jelly.zzirit.global.dto.BaseResponseStatus;
+import com.jelly.zzirit.global.exception.custom.InvalidItemException;
+import com.jelly.zzirit.global.exception.custom.InvalidUserException;
 
 @ExtendWith(MockitoExtension.class)
 class CartServiceTest {
 
 	@Mock private CartRepository cartRepository;
 	@Mock private CartItemRepository cartItemRepository;
+	@Mock private MemberRepository memberRepository;
 	@Mock private TimeDealItemRepository timeDealItemRepository;
 	@Mock private ItemStockRepository itemStockRepository;
 	@InjectMocks private CartService cartService;
@@ -172,4 +176,61 @@ class CartServiceTest {
 		assertThat(result.cartTotalQuantity()).isEqualTo(3);
 		assertThat(result.cartTotalPrice()).isEqualTo(1000000 + 1800000 * 2);
 	}
+
+	@Test
+	void 장바구니_생성() {
+		// given
+		Member member = Member.builder().id(memberId).build();
+		Cart newCart = Cart.builder().member(member).build();
+		newCart.setId(123L);
+
+		Item item = createItem(99L, "Galaxy S24", 1200000, ItemStatus.NONE);
+		CartItem cartItem = createCartItem(item, 1);
+		ItemStock stock = createStock(item, 5);
+
+		given(cartRepository.findByMemberId(memberId)).willReturn(Optional.empty());
+		given(memberRepository.findById(memberId)).willReturn(Optional.of(member));
+		given(cartRepository.save(any(Cart.class))).willReturn(newCart);
+		given(cartItemRepository.findAllWithItemByCartId(newCart.getId())).willReturn(List.of(cartItem));
+		given(itemStockRepository.findAllByItemIdIn(List.of(item.getId()))).willReturn(List.of(stock));
+
+		// when
+		CartFetchResponse result = cartService.getMyCart(memberId);
+
+		// then
+		assertThat(result.cartId()).isEqualTo(123L);
+		assertThat(result.items()).hasSize(1);
+		verify(cartRepository).save(any(Cart.class));
+	}
+
+	@Test
+	void 장바구니_생성_예외() {
+		// given
+		given(cartRepository.findByMemberId(memberId)).willReturn(Optional.empty());
+		given(memberRepository.findById(memberId)).willReturn(Optional.empty());
+
+		// when & then
+		assertThatThrownBy(() -> cartService.getMyCart(memberId))
+			.isInstanceOf(InvalidUserException.class)
+			.hasMessageContaining(BaseResponseStatus.USER_NOT_FOUND.getMessage());
+
+		verify(cartRepository, never()).save(any()); // 저장 시도 안 함
+	}
+
+	@Test
+	void 장바구니_상품_재고_없음_예외() {
+		// given
+		Item item = createItem(77L, "Nothing Phone", 900000, ItemStatus.NONE);
+		CartItem ci = createCartItem(item, 1);
+
+		given(cartRepository.findByMemberId(memberId)).willReturn(Optional.of(cart));
+		given(cartItemRepository.findAllWithItemByCartId(cart.getId())).willReturn(List.of(ci));
+		given(itemStockRepository.findAllByItemIdIn(List.of(item.getId()))).willReturn(List.of()); // 재고 없음 → 비워서 반환
+
+		// when & then
+		assertThatThrownBy(() -> cartService.getMyCart(memberId))
+			.isInstanceOf(InvalidItemException.class)
+			.hasMessageContaining(BaseResponseStatus.ITEM_STOCK_NOT_FOUND.getMessage());
+	}
+
 }
