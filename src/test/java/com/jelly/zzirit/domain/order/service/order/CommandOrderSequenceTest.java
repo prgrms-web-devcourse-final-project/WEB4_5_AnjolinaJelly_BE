@@ -34,7 +34,6 @@ class CommandOrderSequenceTest {
 		Long expectedSeq = 42L;
 
 		given(redisTemplate.opsForValue()).willReturn(valueOperations);
-		given(valueOperations.setIfAbsent(eq(todayKey), eq("0"), any(Duration.class))).willReturn(true);
 		given(valueOperations.increment(todayKey)).willReturn(expectedSeq);
 
 		// when
@@ -42,7 +41,6 @@ class CommandOrderSequenceTest {
 
 		// then
 		assertEquals(expectedSeq, sequence);
-		verify(valueOperations).setIfAbsent(eq(todayKey), eq("0"), any(Duration.class));
 		verify(valueOperations).increment(todayKey);
 	}
 }

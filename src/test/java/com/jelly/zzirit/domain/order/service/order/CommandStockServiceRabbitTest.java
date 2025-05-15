@@ -8,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.Commit;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.jelly.zzirit.domain.item.entity.stock.ItemStock;
 import com.jelly.zzirit.domain.item.repository.stock.ItemStockRepository;
@@ -28,6 +29,7 @@ class CommandStockServiceRabbitTest extends TestContainerConfig {
 	@Autowired
 	private ItemStockRepository itemStockRepository;
 
+	@Transactional
 	@Test
 	void 분산락_적용된_상태에서_정상적으로_판매수량이_증가된다() {
 		// given
