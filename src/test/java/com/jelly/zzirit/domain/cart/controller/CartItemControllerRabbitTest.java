@@ -31,13 +31,10 @@ import com.jelly.zzirit.domain.item.repository.stock.ItemStockRepository;
 import com.jelly.zzirit.domain.member.entity.Member;
 import com.jelly.zzirit.domain.member.entity.authenum.Role;
 import com.jelly.zzirit.domain.member.repository.MemberRepository;
-import com.jelly.zzirit.global.support.AcceptanceTest;
+import com.jelly.zzirit.global.support.AcceptanceRabbitTest;
 import com.jelly.zzirit.global.support.OpenApiDocumentationFilter;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-
-class CartItemControllerTest extends AcceptanceTest {
+class CartItemControllerRabbitTest extends AcceptanceRabbitTest {
 
 	@Autowired private MemberRepository memberRepository;
 	@Autowired private TypeRepository typeRepository;

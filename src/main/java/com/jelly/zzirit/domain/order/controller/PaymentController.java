@@ -11,8 +11,8 @@ import com.jelly.zzirit.domain.order.dto.request.PaymentRequest;
 import com.jelly.zzirit.domain.order.dto.response.PaymentConfirmResponse;
 import com.jelly.zzirit.domain.order.dto.response.PaymentInitResponse;
 import com.jelly.zzirit.domain.order.service.order.CommandTempOrderService;
-import com.jelly.zzirit.domain.order.service.pay.PaymentConfirmService;
-import com.jelly.zzirit.domain.order.service.pay.PaymentInitService;
+import com.jelly.zzirit.domain.order.service.pay.CommandPaymentConfirmService;
+import com.jelly.zzirit.domain.order.service.pay.CommandPaymentInitService;
 import com.jelly.zzirit.global.dto.BaseResponse;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
 
@@ -29,9 +29,9 @@ import lombok.RequiredArgsConstructor;
 @SecurityRequirement(name = "accessToken")
 public class PaymentController {
 
-	private final PaymentInitService paymentInitService;
+	private final CommandPaymentInitService commandPaymentInitService;
 	private final CommandTempOrderService commandTempOrderService;
-	private final PaymentConfirmService paymentConfirmService;
+	private final CommandPaymentConfirmService commandPaymentConfirmService;
 
 	@Operation(
 		summary = "주문번호 생성",
@@ -39,7 +39,7 @@ public class PaymentController {
 	)
 	@PostMapping("/init")
 	public BaseResponse<PaymentInitResponse> initOrder(@RequestBody @Valid PaymentRequest requestDto) {
-		PaymentInitResponse initResponse = paymentInitService.createOrderAndReturnInit(requestDto);
+		PaymentInitResponse initResponse = commandPaymentInitService.createOrderAndReturnInit(requestDto);
 		return BaseResponse.success(initResponse);
 	}
 
@@ -53,7 +53,7 @@ public class PaymentController {
 		@RequestParam("orderId") String orderId,
 		@RequestParam("amount") String amount
 	) {
-		PaymentConfirmResponse response = paymentConfirmService.confirmPayment(paymentKey, orderId, amount);
+		PaymentConfirmResponse response = commandPaymentConfirmService.confirmPayment(paymentKey, orderId, amount);
 		return BaseResponse.success(response);
 	}
 

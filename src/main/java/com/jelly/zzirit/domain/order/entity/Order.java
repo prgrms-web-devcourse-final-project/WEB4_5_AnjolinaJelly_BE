@@ -109,4 +109,7 @@ public class Order extends BaseTime {
 		return this.status == OrderStatus.PAID || this.status == OrderStatus.COMPLETED;
 	}
 
+	public void addPayment(Payment payment) {
+		this.payment = payment;
+	}
 }
