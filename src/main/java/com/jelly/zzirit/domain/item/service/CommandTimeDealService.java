@@ -105,7 +105,6 @@ public class CommandTimeDealService {
 			timeDeal.getDiscountRatio());
 
 		timeDealItemRepository.save(new TimeDealItem(discountedPrice, timeDeal, clonedItemForTimeDeal));
-
 		itemStockRepository.save(new ItemStock(clonedItemForTimeDeal, item.quantity(), 0));
 	}
 
