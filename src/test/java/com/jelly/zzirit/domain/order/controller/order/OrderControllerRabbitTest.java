@@ -12,8 +12,10 @@ import com.jelly.zzirit.domain.member.entity.Member;
 import com.jelly.zzirit.domain.member.repository.MemberRepository;
 import com.jelly.zzirit.domain.order.entity.Order;
 import com.jelly.zzirit.domain.order.repository.OrderRepository;
-import com.jelly.zzirit.domain.order.service.pay.RefundService;
 import com.jelly.zzirit.domain.order.service.order.OrderCancelValidator;
+import com.jelly.zzirit.domain.order.service.pay.CommandRefundService;
+import com.jelly.zzirit.global.dto.BaseResponseStatus;
+import com.jelly.zzirit.global.exception.custom.InvalidCustomException;
 import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
 import com.jelly.zzirit.global.support.AcceptanceRabbitTest;
 import io.restassured.response.Response;
@@ -68,7 +70,7 @@ public class OrderControllerRabbitTest extends AcceptanceRabbitTest {
     private ItemRepository itemRepository;
 
     @MockitoBean // 외부 API 호출을 방지하고 동작을 제어하기 위해 mock 객체로 대체
-    private RefundService refundService;
+    private CommandRefundService refundService;
 
     @MockitoSpyBean // 실제 동작을 기본으로 하되, 특정 메서드만 모킹하기 위해 spy 객체 사용
     private OrderCancelValidator orderCancelValidator;
@@ -177,7 +179,7 @@ public class OrderControllerRabbitTest extends AcceptanceRabbitTest {
             String 결제_정보_키 = 취소할_주문.getPayment().getPaymentKey();
             Long 유저_아이디 = 유저.getId();
 
-            when(refundService.tryRefund(취소할_주문_아이디, 결제_정보_키)).thenReturn(true); // 외부 API 호출 모킹
+            doNothing().when(refundService).refund(eq(취소할_주문), eq(결제_정보_키), eq("사용자 주문 취소")); // 실제 refund 메서드 호출을 모킹
 
             RequestSpecification 요청 = given(spec)
                 .cookie(getCookie(유저_아이디))
@@ -273,7 +275,8 @@ public class OrderControllerRabbitTest extends AcceptanceRabbitTest {
             String 결제_정보_키 = 취소할_주문.getPayment().getPaymentKey();
             Long 유저_아이디 = 유저.getId();
 
-            when(refundService.tryRefund(취소할_주문_아이디, 결제_정보_키)).thenReturn(false); // 외부 API 호출 모킹
+            doThrow(new InvalidCustomException(BaseResponseStatus.ORDER_REFUND_FAILED))
+                .when(refundService).refund(eq(취소할_주문), eq(결제_정보_키), eq("주문 확정 실패"));
 
             RequestSpecification 요청 = given(spec)
                 .cookie(getCookie(유저_아이디))
@@ -288,6 +291,7 @@ public class OrderControllerRabbitTest extends AcceptanceRabbitTest {
                 .log().body()
                 .statusCode(502);
         }
+
 
         private RestDocumentationFilter 성공_문서_생성(String name) {
             return document(
@@ -328,5 +332,4 @@ public class OrderControllerRabbitTest extends AcceptanceRabbitTest {
         }
 
     }
-
 }
