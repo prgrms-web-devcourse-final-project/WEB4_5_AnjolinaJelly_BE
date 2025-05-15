@@ -6,14 +6,14 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import com.jelly.zzirit.domain.member.entity.Member;
 import com.jelly.zzirit.domain.member.entity.authenum.Role;
 import com.jelly.zzirit.domain.member.repository.MemberRepository;
-import com.jelly.zzirit.global.redis.RedisTestContainerConfig;
+import com.jelly.zzirit.global.redis.RedisRabbitTestContainerConfig;
 import com.jelly.zzirit.global.security.service.TokenService;
 import com.jelly.zzirit.global.security.util.AuthConst;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
 
-public abstract class TestMemberConfig extends RedisTestContainerConfig {
+public abstract class RabbitTestMemberConfig extends RedisRabbitTestContainerConfig {
 
 	@Autowired
 	protected MemberRepository memberRepository;

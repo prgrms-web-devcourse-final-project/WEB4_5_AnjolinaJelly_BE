@@ -1,9 +1,10 @@
-package com.jelly.zzirit.domain.order.util.payment;
+package com.jelly.zzirit.domain.order.service.payment;
 
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -17,10 +18,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jelly.zzirit.domain.order.dto.response.PaymentResponse;
-import com.jelly.zzirit.domain.order.dto.response.TossPaymentResponse;
 import com.jelly.zzirit.domain.order.entity.Order;
-import com.jelly.zzirit.domain.order.util.PaymentGateway;
-import com.jelly.zzirit.domain.order.util.PaymentProvider;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
 
@@ -28,7 +26,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class TossPaymentGateway implements PaymentGateway {
+public class TossPaymentClient {
 
 	private final RestTemplate restTemplate;
 	private final ObjectMapper objectMapper;
@@ -38,10 +36,13 @@ public class TossPaymentGateway implements PaymentGateway {
 
 	private static final String BASE_URL = "https://api.tosspayments.com/v1/payments";
 
-	@Override
 	public void confirmPayment(String paymentKey, String orderId, String amount) {
 		String url = BASE_URL + "/confirm";
 		HttpHeaders headers = createHeaders();
+
+		String idempotencyKey = UUID.randomUUID().toString();
+		headers.set("Idempotency-Key", idempotencyKey);
+
 		Map<String, Object> body = Map.of(
 			"paymentKey", paymentKey,
 			"orderId", orderId,
@@ -55,7 +56,7 @@ public class TossPaymentGateway implements PaymentGateway {
 		}
 	}
 
-	@Override
+
 	public PaymentResponse fetchPaymentInfo(String paymentKey) {
 		String url = BASE_URL + "/" + paymentKey;
 		HttpHeaders headers = createHeaders();
@@ -64,14 +65,12 @@ public class TossPaymentGateway implements PaymentGateway {
 			ResponseEntity<String> response = restTemplate.exchange(
 				url, HttpMethod.GET, new HttpEntity<>(headers), String.class);
 
-			TossPaymentResponse tossResponse = objectMapper.readValue(response.getBody(), TossPaymentResponse.class);
-			return PaymentResponse.from(tossResponse);
+			return objectMapper.readValue(response.getBody(), PaymentResponse.class);
 		} catch (Exception e) {
 			throw new InvalidOrderException(BaseResponseStatus.TOSS_PAYMENT_VERIFY_FAILED);
 		}
 	}
 
-	@Override
 	public void refund(String paymentKey, BigDecimal amount, String reason) {
 		String url = BASE_URL + "/" + paymentKey + "/cancel";
 		HttpHeaders headers = createHeaders();
@@ -88,12 +87,6 @@ public class TossPaymentGateway implements PaymentGateway {
 		}
 	}
 
-	@Override
-	public PaymentProvider getPaymentProvider() {
-		return PaymentProvider.TOSS;
-	}
-
-	@Override
 	public void validate(Order order, PaymentResponse response, String amount) {
 		TossPaymentValidation.validateAll(order, response, amount);
 	}

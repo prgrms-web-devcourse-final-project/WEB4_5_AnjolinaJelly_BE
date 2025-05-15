@@ -10,11 +10,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.jelly.zzirit.global.support.TestMemberConfig;
+import com.jelly.zzirit.global.support.RabbitTestMemberConfig;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class MyPageControllerIntegrationTest extends TestMemberConfig {
+class MyPageControllerIntegrationRabbitTest extends RabbitTestMemberConfig {
 
 	@Autowired
 	private MockMvc mockMvc;

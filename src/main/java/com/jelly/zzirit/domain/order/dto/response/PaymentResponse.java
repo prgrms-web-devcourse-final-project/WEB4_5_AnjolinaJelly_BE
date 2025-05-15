@@ -16,14 +16,4 @@ public class PaymentResponse {
 	private String method;
 	private String status;
 	private BigDecimal totalAmount;
-
-	public static PaymentResponse from(TossPaymentResponse response) {
-		return new PaymentResponse(
-			response.getOrderId(),
-			response.getPaymentKey(),
-			response.getMethod(),
-			response.getStatus(),
-			response.getTotalAmount()
-		);
-	}
 }

@@ -13,18 +13,6 @@ import lombok.NoArgsConstructor;
 @Schema(description = "결제 초기화 응답 DTO")
 public class PaymentInitResponse {
 
-	@Schema(description = "결제 제공자", example = "toss")
-	private String provider;
-
-	@Schema(description = "SDK 스크립트 URL", example = "https://js.tosspayments.com/v1")
-	private String sdkUrl;
-
-	@Schema(description = "SDK 글로벌 객체명", example = "TossPayments")
-	private String sdkGlobal;
-
-	@Schema(description = "결제 모듈 클라이언트 키", example = "test_ck_xxxxxxxxxxxxx")
-	private String clientKey;
-
 	@Schema(description = "주문 ID", example = "ORD20240514-000001")
 	private String orderId;
 
@@ -36,10 +24,4 @@ public class PaymentInitResponse {
 
 	@Schema(description = "구매자 이름", example = "홍길동")
 	private String customerName;
-
-	@Schema(description = "결제 성공 시 리디렉션 URL")
-	private String successUrl;
-
-	@Schema(description = "결제 실패 시 리디렉션 URL")
-	private String failUrl;
 }

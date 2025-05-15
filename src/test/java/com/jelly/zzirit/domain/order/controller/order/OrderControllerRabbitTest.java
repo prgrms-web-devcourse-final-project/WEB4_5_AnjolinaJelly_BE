@@ -15,7 +15,7 @@ import com.jelly.zzirit.domain.order.repository.OrderRepository;
 import com.jelly.zzirit.domain.order.service.pay.RefundService;
 import com.jelly.zzirit.domain.order.service.order.OrderCancelValidator;
 import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
-import com.jelly.zzirit.global.support.AcceptanceTest;
+import com.jelly.zzirit.global.support.AcceptanceRabbitTest;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,7 +47,7 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWit
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
 
-public class OrderControllerTest extends AcceptanceTest {
+public class OrderControllerRabbitTest extends AcceptanceRabbitTest {
 
     @Autowired
     private OrderRepository orderRepository;

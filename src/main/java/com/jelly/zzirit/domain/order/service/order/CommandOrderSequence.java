@@ -13,14 +13,17 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CommandOrderSequence {
 
-	private final StringRedisTemplate cachingStringRedisTemplate;
-
+	private final StringRedisTemplate redisTemplate;
 	private static final String ORDER_SEQ_KEY_PREFIX = "order:seq:";
 
 	public Long getTodaySequence() {
 		String key = getTodayKey();
-		cachingStringRedisTemplate.opsForValue().setIfAbsent(key, "0", Duration.ofDays(1));
-		return cachingStringRedisTemplate.opsForValue().increment(key);
+
+		Long seq = redisTemplate.opsForValue().increment(key);
+		if (seq != null && seq == 1L) {
+			redisTemplate.expire(key, Duration.ofDays(1));
+		}
+		return seq;
 	}
 
 	private String getTodayKey() {

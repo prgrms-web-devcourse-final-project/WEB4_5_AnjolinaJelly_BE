@@ -39,7 +39,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 		super.setAuthenticationManager(authenticationManager);
 		this.objectMapper = objectMapper;
 		this.tokenService = tokenService;
-		setFilterProcessesUrl("/auth/basic/login");
+		setFilterProcessesUrl("/api/auth/basic/login");
 	}
 
 	@Override

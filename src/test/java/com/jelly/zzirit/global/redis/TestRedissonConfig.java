@@ -1,6 +1,6 @@
 package com.jelly.zzirit.global.redis;
 
-import static com.jelly.zzirit.global.redis.RedisTestContainerConfig.*;
+import static com.jelly.zzirit.global.redis.RedisRabbitTestContainerConfig.*;
 
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;

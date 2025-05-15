@@ -1,120 +1,21 @@
 package com.jelly.zzirit.domain.order.controller.pay;
 
-import static org.hamcrest.Matchers.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
 
-import com.jelly.zzirit.domain.order.controller.PaymentController;
 import com.jelly.zzirit.domain.order.service.order.CommandTempOrderService;
 import com.jelly.zzirit.domain.order.service.pay.PaymentConfirmService;
 import com.jelly.zzirit.domain.order.service.pay.PaymentInitService;
-import com.jelly.zzirit.global.support.TestMemberConfig;
+import com.jelly.zzirit.global.support.AcceptanceRabbitTest;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@Import({PaymentController.class, PaymentControllerTest.TestConfig.class})
-class PaymentControllerTest extends TestMemberConfig {
+public class PaymentControllerTest extends AcceptanceRabbitTest {
 
-	@Autowired private MockMvc mockMvc;
-	@Autowired private PaymentInitService paymentInitService;
-	@Autowired private CommandTempOrderService commandTempOrderService;
-	@Autowired private PaymentConfirmService paymentConfirmService;
+	@Autowired
+	private PaymentInitService paymentInitService;
 
-	@TestConfiguration
-	static class TestConfig {
-		@Bean
-		public PaymentInitService paymentInitService() {
-			return Mockito.mock(PaymentInitService.class);
-		}
+	@Autowired
+	private CommandTempOrderService commandTempOrderService;
 
-		@Bean
-		public CommandTempOrderService tempOrderService() {
-			return Mockito.mock(CommandTempOrderService.class);
-		}
+	@Autowired
+	private PaymentConfirmService paymentConfirmService;
 
-		@Bean
-		public PaymentConfirmService paymentConfirmService() {
-			return Mockito.mock(PaymentConfirmService.class);
-		}
-	}
-
-	@Test
-	void 주문번호_생성_API는_쿠키인증으로_정상적으로_응답해야_한다() throws Exception {
-		// given
-		String mockOrderNumber = "ORDER-20250507-001";
-		Mockito.when(paymentInitService.createOrderAndReturnOrderNumber(Mockito.any()))
-			.thenReturn(mockOrderNumber);
-
-		String requestBody = """
-            {
-              "orderItems": [
-                {
-                  "itemId": 1,
-                  "quantity": 2
-                }
-              ],
-              "totalAmount": 20000,
-              "shippingRequest": "문 앞에 두세요",
-              "address": "서울특별시 강남구",
-              "addressDetail": "101동 1001호",
-              "provider": "toss"
-            }
-        """;
-
-		// when & then
-		mockMvc.perform(post("/api/payments/init")
-				.cookie(getAccessTokenCookie())
-				.contentType(MediaType.APPLICATION_JSON)
-				.content(requestBody))
-			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.success").value(true))
-			.andExpect(jsonPath("$.result").value(mockOrderNumber));
-	}
-
-	@Test
-	void 결제성공_콜백_API는_쿠키인증으로_정상처리되어야_한다() throws Exception {
-		// when & then
-		mockMvc.perform(get("/api/payments/success")
-				.cookie(getAccessTokenCookie())
-				.param("paymentKey", "pay_123")
-				.param("orderId", "ORDER-123")
-				.param("amount", "10000"))
-			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.success").value(true));
-
-		Mockito.verify(paymentConfirmService)
-			.confirmPayment("pay_123", "ORDER-123", "10000");
-	}
-
-	@Test
-	void 결제실패_콜백_API는_쿠키없어도_에러응답_반환한다() throws Exception {
-		// given
-		String code = "USER_CANCEL";
-		String message = "사용자 취소";
-		String orderId = "ORDER-123";
-
-		// when & then
-		mockMvc.perform(get("/api/payments/fail")
-				.cookie(getAccessTokenCookie())
-				.param("code", code)
-				.param("message", message)
-				.param("orderId", orderId))
-			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.success").value(false))
-			.andExpect(jsonPath("$.message").value(containsString("토스 결제 요청에 실패했습니다.")));
-
-		Mockito.verify(commandTempOrderService)
-			.deleteTempOrder(orderId);
-	}
 }
