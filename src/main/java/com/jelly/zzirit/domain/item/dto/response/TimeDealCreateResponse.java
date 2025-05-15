@@ -3,6 +3,7 @@ package com.jelly.zzirit.domain.item.dto.response;
 import java.util.List;
 
 import com.jelly.zzirit.domain.item.entity.timedeal.TimeDeal;
+import com.jelly.zzirit.domain.item.entity.timedeal.TimeDealItem;
 
 public record TimeDealCreateResponse(
 	Long timeDealId,
@@ -29,6 +30,10 @@ public record TimeDealCreateResponse(
 	) {
 		public static TimeDealCreateItem from(Long itemId, Integer quantity) {
 			return new TimeDealCreateItem(itemId, quantity);
+		}
+
+		public static TimeDealCreateItem from(TimeDealItem timeDealItem, int quantity) {
+			return new TimeDealCreateItem(timeDealItem.getItem().getId(), quantity);
 		}
 	}
 }
