@@ -38,10 +38,10 @@ public class QueryOrderService {
     }
 
     /**
-     * CANCELLED, COMPLETED, PAID 상태인 주문 내역을 최신순으로 조회하며 페이징 처리
+     * CANCELLED, COMPLETED, PAID 상태인 주문 내역을 조회하며 페이징 및 정렬 처리
      * @param memberId 현재 로그인한 유저의 아이디
-     * @param pageable 페이징 정보
-     * @return 페이징이 적용된 주문 리스트
+     * @param pageable 페이징 및 정렬 정보
+     * @return 페이징 및 정렬이 적용된 주문 리스트
      */
     public Page<Order> findPagedOrders(Long memberId, Pageable pageable) {
         EnumSet<OrderStatus> orderStatus = EnumSet.of(CANCELLED, COMPLETED, PAID);
