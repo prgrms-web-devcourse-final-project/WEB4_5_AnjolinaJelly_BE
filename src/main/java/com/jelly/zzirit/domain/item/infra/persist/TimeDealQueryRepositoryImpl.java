@@ -1,5 +1,10 @@
 package com.jelly.zzirit.domain.item.infra.persist;
 
+import static com.jelly.zzirit.domain.item.entity.QItem.*;
+import static com.jelly.zzirit.domain.item.entity.stock.QItemStock.*;
+import static com.jelly.zzirit.domain.item.entity.timedeal.QTimeDeal.*;
+import static com.jelly.zzirit.domain.item.entity.timedeal.QTimeDealItem.*;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,17 +35,12 @@ public class TimeDealQueryRepositoryImpl implements TimeDealQueryRepository {
 
 	@Override
 	public List<TimeDealFetchResponse> search(TimeDealSearchCondition condition) {
-		QTimeDeal timeDeal = QTimeDeal.timeDeal;
-		QTimeDealItem timeDealItem = QTimeDealItem.timeDealItem;
-		QItem item = QItem.item;
-		QItemStock itemStock = QItemStock.itemStock;
-
 		List<Tuple> tuples = queryFactory
 			.select(timeDeal, timeDealItem, item, itemStock)
 			.from(timeDealItem)
 			.join(timeDealItem.timeDeal, timeDeal)
 			.join(timeDealItem.item, item)
-			.leftJoin(itemStock).on(itemStock.item.id.eq(item.id))
+			.join(itemStock).on(itemStock.item.id.eq(item.id))
 			.where(
 				timeDealNameContains(condition.timeDealName()),
 				timeDealIdEq(condition.timeDealId()),
@@ -67,23 +67,23 @@ public class TimeDealQueryRepositoryImpl implements TimeDealQueryRepository {
 	}
 
 	private BooleanExpression timeDealNameContains(String name) {
-		return name != null ? QTimeDeal.timeDeal.name.contains(name) : null;
+		return name != null ? timeDeal.name.contains(name) : null;
 	}
 
 	private BooleanExpression timeDealIdEq(Long id) {
-		return id != null ? QTimeDeal.timeDeal.id.eq(id) : null;
+		return id != null ? timeDeal.id.eq(id) : null;
 	}
 
 	private BooleanExpression itemNameContains(String name) {
-		return name != null ? QItem.item.name.contains(name) : null;
+		return name != null ? item.name.contains(name) : null;
 	}
 
 	private BooleanExpression itemIdEq(Long id) {
-		return id != null ? QItem.item.id.eq(id) : null;
+		return id != null ? item.id.eq(id) : null;
 	}
 
 	private BooleanExpression statusEq(TimeDeal.TimeDealStatus status) {
-		return status != null ? QTimeDeal.timeDeal.status.eq(status) : null;
+		return status != null ? timeDeal.status.eq(status) : null;
 	}
 
 	@Override
