@@ -18,7 +18,7 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.jelly.zzirit.domain.member.entity.authenum.Role;
-import com.jelly.zzirit.global.redis.RedisRabbitTestContainerConfig;
+import com.jelly.zzirit.global.redis.TestContainerConfig;
 import com.jelly.zzirit.global.security.service.TokenService;
 import com.jelly.zzirit.global.security.util.AuthConst;
 
@@ -32,7 +32,7 @@ import io.restassured.specification.RequestSpecification;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ExtendWith({RestDocumentationExtension.class, SpringExtension.class})
 @Sql(scripts = {"classpath:truncate.sql"}, executionPhase = AFTER_TEST_METHOD)
-public abstract class AcceptanceRabbitTest extends RedisRabbitTestContainerConfig {
+public abstract class AcceptanceRabbitTest extends TestContainerConfig {
 
 	@LocalServerPort
 	int port;

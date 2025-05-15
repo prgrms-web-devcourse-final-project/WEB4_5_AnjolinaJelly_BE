@@ -15,11 +15,11 @@ import com.jelly.zzirit.domain.member.dto.request.EmailAuthRequest;
 import com.jelly.zzirit.domain.member.dto.request.EmailAuthVerifyRequest;
 import com.jelly.zzirit.domain.member.dto.request.SignupRequest;
 import com.jelly.zzirit.global.redis.RedisService;
-import com.jelly.zzirit.global.redis.RedisRabbitTestContainerConfig;
+import com.jelly.zzirit.global.redis.TestContainerConfig;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class AuthControllerRabbitTest extends RedisRabbitTestContainerConfig {
+class AuthControllerRabbitTest extends TestContainerConfig {
 
 	@Autowired
 	MockMvc mockMvc;

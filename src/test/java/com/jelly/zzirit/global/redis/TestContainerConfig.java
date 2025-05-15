@@ -7,7 +7,7 @@ import org.testcontainers.containers.RabbitMQContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Testcontainers
-public abstract class RedisRabbitTestContainerConfig {
+public abstract class TestContainerConfig {
 
 	private static final String REDIS_IMAGE = "redis:7.0.8-alpine";
 	private static final int REDIS_PORT = 6379;
