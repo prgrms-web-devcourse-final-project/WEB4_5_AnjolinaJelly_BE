@@ -2,13 +2,14 @@ package com.jelly.zzirit.domain.order.service.pay;
 
 import org.springframework.stereotype.Service;
 
+import com.jelly.zzirit.domain.order.dto.response.PaymentConfirmResponse;
 import com.jelly.zzirit.domain.order.entity.Order;
+import com.jelly.zzirit.domain.order.entity.Payment;
 import com.jelly.zzirit.domain.order.repository.OrderRepository;
+import com.jelly.zzirit.domain.order.repository.PaymentRepository;
 import com.jelly.zzirit.domain.order.service.message.OrderConfirmMessage;
 import com.jelly.zzirit.domain.order.service.message.OrderConfirmProducer;
-import com.jelly.zzirit.domain.order.util.PaymentGateway;
-import com.jelly.zzirit.domain.order.util.PaymentGatewayResolver;
-import com.jelly.zzirit.domain.order.util.PaymentProvider;
+import com.jelly.zzirit.domain.order.service.payment.TossPaymentClient;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
 
@@ -20,21 +21,27 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class PaymentConfirmService {
 
-	private final PaymentGatewayResolver paymentGatewayResolver;
+	private final TossPaymentClient tossPaymentClient;
 	private final OrderRepository orderRepository;
+	private final PaymentRepository paymentRepository;
 	private final OrderConfirmProducer orderConfirmProducer;
 
-	public void confirmPayment(String paymentKey, String orderNumber, String amount) {
+	public PaymentConfirmResponse confirmPayment(String paymentKey, String orderNumber, String amount) {
 		Order order = orderRepository.findByOrderNumber(orderNumber)
 			.orElseThrow(() -> new InvalidOrderException(BaseResponseStatus.ORDER_NOT_FOUND));
 
-		PaymentProvider provider = PaymentProvider.TOSS;
-		PaymentGateway gateway = paymentGatewayResolver.resolve(provider);
-		gateway.confirmPayment(paymentKey, orderNumber, amount);
+		tossPaymentClient.confirmPayment(paymentKey, orderNumber, amount);
 
-		order.setProvider(provider);
+		Payment payment = Payment.of(paymentKey, order);
+		paymentRepository.save(payment);
 
 		OrderConfirmMessage message = OrderConfirmMessage.from(order, paymentKey, amount);
 		orderConfirmProducer.send(message);
+
+		return PaymentConfirmResponse.builder()
+			.orderId(order.getOrderNumber())
+			.paymentKey(paymentKey)
+			.amount(order.getTotalPrice().intValue())
+			.build();
 	}
 }

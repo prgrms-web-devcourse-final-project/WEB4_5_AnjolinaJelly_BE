@@ -8,13 +8,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jelly.zzirit.domain.order.dto.request.PaymentRequest;
+import com.jelly.zzirit.domain.order.dto.response.PaymentConfirmResponse;
 import com.jelly.zzirit.domain.order.dto.response.PaymentInitResponse;
 import com.jelly.zzirit.domain.order.service.order.CommandTempOrderService;
 import com.jelly.zzirit.domain.order.service.pay.PaymentConfirmService;
 import com.jelly.zzirit.domain.order.service.pay.PaymentInitService;
 import com.jelly.zzirit.global.dto.BaseResponse;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
-import com.jelly.zzirit.global.dto.Empty;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -39,8 +39,8 @@ public class PaymentController {
 	)
 	@PostMapping("/init")
 	public BaseResponse<PaymentInitResponse> initOrder(@RequestBody @Valid PaymentRequest requestDto) {
-		PaymentInitResponse orderAndReturnInit = paymentInitService.createOrderAndReturnInit(requestDto);
-		return BaseResponse.success(orderAndReturnInit);
+		PaymentInitResponse initResponse = paymentInitService.createOrderAndReturnInit(requestDto);
+		return BaseResponse.success(initResponse);
 	}
 
 	@Operation(
@@ -48,13 +48,13 @@ public class PaymentController {
 		description = "결제 성공 시 주문을 확정 처리합니다."
 	)
 	@GetMapping("/success")
-	public BaseResponse<Empty> confirmPayment(
+	public BaseResponse<PaymentConfirmResponse> confirmPayment(
 		@RequestParam("paymentKey") String paymentKey,
 		@RequestParam("orderId") String orderId,
 		@RequestParam("amount") String amount
 	) {
-		paymentConfirmService.confirmPayment(paymentKey, orderId, amount);
-		return BaseResponse.success();
+		PaymentConfirmResponse response = paymentConfirmService.confirmPayment(paymentKey, orderId, amount);
+		return BaseResponse.success(response);
 	}
 
 	@Operation(

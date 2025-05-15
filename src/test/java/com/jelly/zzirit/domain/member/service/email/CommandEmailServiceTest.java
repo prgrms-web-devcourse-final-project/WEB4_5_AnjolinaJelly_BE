@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.jelly.zzirit.global.exception.custom.InvalidUserException;
+import com.rabbitmq.client.Command;
 
 @ExtendWith(MockitoExtension.class)
 class EmailServiceTest {
@@ -22,7 +23,7 @@ class EmailServiceTest {
 	private EmailAsyncProcessor emailAsyncProcessor;
 
 	@InjectMocks
-	private EmailService emailService;
+	private CommandEmailService emailService;
 
 	@BeforeEach
 	void setUp() {

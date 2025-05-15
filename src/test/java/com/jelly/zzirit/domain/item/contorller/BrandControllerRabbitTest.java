@@ -13,21 +13,20 @@ import java.util.List;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 
 import com.jelly.zzirit.domain.item.entity.Brand;
 import com.jelly.zzirit.domain.item.entity.Type;
 import com.jelly.zzirit.domain.item.repository.BrandRepository;
 import com.jelly.zzirit.domain.item.repository.TypeBrandRepository;
 import com.jelly.zzirit.domain.item.repository.TypeRepository;
-import com.jelly.zzirit.global.support.AcceptanceTest;
+import com.jelly.zzirit.global.support.AcceptanceRabbitTest;
 
 import io.restassured.filter.Filter;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 
 @Disabled
-public class BrandControllerTest extends AcceptanceTest {
+public class BrandControllerRabbitTest extends AcceptanceRabbitTest {
 
 	@Autowired
 	private BrandRepository brandRepository;

@@ -17,13 +17,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jelly.zzirit.domain.item.dto.request.TimeDealCreateRequest;
 import com.jelly.zzirit.global.security.util.JwtUtil;
-import com.jelly.zzirit.global.support.TestMemberConfig;
+import com.jelly.zzirit.global.support.RabbitTestMemberConfig;
 import com.jelly.zzirit.testutil.TimeDealTestHelper;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @Disabled
-public class TimeDealControllerTest extends TestMemberConfig {
+public class TimeDealControllerRabbitTest extends RabbitTestMemberConfig {
 
 	@Autowired
 	private MockMvc mockMvc;

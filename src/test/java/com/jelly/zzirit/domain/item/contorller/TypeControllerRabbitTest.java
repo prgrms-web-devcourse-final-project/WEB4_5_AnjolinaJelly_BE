@@ -5,25 +5,20 @@ import static com.jelly.zzirit.domain.item.domain.fixture.TypeFixture.*;
 import static io.restassured.RestAssured.*;
 import static org.springframework.restdocs.payload.JsonFieldType.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.restdocs.snippet.Attributes.*;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.restdocs.payload.FieldDescriptor;
-import org.springframework.test.context.ActiveProfiles;
 
-import com.epages.restdocs.apispec.RestAssuredRestDocumentationWrapper;
 import com.jelly.zzirit.domain.item.repository.TypeRepository;
-import com.jelly.zzirit.global.support.AcceptanceTest;
-import com.jelly.zzirit.global.support.OpenApiDocumentationFilter;
+import com.jelly.zzirit.global.support.AcceptanceRabbitTest;
 
 import io.restassured.filter.Filter;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 
 @Disabled
-public class TypeControllerTest extends AcceptanceTest {
+public class TypeControllerRabbitTest extends AcceptanceRabbitTest {
 
 	@Autowired
 	private TypeRepository typeRepository;

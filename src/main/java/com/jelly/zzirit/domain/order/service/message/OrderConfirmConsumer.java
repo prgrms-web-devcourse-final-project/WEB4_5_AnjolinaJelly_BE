@@ -11,8 +11,7 @@ import com.jelly.zzirit.domain.order.repository.OrderRepository;
 import com.jelly.zzirit.domain.order.repository.PaymentRepository;
 import com.jelly.zzirit.domain.order.service.order.CommandOrderService;
 import com.jelly.zzirit.domain.order.service.pay.CommandRefundService;
-import com.jelly.zzirit.domain.order.util.PaymentGateway;
-import com.jelly.zzirit.domain.order.util.PaymentGatewayResolver;
+import com.jelly.zzirit.domain.order.service.payment.TossPaymentClient;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
 
@@ -24,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class OrderConfirmConsumer {
 
-	private final PaymentGatewayResolver paymentGatewayResolver;
+	private final TossPaymentClient tossPaymentClient;
 	private final OrderRepository orderRepository;
 	private final PaymentRepository paymentRepository;
 	private final CommandOrderService commandOrderService;
@@ -33,12 +32,14 @@ public class OrderConfirmConsumer {
 	@RabbitListener(queues = "${rabbitmq.queue.name}")
 	public void handle(OrderConfirmMessage message) {
 		log.info("주문 확정 메시지 수신: {}", message.getOrderNumber());
-
 		Order order = findOrderOrThrow(message.getOrderNumber());
-		PaymentGateway gateway = paymentGatewayResolver.resolve(order.getProvider());
+
+		if (paymentRepository.existsByPaymentKey(message.getPaymentKey())) {
+			return;
+		}
 
 		try {
-			processOrderConfirm(order, message, gateway);
+			processOrderConfirm(order, message);
 		} catch (InvalidOrderException e) {
 			throw new AmqpRejectAndDontRequeueException("비즈니스 예외로 인한 재시도 금지", e);
 		} catch (Exception e) {
@@ -54,14 +55,18 @@ public class OrderConfirmConsumer {
 					new InvalidOrderException(BaseResponseStatus.ORDER_NOT_FOUND)));
 	}
 
-	private void processOrderConfirm(Order order, OrderConfirmMessage message, PaymentGateway gateway) {
-		PaymentResponse paymentInfo = gateway.fetchPaymentInfo(message.getPaymentKey());
-		gateway.validate(order, paymentInfo, message.getAmount());
+	private void processOrderConfirm(Order order, OrderConfirmMessage message) {
+		PaymentResponse paymentInfo = tossPaymentClient.fetchPaymentInfo(message.getPaymentKey());
 
-		Payment payment = Payment.of(paymentInfo.getPaymentKey(), paymentInfo.getMethod());
+		tossPaymentClient.validate(order, paymentInfo, message.getAmount());
+
+		Payment payment = paymentRepository.findByPaymentKey(paymentInfo.getPaymentKey())
+			.orElseThrow(() -> new InvalidOrderException(BaseResponseStatus.PAYMENT_NOT_FOUND));
+
+		payment.changeStatus(Payment.PaymentStatus.DONE);
+		payment.changeMethod(paymentInfo.getMethod());
+
 		paymentRepository.save(payment);
-		order.addPayment(payment);
-
 		commandOrderService.completeOrder(order);
 	}
 }
