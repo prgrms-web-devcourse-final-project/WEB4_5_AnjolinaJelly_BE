@@ -1,5 +1,7 @@
 package com.jelly.zzirit.domain.cart.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -67,6 +69,25 @@ public class CartItemService {
 		Cart cart = getCart(memberId);
 		CartItem cartItem = getCartItem(cart.getId(), itemId);
 		cartItemRepository.delete(cartItem);
+	}
+
+	@Transactional
+	public void removeItemsFromCart(Long memberId, List<Long> itemIds) {
+		if (itemIds == null || itemIds.isEmpty()) return;
+
+		Long cartId = getCart(memberId).getId();
+		List<Long> existingItemIds = cartItemRepository.findExistingItemIdsInCart(cartId, itemIds);
+		if (existingItemIds.isEmpty()) {
+			throw new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND_IN_CART);
+		}
+
+		cartItemRepository.deleteAllByCartIdAndItemIdIn(cartId, existingItemIds);
+	}
+
+	@Transactional
+	public void removeAllItemsFromCart(Long memberId) {
+		Long cartId = getCart(memberId).getId();
+		cartItemRepository.deleteByCartId(cartId);
 	}
 
 	@Transactional
