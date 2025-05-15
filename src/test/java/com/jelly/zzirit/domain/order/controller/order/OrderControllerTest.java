@@ -132,7 +132,8 @@ public class OrderControllerTest extends AcceptanceTest {
                     .description("유저의 전체 주문 목록을 조회합니다."),
                 queryParameters(
                     parameterWithName("page").description("페이지 번호(디폴트: 0)").optional(),
-                    parameterWithName("size").description("페이지 크기(디폴트: 10)").optional()
+                    parameterWithName("size").description("페이지 크기(디폴트: 10)").optional(),
+                    parameterWithName("sort").description("생성 일자 기준 정렬 방식(디폴트: desc)").optional()
                 ),
                 responseFields(
                     fieldWithPath("success").description("요청 성공 여부").type(BOOLEAN),
