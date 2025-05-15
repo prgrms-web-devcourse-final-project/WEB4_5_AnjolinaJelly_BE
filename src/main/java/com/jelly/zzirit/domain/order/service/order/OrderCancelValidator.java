@@ -35,5 +35,4 @@ public class OrderCancelValidator {
         // 취소 가능한 주문인지 확인
         order.validateCancellable();
     }
-
 }

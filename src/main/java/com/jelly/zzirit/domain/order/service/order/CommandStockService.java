@@ -26,4 +26,16 @@ public class CommandStockService {
 			throw new InvalidOrderException(BaseResponseStatus.STOCK_REDUCE_FAILED);
 		}
 	}
+
+	@DistributedLock(
+		key = "#itemId",
+		leaseTime = 12L
+	)
+	public void restore(Long itemId, int quantity) {
+		boolean success = itemStockRepository.restoreStockIfPossible(itemId, quantity);
+
+		if (!success) {
+			throw new InvalidOrderException(BaseResponseStatus.STOCK_RESTORE_FAILED);
+		}
+	}
 }

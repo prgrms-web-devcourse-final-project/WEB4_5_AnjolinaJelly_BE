@@ -1,20 +1,21 @@
 package com.jelly.zzirit.domain.order.service.order;
 
 import static com.jelly.zzirit.domain.order.entity.OrderStatus.*;
-import static com.jelly.zzirit.global.dto.BaseResponseStatus.*;
 import static org.springframework.transaction.annotation.Isolation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.jelly.zzirit.domain.cart.service.CartService;
+import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.domain.order.entity.Order;
+import com.jelly.zzirit.domain.order.entity.OrderItem;
 import com.jelly.zzirit.domain.order.entity.OrderStatus;
-import com.jelly.zzirit.domain.order.entity.Payment;
 import com.jelly.zzirit.domain.order.repository.OrderRepository;
-import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,28 +26,8 @@ import lombok.extern.slf4j.Slf4j;
 public class CommandOrderService {
 
 	private final OrderRepository orderRepository;
+	private final CartService cartService;
 	private final CommandStockService commandStockService;
-
-	/**
-	 * 결제 취소 시도 후 주문 상태 및 결제 상태 변경
-	 * @param orderId 취소할 주문의 아이디
-	 * @param isRefundSuccessful 결제 취소 성공 여부
-	 */
-	@Transactional
-	public void applyRefundResult(Long orderId, boolean isRefundSuccessful) {
-		Order order = orderRepository.findByIdWithPayment(orderId)
-			.orElseThrow(() -> new InvalidOrderException(ORDER_NOT_FOUND));
-
-		Payment payment = order.getPayment();
-
-		if (isRefundSuccessful) {
-			order.markCancelled();
-			payment.markCancelled();
-		} else {
-			order.markPaid();
-			payment.markFailed();
-		}
-	}
 
 	/**
 	 * 24시간이 지난 주문을 COMPLETED 상태로 변경
@@ -68,6 +49,13 @@ public class CommandOrderService {
 		order.getOrderItems().forEach(item ->
 			commandStockService.decrease(item.getItem().getId(), item.getQuantity())
 		);
+
 		order.changeStatus(OrderStatus.PAID);
+
+		List<Item> orderedItems = order.getOrderItems().stream()
+			.map(OrderItem::getItem)
+			.collect(Collectors.toList());
+
+		cartService.removeOrderedItemsFromCart(order.getMember(), orderedItems);
 	}
 }

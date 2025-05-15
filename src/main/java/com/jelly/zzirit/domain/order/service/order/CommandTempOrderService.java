@@ -26,8 +26,8 @@ public class CommandTempOrderService {
 	public Order createTempOrder(PaymentRequest dto, Member member, String orderNumber) {
 		Order tempOrder = orderMapper.mapToTempOrder(dto, member, orderNumber);
 		orderMapper.mapToOrderItems(tempOrder, dto.orderItems());
-
 		orderRepository.save(tempOrder);
+
 		return tempOrder;
 	} //임시 주문 생성
 
