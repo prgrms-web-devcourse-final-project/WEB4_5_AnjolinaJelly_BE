@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class PaymentInitService {
+public class CommandPaymentInitService {
 
 	private final CommandOrderSequence orderSequenceGenerator;
 	private final CommandTempOrderService tempOrderService;
@@ -29,20 +29,18 @@ public class PaymentInitService {
 		Long todaySequence = orderSequenceGenerator.getTodaySequence();
 		String orderNumber = Order.generateOrderNumber(todaySequence);
 
-		Member member = memberRepository.findById( AuthMember.getMemberId())
+		Member member = memberRepository.findById(AuthMember.getMemberId())
 			.orElseThrow(() -> new InvalidUserException(BaseResponseStatus.USER_NOT_FOUND));
 
 		Order order = tempOrderService.createTempOrder(dto, member, orderNumber);
 
-		return PaymentInitResponse.builder()
-			.orderId(order.getOrderNumber())
-			.amount(dto.totalAmount())
-			.orderName(
-				dto.orderItems().size() > 1
-					? dto.orderItems().getFirst().itemName() + " 외 " + (dto.orderItems().size() - 1) + "건"
-					: dto.orderItems().getFirst().itemName()
-			)
-			.customerName(member.getMemberName())
-			.build();
+		return new PaymentInitResponse(
+			order.getOrderNumber(),
+			dto.totalAmount(),
+			dto.orderItems().size() > 1
+				? dto.orderItems().getFirst().itemName() + " 외 " + (dto.orderItems().size() - 1) + "건"
+				: dto.orderItems().getFirst().itemName(),
+			member.getMemberName()
+		);
 	}
 }

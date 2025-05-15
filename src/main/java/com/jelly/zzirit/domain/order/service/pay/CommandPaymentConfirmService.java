@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class PaymentConfirmService {
+public class CommandPaymentConfirmService {
 
 	private final TossPaymentClient tossPaymentClient;
 	private final OrderRepository orderRepository;
@@ -38,10 +38,10 @@ public class PaymentConfirmService {
 		OrderConfirmMessage message = OrderConfirmMessage.from(order, paymentKey, amount);
 		orderConfirmProducer.send(message);
 
-		return PaymentConfirmResponse.builder()
-			.orderId(order.getOrderNumber())
-			.paymentKey(paymentKey)
-			.amount(order.getTotalPrice().intValue())
-			.build();
+		return new PaymentConfirmResponse(
+			order.getOrderNumber(),
+			paymentKey,
+			order.getTotalPrice().intValue()
+		);
 	}
 }

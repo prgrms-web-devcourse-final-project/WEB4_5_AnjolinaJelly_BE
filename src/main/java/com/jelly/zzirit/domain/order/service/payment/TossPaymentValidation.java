@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 
 import com.jelly.zzirit.domain.order.dto.response.PaymentResponse;
 import com.jelly.zzirit.domain.order.entity.Order;
+import com.jelly.zzirit.domain.order.entity.OrderStatus;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
 
@@ -35,7 +36,7 @@ public enum TossPaymentValidation {
 	ALREADY_PROCESSED {
 		@Override
 		public void validate(Order order, PaymentResponse response, String amount) {
-			if (order.getStatus() != Order.OrderStatus.PENDING) {
+			if (order.getStatus() != OrderStatus.PENDING) {
 				throw new InvalidOrderException(BaseResponseStatus.ALREADY_PROCESSED);
 			}
 		}

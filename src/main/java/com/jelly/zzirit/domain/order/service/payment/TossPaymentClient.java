@@ -56,7 +56,6 @@ public class TossPaymentClient {
 		}
 	}
 
-
 	public PaymentResponse fetchPaymentInfo(String paymentKey) {
 		String url = BASE_URL + "/" + paymentKey;
 		HttpHeaders headers = createHeaders();
