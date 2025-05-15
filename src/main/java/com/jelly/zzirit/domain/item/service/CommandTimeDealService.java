@@ -143,11 +143,4 @@ public class CommandTimeDealService {
 			isTimeRangeOverlapping(deal.getStartTime(), deal.getEndTime(), start, end)
 		);
 	}
-
-	private boolean isOverlappingTimeDeal(LocalDateTime start, LocalDateTime end) {
-		List<TimeDeal> existingDeals = timeDealRepository.findAll();
-		return existingDeals.stream().anyMatch(deal ->
-			!(deal.getEndTime().isBefore(start) || deal.getStartTime().isAfter(end))
-		);
-	}
 }
