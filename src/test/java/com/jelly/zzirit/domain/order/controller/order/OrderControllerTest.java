@@ -47,12 +47,12 @@ import com.jelly.zzirit.domain.order.service.pay.CommandRefundService;
 import com.jelly.zzirit.domain.order.service.payment.TossPaymentClient;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
-import com.jelly.zzirit.global.support.AcceptanceRabbitTest;
+import com.jelly.zzirit.global.support.AcceptanceTest;
 
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 
-public class OrderControllerTest extends AcceptanceRabbitTest {
+public class OrderControllerTest extends AcceptanceTest {
 
 	@Autowired
 	private OrderRepository orderRepository;

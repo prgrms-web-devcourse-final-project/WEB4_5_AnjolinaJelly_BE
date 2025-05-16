@@ -32,7 +32,7 @@ import io.restassured.specification.RequestSpecification;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ExtendWith({RestDocumentationExtension.class, SpringExtension.class})
 @Sql(scripts = {"classpath:truncate.sql"}, executionPhase = AFTER_TEST_METHOD)
-public abstract class AcceptanceRabbitTest extends TestContainerConfig {
+public abstract class AcceptanceTest extends TestContainerConfig {
 
 	@LocalServerPort
 	int port;
