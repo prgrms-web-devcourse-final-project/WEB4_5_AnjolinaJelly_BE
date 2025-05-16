@@ -52,7 +52,7 @@ import com.jelly.zzirit.global.support.AcceptanceRabbitTest;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 
-public class OrderControllerRabbitTest extends AcceptanceRabbitTest {
+public class OrderControllerTest extends AcceptanceRabbitTest {
 
 	@Autowired
 	private OrderRepository orderRepository;

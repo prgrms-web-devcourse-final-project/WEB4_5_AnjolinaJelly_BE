@@ -34,7 +34,7 @@ import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 
 @Disabled
-public class ItemControllerRabbitTest extends AcceptanceRabbitTest {
+public class ItemControllerTest extends AcceptanceRabbitTest {
 
 	@Autowired
 	private ItemRepository itemRepository;
