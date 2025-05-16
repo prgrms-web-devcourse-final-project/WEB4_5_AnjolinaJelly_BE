@@ -1,17 +1,19 @@
 package com.jelly.zzirit.domain.order.mapper;
 
-import java.util.HashMap;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import com.jelly.zzirit.domain.order.dto.request.OrderItemCreateRequest;
+import com.jelly.zzirit.domain.order.dto.request.PaymentRequest;
 import com.jelly.zzirit.domain.order.entity.OrderStatus;
 import org.springframework.stereotype.Component;
 
 import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.domain.item.repository.ItemRepository;
 import com.jelly.zzirit.domain.member.entity.Member;
-import com.jelly.zzirit.domain.order.dto.request.OrderItemCreateRequest;
-import com.jelly.zzirit.domain.order.dto.request.PaymentRequest;
 import com.jelly.zzirit.domain.order.entity.Order;
 import com.jelly.zzirit.domain.order.entity.OrderItem;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
@@ -29,7 +31,7 @@ public class OrderMapper {
 		return Order.builder()
 			.member(member)
 			.orderNumber(orderNumber)
-			.totalPrice(dto.totalAmount())
+			.totalPrice(BigDecimal.valueOf(dto.totalAmount()))
 			.status(OrderStatus.PENDING)
 			.shippingRequest(dto.shippingRequest())
 			.address(dto.address())
@@ -44,17 +46,15 @@ public class OrderMapper {
 			.toList();
 
 		List<Item> items = itemRepository.findAllById(itemIds);
-		Map<Long, Item> itemMap = new HashMap<>(items.size());
-		for (Item item : items) {
-			itemMap.put(item.getId(), item);
-		}
+		Map<Long, Item> itemMap = items.stream()
+			.collect(Collectors.toMap(Item::getId, Function.identity()));
 
 		for (OrderItemCreateRequest dto : itemDtos) {
 			Item item = itemMap.get(dto.itemId());
 			if (item == null) {
 				throw new InvalidOrderException(BaseResponseStatus.ITEM_NOT_FOUND);
 			}
-			order.addOrderItem(OrderItem.of(order, item, dto.quantity(), dto.price()));
+			order.addOrderItem(OrderItem.of(order, item, dto.quantity(), item.getPrice()));
 		}
 	}
 }

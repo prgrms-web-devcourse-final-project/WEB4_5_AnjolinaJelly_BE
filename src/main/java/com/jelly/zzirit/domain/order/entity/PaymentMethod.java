@@ -7,20 +7,22 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum PaymentMethod {
 
-	CARD("카드"),
-	VIRTUAL_ACCOUNT("가상계좌"),
-	ACCOUNT_TRANSFER("계좌이체"),
-	MOBILE_PHONE("휴대폰"),
-	EASY_PAY("간편결제");
+	NONE("", ""),
+	CARD("CARD", "카드"),
+	VIRTUAL_ACCOUNT("VIRTUAL_ACCOUNT", "가상계좌"),
+	ACCOUNT_TRANSFER("TRANSFER", "계좌이체"),
+	MOBILE_PHONE("MOBILE_PHONE", "휴대폰"),
+	EASY_PAY("EASY_PAY", "간편결제");
 
-	private final String tossName;
+	private final String code;
+	private final String display;
 
-	public static PaymentMethod from(String tossValue) {
+	public static PaymentMethod from(String tossCode) {
 		for (PaymentMethod method : values()) {
-			if (method.tossName.equalsIgnoreCase(tossValue)) {
+			if (method.code.equalsIgnoreCase(tossCode)) {
 				return method;
 			}
 		}
-		throw new IllegalArgumentException("지원하지 않는 결제 수단: " + tossValue);
+		throw new IllegalArgumentException("지원하지 않는 결제 수단 코드: " + tossCode);
 	}
 }

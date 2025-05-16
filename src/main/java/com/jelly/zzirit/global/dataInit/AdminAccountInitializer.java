@@ -20,7 +20,7 @@ public class AdminAccountInitializer implements ApplicationRunner {
 
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
-    private final StringRedisTemplate redisTemplate; // Redis 주입
+    private final StringRedisTemplate redisTemplate;
 
     @Override
     public void run(ApplicationArguments args) {
@@ -48,8 +48,7 @@ public class AdminAccountInitializer implements ApplicationRunner {
     }
 
     private void clearRedis() {
-        // 이메일 인증 관련 키만 지우고 싶다면 prefix 기준으로
-        Set<String> keys = redisTemplate.keys("emailAuth:*"); // 또는 "*"로 전체 삭제도 가능
+        Set<String> keys = redisTemplate.keys("emailAuth:*");
         if (keys != null && !keys.isEmpty()) {
             redisTemplate.delete(keys);
         }

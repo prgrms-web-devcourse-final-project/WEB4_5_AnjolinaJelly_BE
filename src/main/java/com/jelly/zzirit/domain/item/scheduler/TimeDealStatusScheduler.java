@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import com.jelly.zzirit.domain.item.service.CommandTimeDealService;
+import com.jelly.zzirit.domain.item.service.TimeDealSchedulerService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,14 +15,14 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class TimeDealStatusScheduler {
 
-	private final CommandTimeDealService timeDealService;
+	private final TimeDealSchedulerService timeDealSchedulerService;
 
 	@Scheduled(fixedRate = 60_000) // 1분마다 실행
 	public void updateTimeDealStatuses() {
 		LocalDateTime now = LocalDateTime.now();
 
-		int toStartDeals = timeDealService.convertTimeDealStatusScheduledToOngoing(now);
-		int toEndDeals = timeDealService.convertTimeDealStatusOngoingToEnded(now);
+		int toStartDeals = timeDealSchedulerService.startScheduledDeals(now);
+		int toEndDeals = timeDealSchedulerService.endOngoingDeals(now);
 
 		log.info("시작된 타임딜: {}개, 종료된 타임딜: {}개", toStartDeals, toEndDeals);
 	}
