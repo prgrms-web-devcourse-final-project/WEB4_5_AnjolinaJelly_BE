@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jelly.zzirit.domain.cart.dto.request.CartItemCreateRequest;
+import com.jelly.zzirit.domain.cart.dto.request.CartItemDeleteRequest;
 import com.jelly.zzirit.domain.cart.dto.response.CartItemFetchResponse;
 import com.jelly.zzirit.domain.cart.service.CartItemService;
 import com.jelly.zzirit.global.AuthMember;
@@ -39,6 +40,20 @@ public class CartItemController {
 	@DeleteMapping("/{item-id}")
 	public BaseResponse<Empty> removeItemToCart(@PathVariable("item-id") Long itemId) {
 		cartItemService.removeItemToCart(AuthMember.getMemberId(), itemId);
+		return BaseResponse.success();
+	}
+
+	@Operation(summary = "장바구니 선택 항목 삭제", description = "장바구니에서 선택한 항목들을 제거합니다.")
+	@DeleteMapping
+	public BaseResponse<Empty> removeSelectedItems(@RequestBody CartItemDeleteRequest request) {
+		cartItemService.removeItemsFromCart(AuthMember.getMemberId(), request.itemIds());
+		return BaseResponse.success();
+	}
+
+	@Operation(summary = "장바구니 전체 삭제", description = "장바구니의 모든 항목을 제거합니다.")
+	@DeleteMapping("/all")
+	public BaseResponse<Empty> removeAllItems() {
+		cartItemService.removeAllItemsFromCart(AuthMember.getMemberId());
 		return BaseResponse.success();
 	}
 

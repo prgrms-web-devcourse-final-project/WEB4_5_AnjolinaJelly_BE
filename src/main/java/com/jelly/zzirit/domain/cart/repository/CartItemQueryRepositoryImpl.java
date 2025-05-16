@@ -47,4 +47,18 @@ public class CartItemQueryRepositoryImpl implements CartItemQueryRepository {
 			.where(cartItem.cart.id.eq(cartId), cartItem.item.id.eq(itemId))
 			.fetchOne());
 	}
+
+	@Override
+	public List<Long> findExistingItemIdsInCart(Long cartId, List<Long> itemIds) {
+		if (itemIds == null || itemIds.isEmpty()) return List.of();
+
+		return queryFactory
+			.select(cartItem.item.id)
+			.from(cartItem)
+			.where(
+				cartItem.cart.id.eq(cartId),
+				cartItem.item.id.in(itemIds)
+			)
+			.fetch();
+	}
 }

@@ -6,10 +6,13 @@ import static com.jelly.zzirit.domain.item.domain.fixture.ItemStockFixture.*;
 import static com.jelly.zzirit.domain.item.domain.fixture.TypeBrandFixture.*;
 import static com.jelly.zzirit.domain.item.domain.fixture.TypeFixture.*;
 import static io.restassured.RestAssured.*;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.http.MediaType.*;
+import static org.springframework.restdocs.payload.JsonFieldType.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
-import static org.springframework.restdocs.payload.JsonFieldType.*;
+
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,6 +21,7 @@ import org.springframework.restdocs.payload.FieldDescriptor;
 import org.springframework.restdocs.request.ParameterDescriptor;
 
 import com.jelly.zzirit.domain.cart.dto.request.CartItemCreateRequest;
+import com.jelly.zzirit.domain.cart.dto.request.CartItemDeleteRequest;
 import com.jelly.zzirit.domain.cart.entity.Cart;
 import com.jelly.zzirit.domain.cart.entity.CartItem;
 import com.jelly.zzirit.domain.cart.repository.CartItemRepository;
@@ -26,8 +30,11 @@ import com.jelly.zzirit.domain.item.entity.Brand;
 import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.domain.item.entity.Type;
 import com.jelly.zzirit.domain.item.entity.TypeBrand;
-import com.jelly.zzirit.domain.item.repository.*;
+import com.jelly.zzirit.domain.item.repository.BrandRepository;
+import com.jelly.zzirit.domain.item.repository.ItemRepository;
 import com.jelly.zzirit.domain.item.repository.stock.ItemStockRepository;
+import com.jelly.zzirit.domain.item.repository.TypeBrandRepository;
+import com.jelly.zzirit.domain.item.repository.TypeRepository;
 import com.jelly.zzirit.domain.member.entity.Member;
 import com.jelly.zzirit.domain.member.entity.authenum.Role;
 import com.jelly.zzirit.domain.member.repository.MemberRepository;
@@ -46,7 +53,6 @@ class CartItemControllerTest extends AcceptanceRabbitTest {
 	@Autowired private CartItemRepository cartItemRepository;
 
 	private Long itemId;
-
 	private Member member;
 
 	@BeforeEach
@@ -78,15 +84,15 @@ class CartItemControllerTest extends AcceptanceRabbitTest {
 
 		given(spec)
 			.contentType(APPLICATION_JSON_VALUE)
-			.cookie(getCookie())
+			.cookie(getCookie(member.getId()))
 			.body(request)
 			.filter(OpenApiDocumentationFilter.of(
 				"장바구니 상품 추가",
-				new FieldDescriptor[]{
+				new FieldDescriptor[] {
 					fieldWithPath("itemId").description("상품 ID").type(NUMBER),
 					fieldWithPath("quantity").description("추가할 수량").type(NUMBER)
 				},
-				new FieldDescriptor[]{
+				new FieldDescriptor[] {
 					fieldWithPath("success").description("성공 여부").type(BOOLEAN),
 					fieldWithPath("code").description("응답 코드").type(NUMBER),
 					fieldWithPath("httpStatus").description("HTTP 상태 코드").type(NUMBER),
@@ -116,13 +122,13 @@ class CartItemControllerTest extends AcceptanceRabbitTest {
 	@Test
 	void 장바구니_상품_삭제() {
 		given(spec)
-			.cookie(getCookie())
+			.cookie(getCookie(member.getId()))
 			.filter(OpenApiDocumentationFilter.ofWithPathParamsAndResponseFields(
 				"장바구니 상품 삭제",
-				new ParameterDescriptor[]{
+				new ParameterDescriptor[] {
 					parameterWithName("itemId").description("삭제할 상품 ID")
 				},
-				new FieldDescriptor[]{
+				new FieldDescriptor[] {
 					fieldWithPath("success").description("성공 여부").type(BOOLEAN),
 					fieldWithPath("code").description("응답 코드").type(NUMBER),
 					fieldWithPath("httpStatus").description("HTTP 상태 코드").type(NUMBER),
@@ -138,12 +144,73 @@ class CartItemControllerTest extends AcceptanceRabbitTest {
 	}
 
 	@Test
+	void 장바구니_선택_삭제_성공() {
+		given(spec)
+			.cookie(getCookie(member.getId()))
+			.body(new CartItemDeleteRequest(List.of(1L, 2L, 3L)))
+			.contentType("application/json")
+			.filter(OpenApiDocumentationFilter.ofWithRequestFieldsAndResponseFields(
+				"장바구니 선택 삭제",
+				requestFields(
+					fieldWithPath("itemIds").description("삭제할 상품 ID 목록")
+				),
+				responseFields(
+					fieldWithPath("success").description("요청 성공 여부"),
+					fieldWithPath("code").description("응답 코드"),
+					fieldWithPath("httpStatus").description("HTTP 상태 코드"),
+					fieldWithPath("message").description("응답 메시지"),
+					fieldWithPath("result").description("결과 데이터 (Empty)")
+				)
+			))
+			.when()
+			.delete("/api/cart/items")
+			.then()
+			.log().all()
+			.statusCode(200);
+	}
+
+	@Test
+	void 장바구니_선택_삭제_실패() {
+		given(spec)
+			.cookie(getCookie(member.getId()))
+			.body(new CartItemDeleteRequest(List.of(9999L))) // 존재하지 않는 ID
+			.contentType("application/json")
+			.when()
+			.delete("/api/cart/items")
+			.then()
+			.log().all()
+			.statusCode(404)
+			.body("message", equalTo("장바구니에 해당 상품이 존재하지 않습니다."));
+	}
+
+	@Test
+	void 장바구니_전체_삭제() {
+		given(spec)
+			.cookie(getCookie(member.getId()))
+			.filter(OpenApiDocumentationFilter.ofWithResponseFields(
+				"장바구니 전체 삭제",
+				new FieldDescriptor[]{
+					fieldWithPath("success").description("성공 여부").type(BOOLEAN),
+					fieldWithPath("code").description("응답 코드").type(NUMBER),
+					fieldWithPath("httpStatus").description("HTTP 상태 코드").type(NUMBER),
+					fieldWithPath("message").description("메시지").type(STRING),
+					fieldWithPath("result").description("빈 응답 객체").type(OBJECT)
+				}
+			))
+			.when()
+			.delete("/api/cart/items/all")
+			.then()
+			.log().all()
+			.statusCode(200);
+	}
+
+	@Test
 	void 장바구니_수량_증가() {
 		given(spec)
-			.cookie(getCookie())
+			.cookie(getCookie(member.getId()))
 			.filter(OpenApiDocumentationFilter.ofWithPathParamsAndResponseFields(
 				"장바구니 수량 증가",
-				new ParameterDescriptor[]{
+				new ParameterDescriptor[] {
 					parameterWithName("itemId").description("수량을 늘릴 상품 ID")
 				},
 				공통응답필드()
@@ -158,10 +225,10 @@ class CartItemControllerTest extends AcceptanceRabbitTest {
 	@Test
 	void 장바구니_수량_감소() {
 		given(spec)
-			.cookie(getCookie())
+			.cookie(getCookie(member.getId()))
 			.filter(OpenApiDocumentationFilter.ofWithPathParamsAndResponseFields(
 				"장바구니 수량 감소",
-				new ParameterDescriptor[]{
+				new ParameterDescriptor[] {
 					parameterWithName("itemId").description("수량을 줄일 상품 ID")
 				},
 				공통응답필드()
@@ -185,9 +252,9 @@ class CartItemControllerTest extends AcceptanceRabbitTest {
 		given(spec)
 			.cookie(getCookie(member.getId()))
 			.filter(OpenApiDocumentationFilter.ofWithPathParamsAndResponseFields(
-				"장바구니 수량 감소 - 실패",
-				new ParameterDescriptor[]{ parameterWithName("itemId").description("상품 ID") },
-				new FieldDescriptor[]{
+				"장바구니 수량 감소  실패",
+				new ParameterDescriptor[] {parameterWithName("itemId").description("상품 ID")},
+				new FieldDescriptor[] {
 					fieldWithPath("success").description("성공 여부").type(BOOLEAN),
 					fieldWithPath("code").description("응답 코드").type(NUMBER),
 					fieldWithPath("httpStatus").description("HTTP 상태 코드").type(NUMBER),
@@ -203,7 +270,7 @@ class CartItemControllerTest extends AcceptanceRabbitTest {
 	}
 
 	private FieldDescriptor[] 공통응답필드() {
-		return new FieldDescriptor[]{
+		return new FieldDescriptor[] {
 			fieldWithPath("success").description("성공 여부").type(BOOLEAN),
 			fieldWithPath("code").description("응답 코드").type(NUMBER),
 			fieldWithPath("httpStatus").description("HTTP 상태 코드").type(NUMBER),
