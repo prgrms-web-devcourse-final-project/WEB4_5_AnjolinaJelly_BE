@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.data.annotation.ReadOnlyProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,6 +44,7 @@ public class CartService {
 		cartItemRepository.deleteByCartMemberAndItemIn(member, orderedItems);
 	}
 
+	@Transactional(readOnly = true)
 	public CartFetchResponse getMyCart(Long memberId) {
 		Cart cart = getOrCreateCart(memberId);
 		List<CartItem> cartItems = cartItemRepository.findAllWithItemByCartId(cart.getId());
