@@ -1,4 +1,4 @@
-package com.jelly.zzirit.domain.order.service.order;
+package com.jelly.zzirit.domain.order.service.order.manage;
 
 import static com.jelly.zzirit.domain.order.entity.OrderStatus.*;
 import static org.springframework.transaction.annotation.Isolation.*;
@@ -16,6 +16,7 @@ import com.jelly.zzirit.domain.order.entity.Order;
 import com.jelly.zzirit.domain.order.entity.OrderItem;
 import com.jelly.zzirit.domain.order.entity.OrderStatus;
 import com.jelly.zzirit.domain.order.repository.OrderRepository;
+import com.jelly.zzirit.domain.order.service.order.CommandStockService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

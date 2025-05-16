@@ -1,6 +1,6 @@
 package com.jelly.zzirit.domain.order.scheduler;
 
-import com.jelly.zzirit.domain.order.service.order.CommandOrderService;
+import com.jelly.zzirit.domain.order.service.order.manage.CommandOrderService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 

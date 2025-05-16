@@ -19,6 +19,7 @@ import com.jelly.zzirit.domain.order.dto.request.PaymentRequest;
 import com.jelly.zzirit.domain.order.entity.Order;
 import com.jelly.zzirit.domain.order.mapper.OrderMapper;
 import com.jelly.zzirit.domain.order.repository.OrderRepository;
+import com.jelly.zzirit.domain.order.service.order.manage.CommandTempOrderService;
 import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
 
 @ExtendWith(MockitoExtension.class)

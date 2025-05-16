@@ -1,4 +1,4 @@
-package com.jelly.zzirit.domain.order.service.order;
+package com.jelly.zzirit.domain.order.service.order.manage;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

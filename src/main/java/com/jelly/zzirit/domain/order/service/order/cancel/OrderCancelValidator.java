@@ -1,4 +1,4 @@
-package com.jelly.zzirit.domain.order.service.order;
+package com.jelly.zzirit.domain.order.service.order.cancel;
 
 import static com.jelly.zzirit.global.dto.BaseResponseStatus.*;
 

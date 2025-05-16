@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jelly.zzirit.domain.order.dto.response.OrderFetchResponse;
-import com.jelly.zzirit.domain.order.service.order.OrderCancellationFacade;
+import com.jelly.zzirit.domain.order.service.order.cancel.OrderCancellationFacade;
 import com.jelly.zzirit.domain.order.service.order.QueryOrderService;
 import com.jelly.zzirit.global.AuthMember;
 import com.jelly.zzirit.global.dto.BaseResponse;

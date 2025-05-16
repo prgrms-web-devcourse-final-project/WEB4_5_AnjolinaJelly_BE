@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.jelly.zzirit.domain.order.dto.request.PaymentRequest;
 import com.jelly.zzirit.domain.order.dto.response.PaymentConfirmResponse;
 import com.jelly.zzirit.domain.order.dto.response.PaymentInitResponse;
-import com.jelly.zzirit.domain.order.service.order.CommandTempOrderService;
+import com.jelly.zzirit.domain.order.service.order.manage.CommandTempOrderService;
 import com.jelly.zzirit.domain.order.service.pay.CommandPaymentConfirmService;
 import com.jelly.zzirit.domain.order.service.pay.CommandPaymentInitService;
 import com.jelly.zzirit.global.dto.BaseResponse;
