@@ -18,8 +18,9 @@ import com.jelly.zzirit.domain.order.dto.request.OrderItemCreateRequest;
 import com.jelly.zzirit.domain.order.dto.request.PaymentRequest;
 import com.jelly.zzirit.domain.order.entity.Order;
 import com.jelly.zzirit.domain.order.mapper.OrderMapper;
-import com.jelly.zzirit.domain.order.repository.OrderRepository;
+import com.jelly.zzirit.domain.order.repository.order.OrderRepository;
 import com.jelly.zzirit.domain.order.service.order.manage.CommandTempOrderService;
+import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
 
 @ExtendWith(MockitoExtension.class)
@@ -66,26 +67,20 @@ class CommandTempOrderServiceTest {
 
 	@Test
 	void deleteTempOrder_성공() {
-		// given
-		String orderId = "ORD20230501-000001";
-		given(orderRepository.findByOrderNumber(orderId)).willReturn(Optional.of(order));
-		given(order.isConfirmed()).willReturn(false);
+		String orderNumber = "ORD20230501-000001";
+		given(orderRepository.getUnconfirmedOrThrow(orderNumber)).willReturn(order);
 
-		// when
-		commandTempOrderService.deleteTempOrder(orderId);
+		commandTempOrderService.deleteTempOrder(orderNumber);
 
-		// then
 		verify(orderRepository).delete(order);
 	}
 
 	@Test
-	void deleteTempOrder_이미_처리된_주문() {
-		// given
-		String orderId = "ORD20230501-000001";
-		given(orderRepository.findByOrderNumber(orderId)).willReturn(Optional.of(order));
-		given(order.isConfirmed()).willReturn(true);
+	void deleteTempOrder_확정된_주문_또는_존재하지_않는_경우() {
+		String orderNumber = "ORD20230501-000001";
+		given(orderRepository.getUnconfirmedOrThrow(orderNumber))
+			.willThrow(new InvalidOrderException(BaseResponseStatus.ALREADY_PROCESSED));
 
-		// when, then
-		assertThrows(InvalidOrderException.class, () -> commandTempOrderService.deleteTempOrder(orderId));
+		assertThrows(InvalidOrderException.class, () -> commandTempOrderService.deleteTempOrder(orderNumber));
 	}
 }

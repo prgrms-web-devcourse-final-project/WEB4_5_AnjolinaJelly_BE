@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.jelly.zzirit.domain.order.entity.Order;
-import com.jelly.zzirit.domain.order.repository.OrderRepository;
+import com.jelly.zzirit.domain.order.repository.order.OrderRepository;
 
 import lombok.RequiredArgsConstructor;
 

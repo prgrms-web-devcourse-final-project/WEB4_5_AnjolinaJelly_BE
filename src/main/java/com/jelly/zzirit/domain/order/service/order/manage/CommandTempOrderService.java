@@ -7,9 +7,7 @@ import com.jelly.zzirit.domain.member.entity.Member;
 import com.jelly.zzirit.domain.order.dto.request.PaymentRequest;
 import com.jelly.zzirit.domain.order.entity.Order;
 import com.jelly.zzirit.domain.order.mapper.OrderMapper;
-import com.jelly.zzirit.domain.order.repository.OrderRepository;
-import com.jelly.zzirit.global.dto.BaseResponseStatus;
-import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
+import com.jelly.zzirit.domain.order.repository.order.OrderRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,14 +30,8 @@ public class CommandTempOrderService {
 	} //임시 주문 생성
 
 	@Transactional
-	public void deleteTempOrder(String orderId) {
-		Order order = orderRepository.findByOrderNumber(orderId)
-			.orElseThrow(() -> new InvalidOrderException(BaseResponseStatus.ORDER_NOT_FOUND));
-
-		if (order.isConfirmed()) {
-			throw new InvalidOrderException(BaseResponseStatus.ALREADY_PROCESSED);
-		}
-
+	public void deleteTempOrder(String orderNumber) {
+		Order order = orderRepository.getUnconfirmedOrThrow(orderNumber);
 		orderRepository.delete(order);
 	} // 결제 실패 또는 취소 시 임시 주문 제거
 }

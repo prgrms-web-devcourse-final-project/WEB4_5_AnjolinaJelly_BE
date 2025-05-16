@@ -40,7 +40,7 @@ import com.jelly.zzirit.domain.member.repository.MemberRepository;
 import com.jelly.zzirit.domain.order.entity.Order;
 import com.jelly.zzirit.domain.order.entity.OrderStatus;
 import com.jelly.zzirit.domain.order.entity.Payment;
-import com.jelly.zzirit.domain.order.repository.OrderRepository;
+import com.jelly.zzirit.domain.order.repository.order.OrderRepository;
 import com.jelly.zzirit.domain.order.service.order.CommandStockService;
 import com.jelly.zzirit.domain.order.service.order.cancel.OrderCancelValidator;
 import com.jelly.zzirit.domain.order.service.pay.CommandRefundService;

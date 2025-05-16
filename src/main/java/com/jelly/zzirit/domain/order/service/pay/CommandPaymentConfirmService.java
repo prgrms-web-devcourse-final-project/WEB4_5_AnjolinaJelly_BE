@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import com.jelly.zzirit.domain.order.dto.response.PaymentConfirmResponse;
 import com.jelly.zzirit.domain.order.entity.Order;
 import com.jelly.zzirit.domain.order.entity.Payment;
-import com.jelly.zzirit.domain.order.repository.OrderRepository;
+import com.jelly.zzirit.domain.order.repository.order.OrderRepository;
 import com.jelly.zzirit.domain.order.repository.PaymentRepository;
 import com.jelly.zzirit.domain.order.service.message.OrderConfirmMessage;
 import com.jelly.zzirit.domain.order.service.message.OrderConfirmProducer;

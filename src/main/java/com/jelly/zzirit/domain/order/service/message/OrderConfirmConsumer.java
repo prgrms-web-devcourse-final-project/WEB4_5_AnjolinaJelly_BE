@@ -5,7 +5,7 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
 import com.jelly.zzirit.domain.order.entity.Order;
-import com.jelly.zzirit.domain.order.repository.OrderRepository;
+import com.jelly.zzirit.domain.order.repository.order.OrderRepository;
 import com.jelly.zzirit.domain.order.repository.PaymentRepository;
 import com.jelly.zzirit.domain.order.service.order.manage.CommandConfirmService;
 import com.jelly.zzirit.domain.order.service.pay.CommandRefundService;

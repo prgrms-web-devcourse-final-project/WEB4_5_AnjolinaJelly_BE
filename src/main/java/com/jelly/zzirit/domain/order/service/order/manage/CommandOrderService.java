@@ -15,7 +15,7 @@ import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.domain.order.entity.Order;
 import com.jelly.zzirit.domain.order.entity.OrderItem;
 import com.jelly.zzirit.domain.order.entity.OrderStatus;
-import com.jelly.zzirit.domain.order.repository.OrderRepository;
+import com.jelly.zzirit.domain.order.repository.order.OrderRepository;
 import com.jelly.zzirit.domain.order.service.order.CommandStockService;
 
 import lombok.RequiredArgsConstructor;

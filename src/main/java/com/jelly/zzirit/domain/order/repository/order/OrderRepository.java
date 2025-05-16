@@ -1,4 +1,4 @@
-package com.jelly.zzirit.domain.order.repository;
+package com.jelly.zzirit.domain.order.repository.order;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Repository;
 import com.jelly.zzirit.domain.order.entity.Order;
 
 @Repository
-public interface OrderRepository extends JpaRepository<Order, Long> {
+public interface OrderRepository extends JpaRepository<Order, Long>, OrderRepositoryCustom {
 
     @Query("SELECT o FROM Order o " +
            "JOIN FETCH o.orderItems oi " +
