@@ -120,7 +120,7 @@ public class OrderControllerTest extends AcceptanceTest {
 	class FetchOrders {
 
 		@Test
-		void 주문_전체를_조회하면_상태_코드_200을_응답한다() {
+		void 내림차순으로_주문_전체를_조회하면_상태_코드_200을_응답한다() {
 			// given
 			Long 유저_아이디 = 유저.getId();
 
@@ -131,6 +131,25 @@ public class OrderControllerTest extends AcceptanceTest {
 			// when
 			Response 응답 = 요청.when()
 				.get("/api/orders");
+
+			// then
+			응답.then()
+				.log().body()
+				.statusCode(200);
+		}
+
+		@Test
+		void 오름차순으로_주문_전체를_조회하면_상태_코드_200을_응답한다() {
+			// given
+			Long 유저_아이디 = 유저.getId();
+
+			RequestSpecification 요청 = given(spec)
+				.cookie(getCookie(유저_아이디))
+				.filter(성공_문서_생성("주문 전체 조회"));
+
+			// when
+			Response 응답 = 요청.when()
+				.get("/api/orders?sort=asc");
 
 			// then
 			응답.then()
