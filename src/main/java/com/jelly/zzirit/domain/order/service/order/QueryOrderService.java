@@ -29,15 +29,6 @@ public class QueryOrderService {
     private final OrderRepository orderRepository;
 
     /**
-     * CANCELLED, COMPLETED, PAID 상태인 주문 내역을 최신순으로 조회
-     * @param memberId 현재 로그인한 유저의 아이디
-     * @return 주문 리스트
-     */
-    public List<Order> findAllOrders(Long memberId) {
-        return orderRepository.findAllByMemberIdWithItems(memberId, EnumSet.of(CANCELLED, COMPLETED, PAID));
-    }
-
-    /**
      * CANCELLED, COMPLETED, PAID 상태인 주문 내역을 조회하며 페이징 및 정렬 처리
      * @param memberId 현재 로그인한 유저의 아이디
      * @param pageable 페이징 및 정렬 정보
@@ -68,4 +59,5 @@ public class QueryOrderService {
 
         return new PageImpl<>(sortedOrders, pageable, pagedIds.getTotalElements());
     }
+
 }
