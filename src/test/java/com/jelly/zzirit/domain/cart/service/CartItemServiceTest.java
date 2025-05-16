@@ -1,9 +1,11 @@
 package com.jelly.zzirit.domain.cart.service;
 
+import static com.jelly.zzirit.global.dto.BaseResponseStatus.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -34,6 +36,7 @@ import com.jelly.zzirit.domain.member.entity.Member;
 import com.jelly.zzirit.domain.member.repository.MemberRepository;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.exception.custom.InvalidItemException;
+import com.jelly.zzirit.global.exception.custom.InvalidUserException;
 
 @ExtendWith(MockitoExtension.class)
 class CartItemServiceTest {
@@ -165,11 +168,29 @@ class CartItemServiceTest {
 
 		assertThatThrownBy(() -> cartItemService.modifyQuantity(memberId, item.getId(), -1))
 			.isInstanceOf(InvalidItemException.class)
-			.hasMessageContaining("장바구니 수량은 1개 이상");
+			.hasMessageContaining("장바구니 수량은 1개 이상이어야 합니다.");
 
 		assertThatThrownBy(() -> cartItemService.modifyQuantity(memberId, item.getId(), +1))
 			.isInstanceOf(InvalidItemException.class)
-			.hasMessageContaining("장바구니 수량이 재고를 초과");
+			.hasMessageContaining("장바구니 수량이 재고를 초과할 수 없습니다.");
+	}
+
+	@Test
+	void 장바구니_수량_변경_실패() {
+		// given
+		Long memberId = 1L;
+		Long itemId = 100L;
+
+		Cart cart = Cart.builder().id(1L).member(Member.builder().id(memberId).build()).build();
+
+		given(cartRepository.findByMemberId(memberId)).willReturn(Optional.of(cart));
+		given(cartItemRepository.findWithItemJoinByCartIdAndItemId(cart.getId(), itemId))
+			.willReturn(Optional.empty());
+
+		// when & then
+		assertThatThrownBy(() -> cartItemService.modifyQuantity(memberId, itemId, 1))
+			.isInstanceOf(InvalidItemException.class)
+			.hasMessage("장바구니에 해당 상품이 존재하지 않습니다.");
 	}
 
 	@Test
@@ -180,6 +201,109 @@ class CartItemServiceTest {
 
 		assertThatCode(() -> cartItemService.removeItemToCart(memberId, item.getId())).doesNotThrowAnyException();
 		verify(cartItemRepository).delete(cartItem);
+	}
+
+	@Test
+	void 장바구니_상품_선택_삭제() {
+		// given
+		Long memberId = 1L;
+		Long cartId = 10L;
+		List<Long> itemIds = List.of(1L, 2L);
+
+		Cart cart = Cart.builder()
+			.id(cartId)
+			.member(Member.builder().id(memberId).build())
+			.build();
+
+		given(cartRepository.findByMemberId(memberId)).willReturn(Optional.of(cart));
+		given(cartItemRepository.findExistingItemIdsInCart(cartId, itemIds)).willReturn(itemIds);
+
+		// when
+		cartItemService.removeItemsFromCart(memberId, itemIds);
+
+		// then
+		verify(cartItemRepository).deleteAllByCartIdAndItemIdIn(cartId, itemIds);
+	}
+
+	@Test
+	void 장바구니_선택_삭제_빈값() {
+		// when
+		cartItemService.removeItemsFromCart(1L, List.of());
+
+		// then
+		verifyNoInteractions(cartRepository, cartItemRepository);
+	}
+
+	@Test
+	void 장바구니_선택_삭제_null() {
+		// when
+		cartItemService.removeItemsFromCart(1L, null);
+
+		// then
+		verifyNoInteractions(cartRepository, cartItemRepository);
+	}
+
+	@Test
+	void 장바구니_선택_삭제_장바구니없음() {
+		// given
+		given(cartRepository.findByMemberId(anyLong())).willReturn(Optional.empty());
+
+		// when & then
+		assertThatThrownBy(() -> cartItemService.removeItemsFromCart(1L, List.of(1L)))
+			.isInstanceOf(InvalidUserException.class)
+			.hasMessage("사용자를 찾을 수 없습니다.");
+	}
+
+	@Test
+	void 장바구니_선택_삭제_상품_없음_예외() {
+		// given
+		Long memberId = 1L;
+		Long cartId = 10L;
+		List<Long> itemIds = List.of(100L);
+
+		Cart cart = Cart.builder()
+			.id(cartId)
+			.member(Member.builder().id(memberId).build())
+			.build();
+
+		given(cartRepository.findByMemberId(memberId)).willReturn(Optional.of(cart));
+		given(cartItemRepository.findExistingItemIdsInCart(cartId, itemIds)).willReturn(List.of());
+
+		// when & then
+		assertThatThrownBy(() -> cartItemService.removeItemsFromCart(memberId, itemIds))
+			.isInstanceOf(InvalidItemException.class)
+			.hasMessage("장바구니에 해당 상품이 존재하지 않습니다.");
+	}
+
+	@Test
+	void 장바구니_전체_삭제() {
+		// given
+		Long memberId = 1L;
+		Long cartId = 10L;
+
+		Cart cart = Cart.builder()
+			.id(cartId)
+			.member(Member.builder().id(memberId).build())
+			.build();
+
+		given(cartRepository.findByMemberId(memberId)).willReturn(Optional.of(cart));
+
+		// when
+		cartItemService.removeAllItemsFromCart(memberId);
+
+		// then
+		verify(cartItemRepository).deleteByCartId(cartId);
+	}
+
+	@Test
+	void 장바구니_전체_삭제_회원없음() {
+		// given
+		given(cartRepository.findByMemberId(anyLong())).willReturn(Optional.empty());
+
+		// when & then
+		assertThatThrownBy(() -> cartItemService.removeAllItemsFromCart(1L))
+			.isInstanceOf(InvalidUserException.class)
+			.hasMessage("사용자를 찾을 수 없습니다.");
 	}
 
 	@Test
@@ -246,8 +370,8 @@ class CartItemServiceTest {
 		given(cartRepository.findByMemberId(memberId)).willReturn(Optional.empty());
 
 		assertThatThrownBy(() -> cartItemService.removeItemToCart(memberId, item.getId()))
-			.isInstanceOf(com.jelly.zzirit.global.exception.custom.InvalidUserException.class)
-			.hasMessageContaining(BaseResponseStatus.USER_NOT_FOUND.getMessage());
+			.isInstanceOf(InvalidUserException.class)
+			.hasMessage(USER_NOT_FOUND.getMessage());
 
 		verify(cartRepository).findByMemberId(memberId);
 	}

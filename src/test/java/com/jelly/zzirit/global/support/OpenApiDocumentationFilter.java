@@ -4,6 +4,8 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
 
 import org.springframework.restdocs.payload.FieldDescriptor;
+import org.springframework.restdocs.payload.RequestFieldsSnippet;
+import org.springframework.restdocs.payload.ResponseFieldsSnippet;
 import org.springframework.restdocs.request.ParameterDescriptor;
 import org.springframework.restdocs.snippet.Snippet;
 
@@ -59,6 +61,18 @@ public class OpenApiDocumentationFilter {
 			identifier,
 			pathParameters(pathParams),
 			responseFields(responseFields)
+		);
+	}
+
+	public static Filter ofWithRequestFieldsAndResponseFields(
+		String identifier,
+		RequestFieldsSnippet requestFieldsSnippet,
+		ResponseFieldsSnippet responseFieldsSnippet
+	) {
+		return RestAssuredRestDocumentationWrapper.document(
+			identifier,
+			requestFieldsSnippet,
+			responseFieldsSnippet
 		);
 	}
 }
