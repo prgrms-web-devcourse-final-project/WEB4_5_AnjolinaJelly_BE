@@ -2,6 +2,9 @@ package com.jelly.zzirit.domain.order.mapper;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import com.jelly.zzirit.domain.order.dto.request.OrderItemCreateRequest;
 import com.jelly.zzirit.domain.order.dto.request.PaymentRequest;
@@ -43,13 +46,14 @@ public class OrderMapper {
 			.toList();
 
 		List<Item> items = itemRepository.findAllById(itemIds);
+		Map<Long, Item> itemMap = items.stream()
+			.collect(Collectors.toMap(Item::getId, Function.identity()));
 
 		for (OrderItemCreateRequest dto : itemDtos) {
-			Item item = items.stream()
-				.filter(i -> i.getId().equals(dto.itemId()))
-				.findFirst()
-				.orElseThrow(() -> new InvalidOrderException(BaseResponseStatus.ITEM_NOT_FOUND));
-
+			Item item = itemMap.get(dto.itemId());
+			if (item == null) {
+				throw new InvalidOrderException(BaseResponseStatus.ITEM_NOT_FOUND);
+			}
 			order.addOrderItem(OrderItem.of(order, item, dto.quantity(), item.getPrice()));
 		}
 	}

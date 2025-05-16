@@ -47,6 +47,7 @@ public class CommandOrderService {
 
 	@Transactional(isolation = READ_COMMITTED, timeout = 10)
 	public void completeOrder(Order order) {
+
 		order.getOrderItems().forEach(item ->
 			commandStockService.decrease(item.getItem().getId(), item.getQuantity())
 		);
