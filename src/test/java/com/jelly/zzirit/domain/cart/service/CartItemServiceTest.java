@@ -253,6 +253,7 @@ class CartItemServiceTest {
 
 		Cart cart = createCart(cartId, memberId);
 
+
 		given(cartRepository.findByMemberId(memberId)).willReturn(Optional.of(cart));
 		given(cartItemRepository.findExistingItemIdsInCart(cartId, itemIds)).willReturn(List.of());
 
