@@ -18,17 +18,6 @@ import com.jelly.zzirit.domain.order.entity.Order;
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long>, OrderRepositoryCustom {
 
-    @Query("SELECT o FROM Order o " +
-           "JOIN FETCH o.orderItems oi " +
-           "JOIN FETCH oi.item i " +
-           "WHERE o.member.id = :memberId " +
-           "AND o.status IN :statuses " +
-           "ORDER BY o.createdAt DESC")
-    List<Order> findAllByMemberIdWithItems(
-        @Param("memberId") Long memberId,
-        @Param("statuses") Collection<OrderStatus> orderStatuses
-    );
-
     @Query("SELECT o.id FROM Order o " +
            "WHERE o.member.id = :memberId " +
            "AND o.status IN :statuses")

@@ -28,13 +28,13 @@ import com.jelly.zzirit.domain.item.repository.ItemRepository;
 import com.jelly.zzirit.domain.item.repository.stock.ItemStockRepository;
 import com.jelly.zzirit.domain.item.repository.TypeBrandRepository;
 import com.jelly.zzirit.domain.item.repository.TypeRepository;
-import com.jelly.zzirit.global.support.AcceptanceRabbitTest;
+import com.jelly.zzirit.global.support.AcceptanceTest;
 
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 
 @Disabled
-public class ItemControllerTest extends AcceptanceRabbitTest {
+public class ItemControllerTest extends AcceptanceTest {
 
 	@Autowired
 	private ItemRepository itemRepository;

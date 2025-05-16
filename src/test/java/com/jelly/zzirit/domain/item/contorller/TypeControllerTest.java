@@ -11,14 +11,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.jelly.zzirit.domain.item.repository.TypeRepository;
-import com.jelly.zzirit.global.support.AcceptanceRabbitTest;
+import com.jelly.zzirit.global.support.AcceptanceTest;
 
 import io.restassured.filter.Filter;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 
 @Disabled
-public class TypeControllerTest extends AcceptanceRabbitTest {
+public class TypeControllerTest extends AcceptanceTest {
 
 	@Autowired
 	private TypeRepository typeRepository;

@@ -1,24 +1,22 @@
 package com.jelly.zzirit.domain.order.service.order;
 
 import com.jelly.zzirit.domain.order.entity.Order;
-import com.jelly.zzirit.domain.order.entity.OrderStatus;
 import com.jelly.zzirit.domain.order.repository.order.OrderRepository;
-
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.*;
 
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
 
-import static com.jelly.zzirit.domain.order.entity.OrderStatus.*;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -28,41 +26,62 @@ public class QueryOrderServiceTest {
     OrderRepository orderRepository;
 
     @InjectMocks
-    QueryOrderService orderService;
+    QueryOrderService queryOrderService;
 
-    @Test
-    @DisplayName("주문 내역이 존재하는 경우 주문 전체를 조회하면 모든 주문을 반환한다")
-    void 주문_내역이_존재하는_경우_주문_전체를_조회하면_모든_주문을_반환한다() {
-        // given
-        Long memberId = 1L;
-        EnumSet<OrderStatus> statuses = EnumSet.of(CANCELLED, COMPLETED, PAID);
+    @Mock
+    private Order recentOrder;
 
-        List<Order> mockOrders = List.of(mock(Order.class), mock(Order.class), mock(Order.class));
+    @Mock
+    private Order oldOrder;
 
-        given(orderRepository.findAllByMemberIdWithItems(memberId, statuses))
-            .willReturn(mockOrders);
+    private Pageable pageable;
 
-        // when
-        List<Order> result = orderService.findAllOrders(memberId);
-
-        // then
-        assertThat(result).hasSize(mockOrders.size());
+    @BeforeEach
+    void setUp() {
+        pageable = PageRequest.of(0, 10, Sort.by("createdAt").descending());
     }
 
     @Test
-    @DisplayName("주문 내역이 존재하지 않는 경우 주문 전체를 조회하면 빈 리스트를 반환한다")
-    void 주문_내역이_존재하지_않는_경우_주문_전체를_조회하면_빈_리스트를_반환한다() {
+    void 주문_전체_조회_시_페이징_및_정렬_처리된_결과를_반환한다() {
         // given
         Long memberId = 1L;
+        Long oldOrderId = 1L;
+        Long recentOrderId = 2L;
 
-        when(orderRepository.findAllByMemberIdWithItems(memberId, EnumSet.of(CANCELLED, COMPLETED, PAID)))
-            .thenReturn(Collections.emptyList());
+        List<Long> orderIds = List.of(recentOrderId, oldOrderId);
+        Page<Long> pagedOrderIds = new PageImpl<>(orderIds, pageable, 2);
+
+        when(recentOrder.getId()).thenReturn(recentOrderId);
+        when(oldOrder.getId()).thenReturn(oldOrderId);
+        when(orderRepository.findOrderIdsByMemberIdAndStatuses(eq(memberId), any(), eq(pageable)))
+            .thenReturn(pagedOrderIds);
+        when(orderRepository.findByIdsWithItems(orderIds))
+            .thenReturn(List.of(recentOrder, oldOrder));
 
         // when
-        List<Order> result = orderService.findAllOrders(memberId);
+        Page<Order> result = queryOrderService.findPagedOrders(memberId, pageable);
 
         // then
-        assertThat(result).isEmpty();
+        assertEquals(2, result.getContent().size());
+        assertEquals(recentOrder, result.getContent().get(0));
+        assertEquals(oldOrder, result.getContent().get(1));
+    }
+
+    @Test
+    void 주문_전체_조회_시_주문_목록이_없다면_빈_결과를_반환한다() {
+        // given
+        Long memberId = 1L;
+        Page<Long> pagedOrderIds = new PageImpl<>(Collections.emptyList(), pageable, 0);
+
+        when(orderRepository.findOrderIdsByMemberIdAndStatuses(eq(memberId), any(), eq(pageable)))
+            .thenReturn(pagedOrderIds);
+
+        // when
+        Page<Order> result = queryOrderService.findPagedOrders(memberId, pageable);
+
+        // then
+        assertTrue(result.getContent().isEmpty());
+        assertEquals(0, result.getTotalElements());
     }
 
 }
