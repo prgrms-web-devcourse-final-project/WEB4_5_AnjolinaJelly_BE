@@ -55,3 +55,7 @@ management:
   endpoint:
     health:
       show-details: always
+
+scheduler:
+  activate-time-deal-scheduler: false
+  activate-order-scheduler: false

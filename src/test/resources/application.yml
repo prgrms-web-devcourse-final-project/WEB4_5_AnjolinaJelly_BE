@@ -82,3 +82,7 @@ logging:
 toss:
   payments:
     secret-key: dummy
+
+scheduler:
+  activate-time-deal-scheduler: false
+  activate-order-scheduler: false
