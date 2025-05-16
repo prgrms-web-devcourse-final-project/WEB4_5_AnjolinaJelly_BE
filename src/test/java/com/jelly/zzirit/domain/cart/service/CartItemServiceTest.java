@@ -41,20 +41,13 @@ import com.jelly.zzirit.global.exception.custom.InvalidUserException;
 @ExtendWith(MockitoExtension.class)
 class CartItemServiceTest {
 
-	@Mock
-	private CartRepository cartRepository;
-	@Mock
-	private CartItemRepository cartItemRepository;
-	@Mock
-	private MemberRepository memberRepository;
-	@Mock
-	private ItemQueryRepository itemQueryRepository;
-	@Mock
-	private ItemStockRepository itemStockRepository;
-	@Mock
-	private TimeDealItemRepository timeDealItemRepository;
-	@InjectMocks
-	CartItemService cartItemService;
+	@Mock private CartRepository cartRepository;
+	@Mock private CartItemRepository cartItemRepository;
+	@Mock private MemberRepository memberRepository;
+	@Mock private ItemQueryRepository itemQueryRepository;
+	@Mock private ItemStockRepository itemStockRepository;
+	@Mock private TimeDealItemRepository timeDealItemRepository;
+	@InjectMocks CartItemService cartItemService;
 
 	private final Long memberId = 1L;
 	private Cart cart;
@@ -210,10 +203,7 @@ class CartItemServiceTest {
 		Long cartId = 10L;
 		List<Long> itemIds = List.of(1L, 2L);
 
-		Cart cart = Cart.builder()
-			.id(cartId)
-			.member(Member.builder().id(memberId).build())
-			.build();
+		Cart cart = createCart(cartId, memberId);
 
 		given(cartRepository.findByMemberId(memberId)).willReturn(Optional.of(cart));
 		given(cartItemRepository.findExistingItemIdsInCart(cartId, itemIds)).willReturn(itemIds);
@@ -261,10 +251,7 @@ class CartItemServiceTest {
 		Long cartId = 10L;
 		List<Long> itemIds = List.of(100L);
 
-		Cart cart = Cart.builder()
-			.id(cartId)
-			.member(Member.builder().id(memberId).build())
-			.build();
+		Cart cart = createCart(cartId, memberId);
 
 		given(cartRepository.findByMemberId(memberId)).willReturn(Optional.of(cart));
 		given(cartItemRepository.findExistingItemIdsInCart(cartId, itemIds)).willReturn(List.of());
@@ -281,10 +268,7 @@ class CartItemServiceTest {
 		Long memberId = 1L;
 		Long cartId = 10L;
 
-		Cart cart = Cart.builder()
-			.id(cartId)
-			.member(Member.builder().id(memberId).build())
-			.build();
+		Cart cart = createCart(cartId, memberId);
 
 		given(cartRepository.findByMemberId(memberId)).willReturn(Optional.of(cart));
 
@@ -399,5 +383,12 @@ class CartItemServiceTest {
 		assertThatThrownBy(() -> cartItemService.addItemToCart(memberId, request))
 			.isInstanceOf(InvalidItemException.class)
 			.hasMessageContaining(BaseResponseStatus.ITEM_STOCK_NOT_FOUND.getMessage());
+	}
+
+	private Cart createCart(Long cartId, Long memberId) {
+		return Cart.builder()
+			.id(cartId)
+			.member(Member.builder().id(memberId).build())
+			.build();
 	}
 }
