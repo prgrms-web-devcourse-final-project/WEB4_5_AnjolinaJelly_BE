@@ -26,7 +26,7 @@ public class CommandConfirmService {
 
 		Payment payment = order.getPayment();
 		payment.changeStatus(Payment.PaymentStatus.DONE);
-		payment.changeMethod(paymentInfo.getMethod());
+		payment.changeMethod(paymentInfo.method());
 
 		commandOrderService.completeOrder(order);
 	}

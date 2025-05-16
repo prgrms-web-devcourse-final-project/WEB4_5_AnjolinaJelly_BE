@@ -27,7 +27,7 @@ public enum TossPaymentValidation {
 	ORDER_ID_MISMATCH {
 		@Override
 		public void validate(Order order, PaymentResponse response, String amount) {
-			if (!order.getOrderNumber().equals(response.getOrderId())) {
+			if (!order.getOrderNumber().equals(response.orderId())) {
 				throw new InvalidOrderException(BaseResponseStatus.ORDER_ID_MISMATCH);
 			}
 		}
@@ -45,7 +45,7 @@ public enum TossPaymentValidation {
 	TOSS_AMOUNT_MISMATCH {
 		@Override
 		public void validate(Order order, PaymentResponse response, String amount) {
-			if (response.getTotalAmount().compareTo(new BigDecimal(amount)) != 0) {
+			if (response.totalAmount().compareTo(new BigDecimal(amount)) != 0) {
 				throw new InvalidOrderException(BaseResponseStatus.TOSS_PAYMENT_AMOUNT_MISMATCH);
 			}
 		}

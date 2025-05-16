@@ -34,7 +34,7 @@ import com.jelly.zzirit.domain.member.repository.MemberRepository;
 import com.jelly.zzirit.global.support.AcceptanceRabbitTest;
 import com.jelly.zzirit.global.support.OpenApiDocumentationFilter;
 
-class CartItemControllerRabbitTest extends AcceptanceRabbitTest {
+class CartItemControllerTest extends AcceptanceRabbitTest {
 
 	@Autowired private MemberRepository memberRepository;
 	@Autowired private TypeRepository typeRepository;

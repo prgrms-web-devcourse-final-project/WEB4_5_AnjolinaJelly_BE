@@ -23,7 +23,7 @@ import com.jelly.zzirit.testutil.TimeDealTestHelper;
 @SpringBootTest
 @AutoConfigureMockMvc
 @Disabled
-public class TimeDealControllerRabbitTest extends RabbitTestMemberConfig {
+public class TimeDealControllerTest extends RabbitTestMemberConfig {
 
 	@Autowired
 	private MockMvc mockMvc;
