@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.jelly.zzirit.domain.cart.dto.response.CartItemFetchResponse;
 import com.jelly.zzirit.domain.cart.dto.response.CartFetchResponse;
@@ -17,7 +18,7 @@ import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.domain.item.entity.ItemStatus;
 import com.jelly.zzirit.domain.item.entity.stock.ItemStock;
 import com.jelly.zzirit.domain.item.entity.timedeal.TimeDealItem;
-import com.jelly.zzirit.domain.item.repository.ItemStockRepository;
+import com.jelly.zzirit.domain.item.repository.stock.ItemStockRepository;
 import com.jelly.zzirit.domain.item.repository.TimeDealItemRepository;
 import com.jelly.zzirit.domain.member.entity.Member;
 import com.jelly.zzirit.domain.member.repository.MemberRepository;
@@ -36,6 +37,11 @@ public class CartService {
 	private final MemberRepository memberRepository;
 	private final TimeDealItemRepository timeDealItemRepository;
 	private final ItemStockRepository itemStockRepository;
+
+	@Transactional
+	public void removeOrderedItemsFromCart(Member member, List<Item> orderedItems) {
+		cartItemRepository.deleteByCartMemberAndItemIn(member, orderedItems);
+	}
 
 	public CartFetchResponse getMyCart(Long memberId) {
 		Cart cart = getOrCreateCart(memberId);

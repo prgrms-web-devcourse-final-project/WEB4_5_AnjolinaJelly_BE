@@ -41,6 +41,18 @@ custom:
     max-image-size: 5MB
     max-file-size: 20MB
 
+resilience4j:
+  circuitbreaker:
+    instances:
+      tossPayment:
+        registerHealthIndicator: true
+        failureRateThreshold: 50
+        slowCallRateThreshold: 50
+        slowCallDurationThreshold: 2s
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 2
+        slidingWindowSize: 10
+
 logging:
   level:
     org:

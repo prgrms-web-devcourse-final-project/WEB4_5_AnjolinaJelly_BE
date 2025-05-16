@@ -73,6 +73,11 @@ dependencies {
     runtimeOnly 'com.mysql:mysql-connector-j'
     annotationProcessor 'org.projectlombok:lombok'
 
+    implementation "org.springframework.boot:spring-boot-starter-aop"
+    implementation group: 'io.github.resilience4j', name: 'resilience4j-spring-boot3', version: '2.1.0'
+    implementation 'org.springframework.boot:spring-boot-starter-amqp' // 레빗 mq 추가
+
+
     implementation 'org.redisson:redisson-spring-boot-starter:3.23.2'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
@@ -90,6 +95,8 @@ dependencies {
     testImplementation 'io.rest-assured:rest-assured'
     testImplementation "org.testcontainers:testcontainers:1.19.0"
     testImplementation "org.testcontainers:junit-jupiter:1.19.0"
+    testImplementation "org.testcontainers:rabbitmq:1.19.0"
+
 
     swaggerUI 'org.webjars:swagger-ui:4.11.1'
 

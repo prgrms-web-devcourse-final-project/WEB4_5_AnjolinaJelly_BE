@@ -44,10 +44,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
 	@Override
 	public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse res) throws AuthenticationException {
-		if (!req.getServletPath().equals("/api/auth/basic/login")) {
-			return null;
-		}
-
 		try {
 			Map<String, String> credentials = objectMapper.readValue(req.getInputStream(), new TypeReference<>() {});
 			String userEmail = credentials.get("username");
@@ -70,10 +66,14 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 		Long userId = memberPrincipal.getMemberId();
 		Role role = memberPrincipal.getRole();
 
+		// 기존 토큰 무효화 -> 중복 로그인 방지
+		tokenService.invalidatePreviousTokens(request);
+
 		tokenService.generateTokensAndSetCookies(response, userId, role);
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		response.setStatus(HttpStatus.OK.value());
-		log.info("로그인 성공");
+
+		log.info("로그인 성공: userId={}, role={}", userId, role);
 	}
 
 	@Override
@@ -92,5 +92,4 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 		response.setStatus(errorResponse.getHttpStatusCode());
 		objectMapper.writeValue(response.getWriter(), errorResponse);
 	}
-
 }

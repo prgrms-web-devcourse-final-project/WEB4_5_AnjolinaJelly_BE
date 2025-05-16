@@ -10,13 +10,38 @@ spring:
       host: localhost
       port: 6479
 
+  rabbitmq:
+    host: localhost
+    port: 5772
+    listener:
+      simple:
+        retry:
+          enabled: true
+          max-attempts: 2
+          initial-interval: 1000
+          multiplier: 1.5
+          max-interval: 3000
+        default-requeue-rejected: false
+
+rabbitmq:
+  queue:
+    name: order.confirm.queue
+    dlq-name: order.confirm.dlq
+  exchange:
+    name: order.confirm.exchange
+    dlq-name: order.confirm.dlx
+  routing:
+    key: order.confirm.routing-key
+    dlq-key: order.confirm.dlq-routing-key
+
+
 custom:
   file:
     upload-dir: uploads/
   site:
     domain: localhost
     back-url: http://localhost:8080
-    front-url: http://localhost:3000
+    front-url: http://localhost:5173
 
 oauth2:
   naver:
