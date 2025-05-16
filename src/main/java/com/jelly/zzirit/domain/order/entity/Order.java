@@ -97,14 +97,6 @@ public class Order extends BaseTime {
 		}
 	}
 
-	public void markPaid() {
-		this.status = OrderStatus.PAID;
-	}
-
-	public void markCancelled() {
-		this.status = OrderStatus.CANCELLED;
-	}
-
 	public boolean isConfirmed() {
 		return this.status == OrderStatus.PAID || this.status == OrderStatus.COMPLETED;
 	}
