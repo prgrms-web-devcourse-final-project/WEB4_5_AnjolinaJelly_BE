@@ -34,12 +34,14 @@ public class Payment extends BaseTime {
 		READY, DONE, CANCELLED, FAILED
 	}
 
-	public static Payment of(String paymentKey, String methodRaw) {
-		return Payment.builder()
+	public static Payment of(String paymentKey, Order order) {
+		Payment payment = Payment.builder()
 			.paymentKey(paymentKey)
-			.paymentMethod(PaymentMethod.from(methodRaw))
-			.paymentStatus(PaymentStatus.DONE)
+			.paymentMethod(PaymentMethod.NONE)
+			.paymentStatus(Payment.PaymentStatus.READY)
 			.build();
+		order.addPayment(payment);
+		return payment;
 	}
 
 	public void markCancelled() {
@@ -50,4 +52,11 @@ public class Payment extends BaseTime {
 		paymentStatus = PaymentStatus.FAILED;
 	}
 
+	public void changeStatus(PaymentStatus newStatus) {
+		this.paymentStatus = newStatus;
+	}
+
+	public void changeMethod(String methodRaw) {
+		this.paymentMethod = PaymentMethod.from(methodRaw);
+	}
 }

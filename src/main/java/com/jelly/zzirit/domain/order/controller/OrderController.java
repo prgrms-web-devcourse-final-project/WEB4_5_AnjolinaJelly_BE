@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jelly.zzirit.domain.order.dto.response.OrderFetchResponse;
-import com.jelly.zzirit.domain.order.service.OrderCancellationFacade;
+import com.jelly.zzirit.domain.order.service.order.cancel.OrderCancellationFacade;
 import com.jelly.zzirit.domain.order.service.order.QueryOrderService;
 import com.jelly.zzirit.global.AuthMember;
 import com.jelly.zzirit.global.dto.BaseResponse;
@@ -28,7 +28,7 @@ import static org.springframework.data.domain.Sort.Direction.*;
 @RestController
 @RequestMapping("/api/orders")
 @RequiredArgsConstructor
-@Tag(name = "주문 API", description = "주문과 관련된 API를 설명합니다.")
+@Tag(name = "주문 API", description = "주문과 관련된 API 를 설명합니다.")
 public class OrderController {
 
     private final QueryOrderService queryOrderService;
@@ -61,5 +61,4 @@ public class OrderController {
 
         return BaseResponse.success();
     }
-
 }

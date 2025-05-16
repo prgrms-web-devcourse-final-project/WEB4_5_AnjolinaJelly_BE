@@ -5,48 +5,41 @@ import static org.mockito.BDDMockito.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.boot.autoconfigure.mail.MailProperties;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.jelly.zzirit.global.exception.custom.InvalidUserException;
 
+@ExtendWith(MockitoExtension.class)
 class CommandEmailServiceTest {
-
-	@Mock
-	private JavaMailSender javaMailSender;
 
 	@Mock
 	private EmailVerificationService emailVerificationService;
 
 	@Mock
-	private MailProperties mailProperties;
+	private EmailAsyncProcessor emailAsyncProcessor;
 
 	@InjectMocks
-	private CommandEmailService commandEmailService;
+	private CommandEmailService emailService;
 
 	@BeforeEach
 	void setUp() {
-		MockitoAnnotations.openMocks(this);
-		given(mailProperties.getUsername()).willReturn("test@example.com");
+		given(emailVerificationService.isAlreadyVerified(anyString())).willReturn(false);
 	}
 
 	@Test
 	void 이메일_인증코드_발송_성공() {
 		// given
 		String email = "user@example.com";
-		given(emailVerificationService.isRequestLocked(email)).willReturn(false);
-		given(emailVerificationService.isAlreadyVerified(email)).willReturn(false);
 
 		// when
-		commandEmailService.sendEmailVerificationCode(email);
+		emailService.sendEmailVerificationCode(email);
 
 		// then
-		then(javaMailSender).should().send(any(SimpleMailMessage.class));
 		then(emailVerificationService).should().clearVerificationCode(email);
+		then(emailAsyncProcessor).should().emailSendCode(eq(email), anyString());
 		then(emailVerificationService).should().storeVerificationCode(eq(email), anyString());
 	}
 
@@ -54,11 +47,10 @@ class CommandEmailServiceTest {
 	void 이메일_이미_검증된_경우_예외_발생() {
 		// given
 		String email = "user@example.com";
-		given(emailVerificationService.isRequestLocked(email)).willReturn(false);
 		given(emailVerificationService.isAlreadyVerified(email)).willReturn(true);
 
 		// when, then
-		assertThatThrownBy(() -> commandEmailService.sendEmailVerificationCode(email))
+		assertThatThrownBy(() -> emailService.sendEmailVerificationCode(email))
 			.isInstanceOf(InvalidUserException.class);
 	}
 
@@ -71,7 +63,7 @@ class CommandEmailServiceTest {
 		given(emailVerificationService.getStoredCode(email)).willReturn(code);
 
 		// when
-		commandEmailService.verifyEmailCode(email, code);
+		emailService.verifyEmailCode(email, code);
 
 		// then
 		then(emailVerificationService).should().markAsVerified(email);
@@ -85,7 +77,7 @@ class CommandEmailServiceTest {
 		given(emailVerificationService.getStoredCode(email)).willReturn("654321");
 
 		// when, then
-		assertThatThrownBy(() -> commandEmailService.verifyEmailCode(email, "123456"))
+		assertThatThrownBy(() -> emailService.verifyEmailCode(email, "123456"))
 			.isInstanceOf(InvalidUserException.class);
 	}
 }

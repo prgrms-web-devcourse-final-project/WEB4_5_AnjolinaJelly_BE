@@ -29,6 +29,21 @@ services:
     networks:
       - dev_network
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: zzirit_rabbitmq_dev
+    ports:
+      - "5772:5672"
+      - "15872:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+    volumes:
+      - zzirit_rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - dev_network
+
+
 networks:
   dev_network:
     driver: bridge
@@ -36,3 +51,4 @@ networks:
 volumes:
   zzirit_mysql_data:
   zzirit_redis_data:
+  zzirit_rabbitmq_data:

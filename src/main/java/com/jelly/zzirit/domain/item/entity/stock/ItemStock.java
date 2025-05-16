@@ -48,10 +48,6 @@ public class ItemStock extends BaseEntity {
 		return Empty.getInstance();
 	}
 
-	public void addSoldQuantity(int quantity) {
-		this.soldQuantity += quantity;
-	}
-
 	public Empty changeQuantity(int newQuantity) {
 		if (newQuantity < 0) {
 			throw new InvalidItemException(BaseResponseStatus.INVALID_STOCK);

@@ -54,20 +54,21 @@ public enum BaseResponseStatus {
 	TOSS_CONFIRM_FAILED(false, 3007, "토스 결제 최종 승인에 실패했습니다.", HttpStatus.BAD_GATEWAY),
 	NOT_PAID_ORDER(false, 3008, "결제 완료된 주문만 취소할 수 있습니다.", HttpStatus.BAD_REQUEST),
 	EXPIRED_CANCEL_TIME(false, 3009, "24시간 이내의 주문만 취소할 수 있습니다.", HttpStatus.BAD_REQUEST),
+	UNSUPPORTED_PAYMENT_PROVIDER(false, 3010, "지원하지 않는 결제 수단입니다.", HttpStatus.BAD_REQUEST),
+	UNREGISTERED_PAYMENT_GATEWAY(false, 3011, "PG사 구현체가 등록되어 있지 않습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
 
 	// 환불 및 상태 변경 관련 추가
-	TOSS_REFUND_FAILED(false, 3010, "토스 결제 취소 API 실패입니다.", HttpStatus.BAD_GATEWAY),
-	ORDER_REFUND_FAILED(false, 3011, "환불 처리에 실패했습니다. 관리자에게 문의하세요.", HttpStatus.INTERNAL_SERVER_ERROR),
-	STOCK_RESTORE_FAILED(false, 3012, "재고 복원에 실패했습니다.", HttpStatus.BAD_REQUEST),
-	TOSS_PAYMENT_NOT_DONE(false, 3013, "토스 결제가 완료되지 않았습니다.", HttpStatus.BAD_REQUEST),
-	TOSS_PAYMENT_AMOUNT_MISMATCH(false, 3014, "토스 결제 금액이 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
-	STOCK_REDUCE_FAILED(false, 3015, "재고 차감에 실패했습니다.", HttpStatus.BAD_REQUEST),
-	PAYMENT_NOT_FOUND(false, 3016, "결제 정보를 찾을 수 없습니다.", HttpStatus.BAD_REQUEST),
-	STOCK_NOT_FOUND(false, 3017, "재고 정보를 찾을 수 없습니다.", HttpStatus.BAD_REQUEST),
-	OUT_OF_STOCK(false, 3018, "상품 재고가 부족합니다.", HttpStatus.BAD_REQUEST),
-
-	LOCK_FAILED(false, 3019, "다른 요청과 충돌이 발생했습니다. 다시 시도해주세요.", HttpStatus.CONFLICT),
-	LOCK_INTERRUPTED(false, 3020, "시스템 인터럽트가 발생했습니다. 다시 시도해주세요.", HttpStatus.INTERNAL_SERVER_ERROR),
+	TOSS_REFUND_FAILED(false, 3020, "토스 결제 취소 API 실패입니다.", HttpStatus.BAD_GATEWAY),
+	ORDER_REFUND_FAILED(false, 3021, "환불 처리에 실패했습니다. 관리자에게 문의하세요.", HttpStatus.INTERNAL_SERVER_ERROR),
+	STOCK_RESTORE_FAILED(false, 3022, "재고 복원에 실패했습니다.", HttpStatus.BAD_REQUEST),
+	TOSS_PAYMENT_NOT_DONE(false, 3023, "토스 결제가 완료되지 않았습니다.", HttpStatus.BAD_REQUEST),
+	TOSS_PAYMENT_AMOUNT_MISMATCH(false, 3024, "토스 결제 금액이 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
+	STOCK_REDUCE_FAILED(false, 3025, "재고 차감에 실패했습니다.", HttpStatus.BAD_REQUEST),
+	PAYMENT_NOT_FOUND(false, 3026, "결제 정보를 찾을 수 없습니다.", HttpStatus.BAD_REQUEST),
+	STOCK_NOT_FOUND(false, 3027, "재고 정보를 찾을 수 없습니다.", HttpStatus.BAD_REQUEST),
+	OUT_OF_STOCK(false, 3028, "상품 재고가 부족합니다.", HttpStatus.BAD_REQUEST),
+	LOCK_FAILED(false, 3029, "다른 요청과 충돌이 발생했습니다. 다시 시도해주세요.", HttpStatus.CONFLICT),
+	LOCK_INTERRUPTED(false, 3030, "시스템 인터럽트가 발생했습니다. 다시 시도해주세요.", HttpStatus.INTERNAL_SERVER_ERROR),
 
 	// 실패
 	VALIDATION_FAILED(false, 40000, "입력 값이 유효하지 않습니다", HttpStatus.BAD_REQUEST),

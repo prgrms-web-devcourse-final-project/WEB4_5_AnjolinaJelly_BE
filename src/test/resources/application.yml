@@ -25,12 +25,19 @@ spring:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.H2Dialect
+
   sql:
     init:
       mode: never
 
   jwt:
     secret: testtesttesttesttesttesttesttesttesttesttesttesttesttesttest
+
+  rabbitmq:
+    host: dummy
+    port: 1234
+    username: dummy
+    password: dummy
 
 oauth2:
   naver:
@@ -73,12 +80,27 @@ cloud:
     stack:
       auto: false
 
+toss:
+  payments:
+    secret-key: dummy
+
+discord:
+  webhook:
+    url: https://example.com/webhook/test
+
+rabbitmq:
+  queue:
+    name: test.order.confirm.queue
+    dlq-name: test.order.confirm.dlq
+  exchange:
+    name: test.order.confirm.exchange
+    dlq-name: test.order.confirm.dlx
+  routing:
+    key: test.order.confirm.routing-key
+    dlq-key: test.order.confirm.dlq-routing-key
+
 logging:
   level:
     org:
       hibernate:
         SQL: debug
-
-toss:
-  payments:
-    secret-key: dummy

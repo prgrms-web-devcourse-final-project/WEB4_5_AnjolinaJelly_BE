@@ -1,7 +1,5 @@
 package com.jelly.zzirit.domain.item.service;
 
-import java.util.List;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -14,7 +12,7 @@ import com.jelly.zzirit.domain.item.entity.stock.ItemStock;
 import com.jelly.zzirit.domain.item.entity.timedeal.TimeDealItem;
 import com.jelly.zzirit.domain.item.repository.ItemQueryRepository;
 import com.jelly.zzirit.domain.item.repository.ItemRepository;
-import com.jelly.zzirit.domain.item.repository.ItemStockRepository;
+import com.jelly.zzirit.domain.item.repository.stock.ItemStockRepository;
 import com.jelly.zzirit.domain.item.repository.TimeDealItemRepository;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.exception.custom.InvalidItemException;
