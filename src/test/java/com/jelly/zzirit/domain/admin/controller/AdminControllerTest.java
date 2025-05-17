@@ -40,14 +40,12 @@ public class AdminControllerTest extends AcceptanceTest {
 
     @BeforeEach
     void setUp() {
-        // ✅ 1. 타입과 브랜드 및 타입-브랜드 관계 삽입
         Type type = typeRepository.save(new Type("노트북"));
         Brand brand = brandRepository.save(new Brand("삼성"));
         TypeBrand typeBrand = typeBrandRepository.save(new TypeBrand(type, brand));
         typeId = type.getId();
         brandId = brand.getId();
 
-        // ✅ 2. 테스트용 상품 등록
         ItemCreateRequest request = new ItemCreateRequest(
                 "테스트상품",
                 100,
@@ -110,7 +108,8 @@ public class AdminControllerTest extends AcceptanceTest {
     }
 
     @Test
-    void 관리자_상품_등록() {
+    @DisplayName("관리자 상품 등록 성공")
+    void 관리자_상품_등록_성공() {
         // given
         ItemCreateRequest request = new ItemCreateRequest(
                 "관리자테스트상품",
@@ -152,4 +151,111 @@ public class AdminControllerTest extends AcceptanceTest {
                 .log().all()
                 .statusCode(200);
     }
+
+    @Test
+    @DisplayName("관리자 상품 단건 조회 성공")
+    void 관리자_상품_단건_조회_성공() {
+        // 상품 목록 조회를 통해 itemId를 하나 가져옴
+        Long itemId = getFirstItemId();
+
+        given(spec)
+                .cookie(getAdminCookie())
+                .filter(OpenApiDocumentationFilter.ofWithPathParamsAndResponseFields(
+                        "관리자 상품 단건 조회",
+                        new ParameterDescriptor[]{
+                                parameterWithName("itemId").description("조회할 상품 ID")
+                        },
+                        new FieldDescriptor[]{
+                                fieldWithPath("success").description("요청 성공 여부").type(BOOLEAN),
+                                fieldWithPath("code").description("응답 코드").type(NUMBER),
+                                fieldWithPath("httpStatus").description("HTTP 상태 코드").type(NUMBER),
+                                fieldWithPath("message").description("응답 메시지").type(STRING),
+                                fieldWithPath("result.id").description("상품 ID").type(NUMBER),
+                                fieldWithPath("result.name").description("상품 이름").type(STRING),
+                                fieldWithPath("result.imageUrl").description("상품 이미지").type(STRING),
+                                fieldWithPath("result.type").description("상품 타입").type(STRING),
+                                fieldWithPath("result.brand").description("상품 브랜드").type(STRING),
+                                fieldWithPath("result.price").description("상품 가격").type(NUMBER),
+                                fieldWithPath("result.stockQuantity").description("재고 수량").type(NUMBER)
+                        }
+                ))
+                .when()
+                .get("/api/admin/items/{itemId}", itemId)
+                .then()
+                .statusCode(200);
+    }
+
+    @Test
+    @DisplayName("관리자 상품 수정 성공")
+    void 관리자_상품_수정_성공() {
+        Long itemId = getFirstItemId();
+
+        ItemUpdateRequest request = new ItemUpdateRequest(
+                80,
+                new BigDecimal("12900")
+        );
+
+        given(spec)
+                .cookie(getAdminCookie())
+                .contentType(APPLICATION_JSON_VALUE)
+                .body(request)
+                .filter(OpenApiDocumentationFilter.ofWithRequestFieldsAndResponseFields(
+                        "관리자 상품 수정",
+                        requestFields(
+                                fieldWithPath("price").description("상품 가격").type(NUMBER),
+                                fieldWithPath("stockQuantity").description("재고 수량").type(NUMBER)
+                        ),
+                        responseFields(
+                                fieldWithPath("success").description("요청 성공 여부").type(BOOLEAN),
+                                fieldWithPath("code").description("응답 코드").type(NUMBER),
+                                fieldWithPath("httpStatus").description("HTTP 상태 코드").type(NUMBER),
+                                fieldWithPath("message").description("응답 메시지").type(STRING),
+                                fieldWithPath("result").description("빈 응답 객체").type(OBJECT)
+                        )
+                ))
+                .when()
+                .put("/api/admin/items/{itemId}", itemId)
+                .then()
+                .statusCode(200);
+    }
+
+    @Test
+    @DisplayName("관리자 상품 삭제 성공")
+    void 관리자_상품_삭제_성공() {
+        // 상품 목록에서 삭제할 ID 가져오기
+        Long itemId = getFirstItemId();
+
+        given(spec)
+                .cookie(getAdminCookie())
+                .filter(OpenApiDocumentationFilter.ofWithPathParamsAndResponseFields(
+                        "관리자 상품 삭제",
+                        new ParameterDescriptor[]{
+                                parameterWithName("itemId").description("삭제할 상품 ID")
+                        },
+                        new FieldDescriptor[]{
+                                fieldWithPath("success").description("요청 성공 여부").type(BOOLEAN),
+                                fieldWithPath("code").description("응답 코드").type(NUMBER),
+                                fieldWithPath("httpStatus").description("HTTP 상태 코드").type(NUMBER),
+                                fieldWithPath("message").description("응답 메시지").type(STRING),
+                                fieldWithPath("result").description("빈 응답 객체").type(OBJECT)
+                        }
+                ))
+                .when()
+                .delete("/api/admin/items/{itemId}", itemId)
+                .then()
+                .statusCode(200);
+    }
+
+    private Long getFirstItemId() {
+        return ((Number) given(spec)
+                .cookie(getAdminCookie())
+                .queryParam("page", 0)
+                .queryParam("size", 1)
+                .when()
+                .get("/api/admin/items")
+                .then()
+                .extract()
+                .path("result.content[0].id")).longValue();
+    }
+
 }
