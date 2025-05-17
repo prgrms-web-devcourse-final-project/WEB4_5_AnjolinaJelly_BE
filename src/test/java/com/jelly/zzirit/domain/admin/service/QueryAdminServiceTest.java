@@ -78,6 +78,7 @@ public class QueryAdminServiceTest {
     void 관리자_상품_조회_이름으로_조회하면_조건에_맞는_상품들을_반환한다() {
         // given
         String name = "냉장고";
+        String sort = "asc";
         Pageable pageable = PageRequest.of(0, 10);
 
         AdminItemFetchResponse dto1 = new AdminItemFetchResponse(
@@ -88,10 +89,10 @@ public class QueryAdminServiceTest {
         );
         Page<AdminItemFetchResponse> resultPage = new PageImpl<>(List.of(dto1, dto2), pageable, 2);
 
-        when(itemQueryRepository.findAdminItems(name, pageable)).thenReturn(resultPage);
+        when(itemQueryRepository.findAdminItems(name, sort, pageable)).thenReturn(resultPage);
 
         // when
-        PageResponse<AdminItemFetchResponse> response = queryAdminService.getSearchItems(name, pageable);
+        PageResponse<AdminItemFetchResponse> response = queryAdminService.getSearchItems(name, sort, pageable);
 
         // then
         assertNotNull(response);
@@ -99,7 +100,7 @@ public class QueryAdminServiceTest {
         assertEquals("삼성 냉장고", response.getContent().get(0).name());
         assertEquals("LG 냉장고", response.getContent().get(1).name());
 
-        verify(itemQueryRepository).findAdminItems(name, pageable);
+        verify(itemQueryRepository).findAdminItems(name, sort, pageable);
     }
 
 
@@ -107,6 +108,7 @@ public class QueryAdminServiceTest {
     @Test
     void 관리자_상품_조회_필터가_없으면_전체목록을_조회한다() {
         // given
+        String sort = "asc";
         Pageable pageable = PageRequest.of(0, 10);
 
         AdminItemFetchResponse dto = new AdminItemFetchResponse(
@@ -114,16 +116,16 @@ public class QueryAdminServiceTest {
         );
         Page<AdminItemFetchResponse> resultPage = new PageImpl<>(List.of(dto), pageable, 1);
 
-        when(itemQueryRepository.findAdminItems(null, pageable)).thenReturn(resultPage);
+        when(itemQueryRepository.findAdminItems(null, sort, pageable)).thenReturn(resultPage);
 
         // when
-        PageResponse<AdminItemFetchResponse> response = queryAdminService.getSearchItems(null, pageable);
+        PageResponse<AdminItemFetchResponse> response = queryAdminService.getSearchItems(null, sort, pageable);
 
         // then
         assertNotNull(response);
         assertEquals(1, response.getContent().size());
         assertEquals("아이폰", response.getContent().get(0).name());
 
-        verify(itemQueryRepository).findAdminItems(null, pageable);
+        verify(itemQueryRepository).findAdminItems(null, sort, pageable);
     }
 }
