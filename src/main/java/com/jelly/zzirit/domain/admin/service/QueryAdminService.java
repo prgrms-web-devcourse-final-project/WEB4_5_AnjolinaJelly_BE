@@ -23,9 +23,9 @@ public class QueryAdminService {
         return itemQueryRepository.findAdminItemById(itemId);
     }
 
-    public PageResponse<AdminItemFetchResponse> getSearchItems(String name, Pageable pageable) {
+    public PageResponse<AdminItemFetchResponse> getSearchItems(String name, String sort, Pageable pageable) {
         return PageResponse.from(
-                itemQueryRepository.findAdminItems(name, pageable)
+                itemQueryRepository.findAdminItems(name, sort, pageable)
         );
     }
 }

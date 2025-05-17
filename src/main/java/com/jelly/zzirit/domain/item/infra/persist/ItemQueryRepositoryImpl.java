@@ -142,12 +142,16 @@ public class ItemQueryRepositoryImpl implements ItemQueryRepository {
 	}
 
 	@Override
-	public Page<AdminItemFetchResponse> findAdminItems(String name, Pageable pageable) {
+	public Page<AdminItemFetchResponse> findAdminItems(String name, String sort, Pageable pageable) {
 		QItem i = QItem.item;
 		QItemStock s = QItemStock.itemStock;
 		QTypeBrand tb = QTypeBrand.typeBrand;
 		QType t = QType.type;
 		QBrand b = QBrand.brand;
+
+		OrderSpecifier<?> orderSpecifier = sort != null && sort.equalsIgnoreCase("asc")
+				? i.createdAt.asc()
+				: i.createdAt.desc();
 
 		List<AdminItemFetchResponse> content = queryFactory
 				.select(Projections.constructor(AdminItemFetchResponse.class,
@@ -164,7 +168,8 @@ public class ItemQueryRepositoryImpl implements ItemQueryRepository {
 				.join(tb.type, t)
 				.join(tb.brand, b)
 				.join(s).on(s.item.eq(i))
-				.where(containsName(name)) // ✅ 이름 조건만 남김
+				.where(containsName(name))
+				.orderBy(orderSpecifier)
 				.offset(pageable.getOffset())
 				.limit(pageable.getPageSize())
 				.fetch();
@@ -176,7 +181,7 @@ public class ItemQueryRepositoryImpl implements ItemQueryRepository {
 				.join(tb.type, t)
 				.join(tb.brand, b)
 				.join(s).on(s.item.eq(i))
-				.where(containsName(name)) // ✅ 이름 조건만 남김
+				.where(containsName(name))
 				.fetchOne();
 
 		return PageableExecutionUtils.getPage(content, pageable, () -> count == null ? 0 : count);

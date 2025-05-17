@@ -72,11 +72,12 @@ public class AdminController {
 	@GetMapping("/items")
 	public BaseResponse<PageResponse<AdminItemFetchResponse>> getItems(
 			@RequestParam(required = false) String name,
+			@RequestParam(defaultValue = "desc") String sort,
 			@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "10") int size
 	) {
 		Pageable pageable = PageRequest.of(page, size);
-		return BaseResponse.success(queryAdminService.getSearchItems(name, pageable));
+		return BaseResponse.success(queryAdminService.getSearchItems(name, sort, pageable));
 	}
 
 	@Operation(summary = "관리자 상품 이미지 업로드", description = "상품 등록 전 이미지를 S3에 업로드하고 URL 반환")
