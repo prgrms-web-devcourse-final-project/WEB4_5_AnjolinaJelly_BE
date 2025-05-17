@@ -14,7 +14,7 @@ import com.jelly.zzirit.global.support.RabbitTestMemberConfig;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class MyPageControllerIntegrationRabbitTest extends RabbitTestMemberConfig {
+class MyPageControllerTest extends RabbitTestMemberConfig {
 
 	@Autowired
 	private MockMvc mockMvc;

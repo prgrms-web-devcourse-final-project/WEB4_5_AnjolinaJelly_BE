@@ -1,6 +1,7 @@
 package com.jelly.zzirit.domain.order.service.pay;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.jelly.zzirit.domain.order.dto.response.PaymentConfirmResponse;
 import com.jelly.zzirit.domain.order.entity.Order;
@@ -26,6 +27,7 @@ public class CommandPaymentConfirmService {
 	private final PaymentRepository paymentRepository;
 	private final OrderConfirmProducer orderConfirmProducer;
 
+	@Transactional
 	public PaymentConfirmResponse confirmPayment(String paymentKey, String orderNumber, String amount) {
 		Order order = orderRepository.findByOrderNumber(orderNumber)
 			.orElseThrow(() -> new InvalidOrderException(BaseResponseStatus.ORDER_NOT_FOUND));
@@ -38,10 +40,6 @@ public class CommandPaymentConfirmService {
 		OrderConfirmMessage message = OrderConfirmMessage.from(order, paymentKey, amount);
 		orderConfirmProducer.send(message);
 
-		return new PaymentConfirmResponse(
-			order.getOrderNumber(),
-			paymentKey,
-			order.getTotalPrice().intValue()
-		);
+		return PaymentConfirmResponse.from(order, paymentKey);
 	}
 }

@@ -19,7 +19,7 @@ import com.jelly.zzirit.global.redis.TestContainerConfig;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class AuthControllerRabbitTest extends TestContainerConfig {
+class AuthControllerTest extends TestContainerConfig {
 
 	@Autowired
 	MockMvc mockMvc;
