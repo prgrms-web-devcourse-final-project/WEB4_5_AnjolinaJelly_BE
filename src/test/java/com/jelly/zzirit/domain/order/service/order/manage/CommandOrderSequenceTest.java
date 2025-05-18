@@ -1,4 +1,4 @@
-package com.jelly.zzirit.domain.order.service.order;
+package com.jelly.zzirit.domain.order.service.order.manage;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
@@ -13,8 +13,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
-
-import com.jelly.zzirit.domain.order.service.order.manage.CommandOrderSequence;
 
 @ExtendWith(MockitoExtension.class)
 class CommandOrderSequenceTest {

@@ -29,19 +29,54 @@ class CommandStockServiceTest extends TestContainerConfig {
 	@Autowired
 	private ItemStockRepository itemStockRepository;
 
-	@Transactional
-	@Test
-	void 분산락_적용된_상태에서_정상적으로_판매수량이_증가된다() {
-		// given
-		Long itemId = 1L;
+	private final Long ITEM_ID = 1L;
 
+	@Test
+	@Transactional
+	void 재고가_충분할_때_decrease_정상작동() {
 		// when
-		commandStockService.decrease(itemId, 3);
+		commandStockService.decrease(ITEM_ID, 3);
 
 		// then
-		ItemStock stock = itemStockRepository.findByItemId(itemId)
-			.orElseThrow(() -> new InvalidOrderException(BaseResponseStatus.STOCK_NOT_FOUND));
-
+		ItemStock stock = itemStockRepository.findByItemId(ITEM_ID)
+			.orElseThrow();
 		assertEquals(3, stock.getSoldQuantity());
+		assertEquals(7, stock.getQuantity());
+	}
+
+	@Test
+	@Transactional
+	void 재고가_부족할_때_decrease_실패() {
+		// when & then
+		InvalidOrderException ex = assertThrows(InvalidOrderException.class, () ->
+			commandStockService.decrease(ITEM_ID, 999)
+		);
+		assertEquals(BaseResponseStatus.STOCK_REDUCE_FAILED, ex.getStatus());
+	}
+
+	@Test
+	@Transactional
+	void restore_정상작동() {
+		// given: 선차감
+		commandStockService.decrease(ITEM_ID, 5);
+
+		// when: 복원
+		commandStockService.restore(ITEM_ID, 2);
+
+		// then
+		ItemStock stock = itemStockRepository.findByItemId(ITEM_ID)
+			.orElseThrow();
+		assertEquals(3, stock.getSoldQuantity()); // 5 - 2
+		assertEquals(7, stock.getQuantity());     // 10 - 5 + 2
+	}
+
+	@Test
+	@Transactional
+	void 존재하지_않는_재고_restore_실패() {
+		// when & then
+		InvalidOrderException ex = assertThrows(InvalidOrderException.class, () ->
+			commandStockService.restore(9999L, 1)
+		);
+		assertEquals(BaseResponseStatus.STOCK_RESTORE_FAILED, ex.getStatus());
 	}
 }

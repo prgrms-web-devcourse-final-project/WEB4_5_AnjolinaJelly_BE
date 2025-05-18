@@ -1,11 +1,10 @@
-package com.jelly.zzirit.domain.order.service.order;
+package com.jelly.zzirit.domain.order.service.order.manage;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,7 +18,6 @@ import com.jelly.zzirit.domain.order.dto.request.PaymentRequest;
 import com.jelly.zzirit.domain.order.entity.Order;
 import com.jelly.zzirit.domain.order.mapper.OrderMapper;
 import com.jelly.zzirit.domain.order.repository.order.OrderRepository;
-import com.jelly.zzirit.domain.order.service.order.manage.CommandTempOrderService;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
 
