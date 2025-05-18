@@ -59,6 +59,14 @@ public class CommandAdminService {
 		if (request.stockQuantity() != null) {
 			itemStock.changeQuantity(request.stockQuantity());
 		}
+
+		String oldImageUrl = item.getImageUrl();
+		if (request.imageUrl() != null) {
+			if (oldImageUrl != null && !oldImageUrl.equals(request.imageUrl())) {
+				commandS3Service.delete(oldImageUrl);
+			}
+			item.setImageUrl(request.imageUrl());
+		}
 	}
 
 	public void deleteItem(@NotNull Long itemId) {
