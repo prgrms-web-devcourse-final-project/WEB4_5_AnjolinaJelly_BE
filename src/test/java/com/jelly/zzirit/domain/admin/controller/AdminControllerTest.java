@@ -76,7 +76,7 @@ class AdminControllerTest extends RabbitTestMemberConfig {
     @Test
     @DisplayName("상품 수정 요청 시 정상 응답")
     void updateItem_shouldReturnSuccess() throws Exception {
-        ItemUpdateRequest request = new ItemUpdateRequest(50, new BigDecimal("8900"));
+        ItemUpdateRequest request = new ItemUpdateRequest(50, new BigDecimal("8900"), "");
 
         mockMvc.perform(put("/api/admin/items/{itemId}", 1L)
                         .contentType(MediaType.APPLICATION_JSON)
