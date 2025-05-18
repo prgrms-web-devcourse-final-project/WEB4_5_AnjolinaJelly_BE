@@ -98,28 +98,26 @@ public class CommandS3Service {
 	}
 
 	public void delete(String imageUrl) {
-		String key = extractKeyFromUrl(imageUrl);
+		if (imageUrl == null || imageUrl.isBlank()) return;
 
 		try {
-			if (!s3Client.doesObjectExist(bucket, key)) {
-				log.info("S3에 존재하지 않는 이미지: {}", imageUrl);
-				return;
-			}
-
-			s3Client.deleteObject(bucket, key);
-			log.info("S3 이미지 삭제 성공: {}", imageUrl);
-
+			String key = extractKeyFromUrl(imageUrl);
+			s3Client.deleteObject(bucket, key); // 존재하지 않아도 AWS는 204 응답하므로 여기서 예외는 잘 안 남
+			log.info("S3 이미지 삭제 완료: {}", imageUrl);
+		} catch (InvalidItemException e) {
+			log.warn("잘못된 S3 URL 형식입니다. 삭제 생략: {}", imageUrl);
 		} catch (Exception e) {
-			log.warn("S3 이미지 삭제 실패: {}", imageUrl, e);
+			log.warn("S3 이미지 삭제 중 예외 발생. 삭제 생략: {}", imageUrl, e);
 		}
 	}
 
 	private String extractKeyFromUrl(String url) {
-		// 예: https://bucket-name.s3.amazonaws.com/item-images/uuid0000.jpg
-		Pattern pattern = Pattern.compile("https?://[^/]+/(.+)");
+		// 정확히 team03-zzirit-bucket 주소 패턴만 허용
+		Pattern pattern = Pattern.compile("^https://team03-zzirit-bucket\\.s3\\.ap-northeast-2\\.amazonaws\\.com/(.+)$");
 		Matcher matcher = pattern.matcher(url);
+
 		if (matcher.find()) {
-			return matcher.group(1); // item-images/uuid0000.jpg
+			return matcher.group(1); // ex: item-images/abc.jpg
 		} else {
 			throw new InvalidItemException(BaseResponseStatus.INVALID_IMAGE_URL);
 		}

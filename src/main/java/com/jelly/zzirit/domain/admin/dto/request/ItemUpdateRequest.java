@@ -4,5 +4,6 @@ import java.math.BigDecimal;
 
 public record ItemUpdateRequest(
 	Integer stockQuantity,
-	BigDecimal price
+	BigDecimal price,
+	String imageUrl
 ) {}

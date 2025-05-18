@@ -95,7 +95,7 @@ public class AdminController {
 		return BaseResponse.success();
 	}
 
-	@Operation(summary = "관리자 상품 수정", description = "관리자가 id로 상품(재고, 가격)을 수정합니다.")
+	@Operation(summary = "관리자 상품 수정", description = "관리자가 id로 상품(재고, 가격, 이미지)을 수정합니다.")
 	@PutMapping("/items/{itemId}")
 	public BaseResponse<Empty> updateItem(
 		@PathVariable @NotNull Long itemId,

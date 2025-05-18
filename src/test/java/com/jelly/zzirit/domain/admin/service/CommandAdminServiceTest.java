@@ -98,7 +98,7 @@ public class CommandAdminServiceTest {
     void 관리자_상품_수정_상품이_존재하지_않으면_예외를_던진다() {
         // given
         Long itemId = 1L;
-        ItemUpdateRequest request = new ItemUpdateRequest(10, new BigDecimal("10000"));
+        ItemUpdateRequest request = new ItemUpdateRequest(10, new BigDecimal("10000"), "");
 
         when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
 
@@ -114,7 +114,7 @@ public class CommandAdminServiceTest {
         // given
         Long itemId = 1L;
         Item item = mock(Item.class);
-        ItemUpdateRequest request = new ItemUpdateRequest(30, new BigDecimal("15000"));
+        ItemUpdateRequest request = new ItemUpdateRequest(30, new BigDecimal("15000"), "");
 
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
         when(itemStockRepository.findByItemId(itemId)).thenReturn(Optional.empty());
@@ -135,7 +135,7 @@ public class CommandAdminServiceTest {
 
         // 요청: 가격, 재고 수정
         ItemUpdateRequest request = new ItemUpdateRequest(
-                50, new BigDecimal("20000")
+                50, new BigDecimal("20000"), ""
         );
 
         // mock 객체 반환 설정
