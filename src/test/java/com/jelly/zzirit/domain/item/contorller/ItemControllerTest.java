@@ -7,10 +7,12 @@ import static com.jelly.zzirit.domain.item.domain.fixture.ItemStockFixture.*;
 import static com.jelly.zzirit.domain.item.domain.fixture.TypeBrandFixture.*;
 import static com.jelly.zzirit.domain.item.domain.fixture.TypeFixture.*;
 import static io.restassured.RestAssured.*;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.restdocs.payload.JsonFieldType.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.junit.jupiter.api.Disabled;
@@ -20,21 +22,23 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.restdocs.restassured.RestDocumentationFilter;
 
+import com.jelly.zzirit.domain.item.dto.request.TimeDealCreateRequest;
 import com.jelly.zzirit.domain.item.entity.Brand;
 import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.domain.item.entity.Type;
 import com.jelly.zzirit.domain.item.repository.BrandRepository;
 import com.jelly.zzirit.domain.item.repository.ItemRepository;
-import com.jelly.zzirit.domain.item.repository.stock.ItemStockRepository;
 import com.jelly.zzirit.domain.item.repository.TypeBrandRepository;
 import com.jelly.zzirit.domain.item.repository.TypeRepository;
-import com.jelly.zzirit.global.support.AcceptanceRabbitTest;
+import com.jelly.zzirit.domain.item.repository.stock.ItemStockRepository;
+import com.jelly.zzirit.global.support.AcceptanceTest;
+import com.jelly.zzirit.testutil.TimeDealTestHelper;
 
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 
 @Disabled
-public class ItemControllerTest extends AcceptanceRabbitTest {
+public class ItemControllerTest extends AcceptanceTest {
 
 	@Autowired
 	private ItemRepository itemRepository;
@@ -50,6 +54,9 @@ public class ItemControllerTest extends AcceptanceRabbitTest {
 
 	@Autowired
 	private TypeBrandRepository typeBrandRepository;
+
+	@Autowired
+	private TimeDealTestHelper timeDealTestHelper;
 
 	@Nested
 	@DisplayName("상품 전체 조회 API")
@@ -135,7 +142,9 @@ public class ItemControllerTest extends AcceptanceRabbitTest {
 					fieldWithPath("result.content[].discountedPrice").description("할인된 가격 (타임딜 상품일 경우)").type(NUMBER),
 					fieldWithPath("result.content[].itemStatus").description("상품 상태 (NORMAL | TIME_DEAL)").type(STRING),
 					fieldWithPath("result.content[].discountRatio").description("할인율 (타임딜 상품일 경우)").type(NUMBER),
-					fieldWithPath("result.content[].endTimeDeal").description("타임딜 종료 시각 (타임딜 상품일 경우)").type(STRING).optional(),
+					fieldWithPath("result.content[].endTimeDeal").description("타임딜 종료 시각 (타임딜 상품일 경우)")
+						.type(STRING)
+						.optional(),
 					fieldWithPath("result.pageNumber").description("현재 페이지 번호").type(NUMBER),
 					fieldWithPath("result.pageSize").description("페이지 크기").type(NUMBER),
 					fieldWithPath("result.totalElements").description("총 요소 수").type(NUMBER),
@@ -197,6 +206,36 @@ public class ItemControllerTest extends AcceptanceRabbitTest {
 					fieldWithPath("result.endTimeDeal").description("타임딜 종료 시각 (타임딜 상품일 경우)").type(STRING).optional()
 				)
 			);
+		}
+	}
+
+	@Nested
+	@DisplayName("진행 중인 타임딜 조회 API")
+	class GetCurrentTimeDeal {
+		@Test
+		void 현재_진행중인_타임딜_조회_성공() {
+			TimeDealCreateRequest request = new TimeDealCreateRequest(
+				"테스트 타임딜",
+				LocalDateTime.now().plusHours(1),
+				LocalDateTime.now().plusHours(2),
+				20,
+				List.of(
+					new TimeDealCreateRequest.TimeDealCreateItemDetail(1L, 3),
+					new TimeDealCreateRequest.TimeDealCreateItemDetail(2L, 3)
+				)
+			);
+
+			timeDealTestHelper.createOngoingTimeDeal(request);
+
+			given(spec)
+				.cookie(getCookie())
+				.when()
+				.get("/api/time-deals/now")
+				.then()
+				.statusCode(200)
+				.body("result.timeDealId", notNullValue())
+				.body("result.timeDealName", notNullValue())
+				.body("result.items", notNullValue());
 		}
 	}
 

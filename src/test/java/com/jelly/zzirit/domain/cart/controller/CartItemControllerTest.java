@@ -38,10 +38,10 @@ import com.jelly.zzirit.domain.item.repository.TypeRepository;
 import com.jelly.zzirit.domain.member.entity.Member;
 import com.jelly.zzirit.domain.member.entity.authenum.Role;
 import com.jelly.zzirit.domain.member.repository.MemberRepository;
-import com.jelly.zzirit.global.support.AcceptanceRabbitTest;
+import com.jelly.zzirit.global.support.AcceptanceTest;
 import com.jelly.zzirit.global.support.OpenApiDocumentationFilter;
 
-class CartItemControllerTest extends AcceptanceRabbitTest {
+class CartItemControllerTest extends AcceptanceTest {
 
 	@Autowired private MemberRepository memberRepository;
 	@Autowired private TypeRepository typeRepository;
