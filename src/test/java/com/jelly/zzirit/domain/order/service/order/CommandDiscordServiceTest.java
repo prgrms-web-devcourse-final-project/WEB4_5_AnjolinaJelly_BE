@@ -1,20 +1,22 @@
 package com.jelly.zzirit.domain.order.service.order;
 
+import static org.mockito.Mockito.*;
+
 import java.math.BigDecimal;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
-
-import com.jelly.zzirit.global.redis.TestRedisTemplateConfig;
-import com.jelly.zzirit.global.redis.TestRedissonConfig;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.web.client.RestTemplate;
 
 @SpringBootTest
 @ActiveProfiles("test")
-@Import({TestRedissonConfig.class, TestRedisTemplateConfig.class})
 class CommandDiscordServiceTest {
+
+	@MockitoBean
+	private RestTemplate restTemplate;
 
 	@Autowired
 	private CommandDiscordService commandDiscordService;
@@ -27,5 +29,6 @@ class CommandDiscordServiceTest {
 		String reason = "테스트용 환불 실패 사유입니다.";
 
 		commandDiscordService.notifyRefundFailure(orderNumber, paymentKey, amount, reason);
+		verify(restTemplate).postForEntity(any(), any(), eq(String.class));
 	}
 }
