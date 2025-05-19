@@ -8,10 +8,11 @@ import org.springframework.data.domain.Pageable;
 import com.jelly.zzirit.domain.admin.dto.response.AdminItemFetchResponse;
 import com.jelly.zzirit.domain.item.dto.request.ItemFilterRequest;
 import com.jelly.zzirit.domain.item.entity.Item;
+import com.jelly.zzirit.domain.item.entity.timedeal.TimeDealItem;
 
 public interface ItemQueryRepository {
 
-	Page<Item> findItems(
+	Page<TimeDealItem> findItems(
 		ItemFilterRequest filter,
 		String sort,
 		Pageable pageable

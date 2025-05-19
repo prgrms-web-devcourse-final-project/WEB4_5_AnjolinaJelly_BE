@@ -13,6 +13,7 @@ import java.util.Optional;
 import com.jelly.zzirit.domain.admin.dto.response.AdminItemFetchResponse;
 import com.jelly.zzirit.domain.item.entity.*;
 import com.jelly.zzirit.domain.item.entity.stock.QItemStock;
+import com.jelly.zzirit.domain.item.entity.timedeal.TimeDealItem;
 import com.querydsl.core.types.Projections;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -55,12 +56,10 @@ public class ItemQueryRepositoryImpl implements ItemQueryRepository {
 
 		JPAQuery<Long> total = queryFactory.select(item.count())
 			.from(item)
-			.join(timeDealItem.item, item).fetchJoin()
 			.join(item.typeBrand, typeBrand).fetchJoin()
 			.join(typeBrand.type, type).fetchJoin()
 			.join(typeBrand.brand, brand).fetchJoin()
 			.where(
-				timeDealItem.timeDeal.endTime.after(LocalDateTime.now()),
 				isKeywordContain(filter.keyword()),
 				isTypeContain(filter.types()),
 				isBrandContain(filter.brands())
