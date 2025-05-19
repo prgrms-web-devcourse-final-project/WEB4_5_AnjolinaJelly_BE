@@ -26,14 +26,14 @@ import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
 import com.jelly.zzirit.global.redis.TestContainerConfig;
 import com.jelly.zzirit.global.redis.TestRedisTemplateConfig;
+import com.jelly.zzirit.global.redis.TestRedissonConfig;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 
 @SpringBootTest
 @ActiveProfiles("test")
-@Transactional
-@Import(TestRedisTemplateConfig.class)
+@Import({TestRedisTemplateConfig.class, TestRedissonConfig.class})
 class CommandStockServiceTest extends TestContainerConfig {
 
 	@Autowired
@@ -71,20 +71,26 @@ class CommandStockServiceTest extends TestContainerConfig {
 	}
 
 	@Test
+	@Transactional
 	void 재고가_충분할_때_decrease_정상작동() {
+		Long itemId = savedStock.getItem().getId();
+
+		// 로그: 초기 상태
+		ItemStock before = itemStockRepository.findByItemId(itemId).orElseThrow();
+
 		// when
-		commandStockService.decrease(savedStock.getItem().getId(), 3);
+		commandStockService.decrease(itemId, 3);
 		em.flush();
 		em.clear();
 
 		// then
-		ItemStock stock = itemStockRepository.findByItemId(savedStock.getItem().getId())
-			.orElseThrow();
-		assertEquals(3, stock.getSoldQuantity());
-		assertEquals(17, stock.getQuantity());
+		ItemStock after = itemStockRepository.findByItemId(itemId).orElseThrow();
+		assertEquals(3, after.getSoldQuantity());
+		assertEquals(17, after.getQuantity());
 	}
 
 	@Test
+	@Transactional
 	void 재고가_부족할_때_decrease_실패() {
 		Long itemId = savedStock.getItem().getId();
 
@@ -96,11 +102,16 @@ class CommandStockServiceTest extends TestContainerConfig {
 	}
 
 	@Test
+	@Transactional
 	void restore_정상작동() {
 		Long itemId = savedStock.getItem().getId();
+
+		// given
 		commandStockService.decrease(itemId, 5);
 		em.flush();
 		em.clear();
+
+		ItemStock afterDecrease = itemStockRepository.findByItemId(itemId).orElseThrow();
 
 		// when
 		commandStockService.restore(itemId, 2);
@@ -108,13 +119,13 @@ class CommandStockServiceTest extends TestContainerConfig {
 		em.clear();
 
 		// then
-		ItemStock stock = itemStockRepository.findByItemId(itemId)
-			.orElseThrow();
-		assertEquals(3, stock.getSoldQuantity()); // 5 - 2
-		assertEquals(17, stock.getQuantity());    // 20 - 5 + 2
+		ItemStock finalStock = itemStockRepository.findByItemId(itemId).orElseThrow();
+		assertEquals(3, finalStock.getSoldQuantity()); // 5 - 2
+		assertEquals(17, finalStock.getQuantity());    // 20 - 5 + 2
 	}
 
 	@Test
+	@Transactional
 	void 존재하지_않는_재고_restore_실패() {
 		// when & then
 		InvalidOrderException ex = assertThrows(InvalidOrderException.class, () ->
