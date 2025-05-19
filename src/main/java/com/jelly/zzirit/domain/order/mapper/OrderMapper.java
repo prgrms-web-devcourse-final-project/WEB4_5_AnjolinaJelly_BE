@@ -50,7 +50,7 @@ public class OrderMapper {
 			Item item = itemMap.get(dto.itemId());
 			if (item == null) {
 				log.warn("존재하지 않는 itemId={}", dto.itemId());
-				throw new InvalidOrderException(BaseResponseStatus.ITEM_NOT_FOUND); // GlobalAdvice로 던짐
+				throw new InvalidOrderException(BaseResponseStatus.ITEM_NOT_FOUND);
 			}
 			order.addOrderItem(OrderItem.of(order, item, dto.quantity(), item.getPrice()));
 		}

@@ -17,7 +17,7 @@ import com.jelly.zzirit.domain.order.dto.response.PaymentInitResponse;
 import com.jelly.zzirit.domain.order.service.order.manage.CommandTempOrderService;
 import com.jelly.zzirit.domain.order.service.pay.CommandPaymentConfirmService;
 import com.jelly.zzirit.domain.order.service.pay.CommandPaymentInitService;
-import com.jelly.zzirit.global.support.AcceptanceRabbitTest;
+import com.jelly.zzirit.global.support.AcceptanceTest;
 
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.restdocs.restassured.RestDocumentationFilter;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
-class PaymentControllerTest extends AcceptanceRabbitTest {
+class PaymentControllerTest extends AcceptanceTest {
 
 	@MockitoBean
 	private CommandPaymentInitService commandPaymentInitService;
