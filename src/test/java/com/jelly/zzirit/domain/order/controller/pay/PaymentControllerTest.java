@@ -153,7 +153,7 @@ class PaymentControllerTest extends AcceptanceTest {
 			),
 			responseFields(
 				fieldWithPath("success").description("요청 성공 여부").type(BOOLEAN),
-				fieldWithPath("code").description("커스텀 응답 코드").type(NUMBER),
+				fieldWithPath("code").description("커스텀 응답 코드").type(STRING),
 				fieldWithPath("httpStatus").description("HTTP 상태 코드").type(NUMBER),
 				fieldWithPath("message").description("응답 메시지").type(STRING),
 				fieldWithPath("result.orderId").description("주문번호").type(STRING),
@@ -176,10 +176,10 @@ class PaymentControllerTest extends AcceptanceTest {
 			),
 			responseFields(
 				fieldWithPath("success").description("요청 성공 여부").type(BOOLEAN),
-				fieldWithPath("code").description("커스텀 응답 코드").type(NUMBER),
+				fieldWithPath("code").description("커스텀 응답 코드").type(STRING),
 				fieldWithPath("httpStatus").description("HTTP 상태 코드").type(NUMBER),
 				fieldWithPath("message").description("에러 메시지").type(STRING),
-				fieldWithPath("result").description("빈 응답").type(OBJECT)
+				fieldWithPath("result").description("빈 응답").type(NULL)
 			)
 		);
 	}
