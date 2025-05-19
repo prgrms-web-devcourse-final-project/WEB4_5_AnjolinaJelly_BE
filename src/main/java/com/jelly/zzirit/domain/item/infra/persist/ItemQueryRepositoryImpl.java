@@ -4,7 +4,9 @@ import static com.jelly.zzirit.domain.item.entity.QBrand.*;
 import static com.jelly.zzirit.domain.item.entity.QItem.*;
 import static com.jelly.zzirit.domain.item.entity.QType.*;
 import static com.jelly.zzirit.domain.item.entity.QTypeBrand.*;
+import static com.jelly.zzirit.domain.item.entity.timedeal.QTimeDealItem.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
