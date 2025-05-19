@@ -1,19 +1,18 @@
 package com.jelly.zzirit.domain.admin.dto.request;
 
-import java.math.BigDecimal;
-
 import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.domain.item.entity.ItemStatus;
 import com.jelly.zzirit.domain.item.entity.TypeBrand;
 import com.jelly.zzirit.domain.item.entity.stock.ItemStock;
-
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 
+import java.math.BigDecimal;
+
 public record ItemCreateRequest (
     @NotBlank String name, // validity check
-    @PositiveOrZero int stockQuantity,
+    @PositiveOrZero Integer stockQuantity,
     @PositiveOrZero BigDecimal price,
     @NotNull Long typeId,
     @NotNull Long brandId,
