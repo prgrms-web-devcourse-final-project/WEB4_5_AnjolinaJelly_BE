@@ -50,8 +50,11 @@ public class QueryItemService {
 
 	public PageResponse<SimpleItemFetchResponse> search(ItemFilterRequest request, String sort, Pageable pageable) {
 		return PageResponse.from(
-			itemQueryRepository.findItems(request, sort, pageable)
+			itemQueryRepository.findItems(request, sort, pageable).map(item ->
+				timeDealItemRepository.findActiveTimeDealItemByItemId(item.getId())
 					.map(SimpleItemFetchResponse::from)
+					.orElseGet(() -> SimpleItemFetchResponse.from(item))
+			)
 		);
 	}
 }
