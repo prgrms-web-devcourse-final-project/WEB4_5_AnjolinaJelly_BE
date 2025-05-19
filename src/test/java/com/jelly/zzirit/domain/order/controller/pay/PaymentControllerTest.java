@@ -40,7 +40,6 @@ class PaymentControllerTest extends AcceptanceTest {
 	@Test
 	@DisplayName("주문번호 생성 성공 시 200 응답")
 	void 결제_초기화_성공() {
-		// given
 		PaymentRequest 요청 = new PaymentRequest(
 			List.of(new OrderItemCreateRequest(1L, "모나미 볼펜", 2)),
 			15000,
@@ -58,17 +57,14 @@ class PaymentControllerTest extends AcceptanceTest {
 			.contentType("application/json")
 			.body(요청);
 
-		// when
 		Response 응답 = 요청사양.post("/api/payments/init");
 
-		// then
 		응답.then().log().body().statusCode(200);
 	}
 
 	@Test
 	@DisplayName("결제 성공 시 200 응답")
 	void 결제_성공_확정_응답() {
-		// given
 		String orderId = "ORD123";
 		String paymentKey = "pay_12345";
 		String amount = "15000";
@@ -83,17 +79,14 @@ class PaymentControllerTest extends AcceptanceTest {
 			.queryParam("orderId", orderId)
 			.queryParam("amount", amount);
 
-		// when
 		Response 응답 = 요청.get("/api/payments/success");
 
-		// then
 		응답.then().log().body().statusCode(200);
 	}
 
 	@Test
-	@DisplayName("결제 실패 시 400 응답")
+	@DisplayName("결제 실패 시 200 응답 및 에러 메시지 포함")
 	void 결제_실패_응답() {
-		// given
 		String code = "4000";
 		String message = "사용자 취소";
 		String orderId = "ORD123";
@@ -105,11 +98,9 @@ class PaymentControllerTest extends AcceptanceTest {
 			.queryParam("message", message)
 			.queryParam("orderId", orderId);
 
-		// when
 		Response 응답 = 요청.get("/api/payments/fail");
 
-		// then
-		응답.then().log().body().statusCode(400);
+		응답.then().log().body().statusCode(200);
 	}
 
 	private RestDocumentationFilter 문서_결제초기화(String name) {
@@ -153,7 +144,7 @@ class PaymentControllerTest extends AcceptanceTest {
 			),
 			responseFields(
 				fieldWithPath("success").description("요청 성공 여부").type(BOOLEAN),
-				fieldWithPath("code").description("커스텀 응답 코드").type(STRING),
+				fieldWithPath("code").description("커스텀 응답 코드").type(NUMBER),
 				fieldWithPath("httpStatus").description("HTTP 상태 코드").type(NUMBER),
 				fieldWithPath("message").description("응답 메시지").type(STRING),
 				fieldWithPath("result.orderId").description("주문번호").type(STRING),
@@ -176,12 +167,11 @@ class PaymentControllerTest extends AcceptanceTest {
 			),
 			responseFields(
 				fieldWithPath("success").description("요청 성공 여부").type(BOOLEAN),
-				fieldWithPath("code").description("커스텀 응답 코드").type(STRING),
+				fieldWithPath("code").description("커스텀 응답 코드").type(NUMBER),
 				fieldWithPath("httpStatus").description("HTTP 상태 코드").type(NUMBER),
 				fieldWithPath("message").description("에러 메시지").type(STRING),
-				fieldWithPath("result").description("빈 응답").type(NULL)
+				fieldWithPath("result").description("에러 상세 메시지").type(STRING)
 			)
 		);
 	}
 }
-
