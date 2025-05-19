@@ -82,10 +82,10 @@ public class AdminController {
 		return BaseResponse.success();
 	}
 
-	@Operation(summary = "관리자 상품 수정", description = "관리자가 id로 상품(재고, 가격, 이미지)을 수정합니다.")
-	@PutMapping("/items/{itemId}")
+	@Operation(summary = "관리자 상품 수정", description = "관리자가 id로 상품(재고, 가격)을 수정합니다.")
+	@PutMapping("/items/{item-id}")
 	public BaseResponse<Empty> updateItem(
-		@PathVariable @NotNull Long itemId,
+		@PathVariable("item-id") @NotNull Long itemId,
 		@RequestBody @Valid ItemUpdateRequest request
 	) {
 		commandAdminItemService.updateItem(itemId, request);
@@ -93,9 +93,9 @@ public class AdminController {
 	}
 	
 	@Operation(summary = "관리자 상품 이미지 수정", description = "상품 ID로 기존 상품의 이미지를 새 이미지로 교체")
-	@PutMapping(value = "/items/{itemId}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	@PutMapping(value = "/items/{item-id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public BaseResponse<ImageUploadResponse> updateImage(
-		@PathVariable Long itemId,
+		@PathVariable("item-id") Long itemId,
 		@RequestPart("image") MultipartFile image
 	) throws IOException {
 		String uploadedUrl = commandS3Service.upload(image, "item-images");
@@ -104,8 +104,8 @@ public class AdminController {
 	}
 
 	@Operation(summary = "관리자 상품 삭제", description = "관리자가 id로 상품을 삭제합니다.")
-	@DeleteMapping("/items/{itemId}")
-	public BaseResponse<Empty> deleteItem(@PathVariable @NotNull Long itemId) {
+	@DeleteMapping("/items/{item-id}")
+	public BaseResponse<Empty> deleteItem(@PathVariable("item-id") @NotNull Long itemId) {
 		commandAdminItemService.deleteItem(itemId);
 		return BaseResponse.success();
 	}
