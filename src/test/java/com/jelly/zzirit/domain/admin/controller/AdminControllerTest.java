@@ -192,7 +192,8 @@ public class AdminControllerTest extends AcceptanceTest {
 
         ItemUpdateRequest request = new ItemUpdateRequest(
                 80,
-                new BigDecimal("12900")
+                new BigDecimal("12900"),
+                "https://example.com/image.png"
         );
 
         given(spec)
@@ -203,7 +204,8 @@ public class AdminControllerTest extends AcceptanceTest {
                         "관리자 상품 수정",
                         requestFields(
                                 fieldWithPath("price").description("상품 가격").type(NUMBER),
-                                fieldWithPath("stockQuantity").description("재고 수량").type(NUMBER)
+                                fieldWithPath("stockQuantity").description("재고 수량").type(NUMBER),
+                                fieldWithPath("imageUrl").description("상품 이미지 URL").type(STRING)
                         ),
                         responseFields(
                                 fieldWithPath("success").description("요청 성공 여부").type(BOOLEAN),
