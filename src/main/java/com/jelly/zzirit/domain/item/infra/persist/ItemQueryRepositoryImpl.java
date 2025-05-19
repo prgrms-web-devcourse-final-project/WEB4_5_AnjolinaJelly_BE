@@ -149,7 +149,7 @@ public class ItemQueryRepositoryImpl implements ItemQueryRepository {
 		QType t = QType.type;
 		QBrand b = QBrand.brand;
 
-		OrderSpecifier<?> orderSpecifier = sort != null && sort.equalsIgnoreCase("asc")
+		OrderSpecifier<?> orderSpecifier = sort.equalsIgnoreCase("asc")
 				? i.createdAt.asc()
 				: i.createdAt.desc();
 
