@@ -33,20 +33,17 @@ public class ItemController {
 	@GetMapping("/search")
 	@Operation(summary = "상품 조회 및 검색", description = "상품을 조회하고 검색합니다.")
 	public BaseResponse<PageResponse<SimpleItemFetchResponse>> search(
-		@RequestParam(required = false) String types,
-		@RequestParam(required = false) String brands,
-		@RequestParam(required = false) String keyword,
-		@RequestParam(defaultValue = "priceAsc") String sort,
-		@RequestParam(defaultValue = "0") int page,
-		@RequestParam(defaultValue = "10") int size
+		@RequestParam(name = "types", required = false) String types,
+		@RequestParam(name = "brands", required = false) String brands,
+		@RequestParam(name = "keyword", required = false) String keyword,
+		@RequestParam(name = "sort", defaultValue = "priceAsc") String sort,
+		@RequestParam(name = "page", defaultValue = "0") int page,
+		@RequestParam(name = "size", defaultValue = "10") int size
 	) {
 		Pageable pageable = PageRequest.of(page, size);
 		ItemFilterRequest filter = ItemFilterRequest.of(types, brands, keyword);
 		return BaseResponse.success(
-			PageResponse.from(
-				queryItemService.search(filter, sort, pageable)
-					.map(SimpleItemFetchResponse::from)
-			)
+			queryItemService.search(filter, sort, pageable)
 		);
 	}
 
