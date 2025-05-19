@@ -20,7 +20,9 @@ import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class OrderMapper {
@@ -40,19 +42,15 @@ public class OrderMapper {
 	}
 
 	public void mapToOrderItems(Order order, List<OrderItemCreateRequest> itemDtos) {
-		List<Long> itemIds = itemDtos.stream()
-			.map(OrderItemCreateRequest::itemId)
-			.distinct()
-			.toList();
-
+		List<Long> itemIds = itemDtos.stream().map(OrderItemCreateRequest::itemId).distinct().toList();
 		List<Item> items = itemRepository.findAllById(itemIds);
-		Map<Long, Item> itemMap = items.stream()
-			.collect(Collectors.toMap(Item::getId, Function.identity()));
+		Map<Long, Item> itemMap = items.stream().collect(Collectors.toMap(Item::getId, Function.identity()));
 
 		for (OrderItemCreateRequest dto : itemDtos) {
 			Item item = itemMap.get(dto.itemId());
 			if (item == null) {
-				throw new InvalidOrderException(BaseResponseStatus.ITEM_NOT_FOUND);
+				log.warn("존재하지 않는 itemId={}", dto.itemId());
+				throw new InvalidOrderException(BaseResponseStatus.ITEM_NOT_FOUND); // GlobalAdvice로 던짐
 			}
 			order.addOrderItem(OrderItem.of(order, item, dto.quantity(), item.getPrice()));
 		}
