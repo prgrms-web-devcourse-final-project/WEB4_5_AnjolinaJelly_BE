@@ -4,26 +4,27 @@ import static com.jelly.zzirit.domain.item.entity.QBrand.*;
 import static com.jelly.zzirit.domain.item.entity.QItem.*;
 import static com.jelly.zzirit.domain.item.entity.QType.*;
 import static com.jelly.zzirit.domain.item.entity.QTypeBrand.*;
-import static com.jelly.zzirit.domain.item.entity.timedeal.QTimeDealItem.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import com.jelly.zzirit.domain.admin.dto.response.AdminItemFetchResponse;
-import com.jelly.zzirit.domain.item.entity.*;
-import com.jelly.zzirit.domain.item.entity.stock.QItemStock;
-import com.querydsl.core.types.Projections;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.jelly.zzirit.domain.admin.dto.response.AdminItemFetchResponse;
 import com.jelly.zzirit.domain.item.dto.request.ItemFilterRequest;
 import com.jelly.zzirit.domain.item.entity.Item;
+import com.jelly.zzirit.domain.item.entity.QBrand;
+import com.jelly.zzirit.domain.item.entity.QItem;
+import com.jelly.zzirit.domain.item.entity.QType;
+import com.jelly.zzirit.domain.item.entity.QTypeBrand;
+import com.jelly.zzirit.domain.item.entity.stock.QItemStock;
 import com.jelly.zzirit.domain.item.repository.ItemQueryRepository;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
