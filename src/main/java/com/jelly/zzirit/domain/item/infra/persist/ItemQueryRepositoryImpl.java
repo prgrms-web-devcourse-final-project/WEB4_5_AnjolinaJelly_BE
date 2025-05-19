@@ -4,9 +4,7 @@ import static com.jelly.zzirit.domain.item.entity.QBrand.*;
 import static com.jelly.zzirit.domain.item.entity.QItem.*;
 import static com.jelly.zzirit.domain.item.entity.QType.*;
 import static com.jelly.zzirit.domain.item.entity.QTypeBrand.*;
-import static com.jelly.zzirit.domain.item.entity.timedeal.QTimeDealItem.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -55,12 +53,10 @@ public class ItemQueryRepositoryImpl implements ItemQueryRepository {
 
 		JPAQuery<Long> total = queryFactory.select(item.count())
 			.from(item)
-			.join(timeDealItem.item, item).fetchJoin()
-			.join(item.typeBrand, typeBrand).fetchJoin()
-			.join(typeBrand.type, type).fetchJoin()
-			.join(typeBrand.brand, brand).fetchJoin()
+			.join(item.typeBrand, typeBrand)
+			.join(typeBrand.type, type)
+			.join(typeBrand.brand, brand)
 			.where(
-				timeDealItem.timeDeal.endTime.after(LocalDateTime.now()),
 				isKeywordContain(filter.keyword()),
 				isTypeContain(filter.types()),
 				isBrandContain(filter.brands())
