@@ -79,6 +79,8 @@ public enum BaseResponseStatus {
 	ACCESS_DENIED(false, 40003, "접근 권한이 없습니다.", HttpStatus.FORBIDDEN),
 	AUTH_CHECK_FAILED(false, 40004, "로그인이 필요합니다.", HttpStatus.UNAUTHORIZED),
 	NO_AUTHORITY(false, 40005, "수행할 권한이 없습니다.", HttpStatus.FORBIDDEN),
+	ACCOUNT_LOCKED(false, 40006, "로그인 시도가 너무 많습니다. 잠시 후 다시 시도해주세요.", HttpStatus.UNAUTHORIZED),
+
 
 	// JWT 관련
 	JWT_BLACKLISTED(false, 40010, "블랙리스트에 등록된 토큰입니다.", HttpStatus.UNAUTHORIZED),
@@ -111,7 +113,11 @@ public enum BaseResponseStatus {
 
 	// 타임딜 관련
 	TIME_DEAL_TIME_OVERLAP(false, 70001, "해당 기간에 이미 존재하는 타임딜이 있습니다.", HttpStatus.CONFLICT),
-	TIME_DEAL_START_TIME_PAST(false, 70002, "타임딜 시작 시간은 현재보다 이전일 수 없습니다.", HttpStatus.BAD_REQUEST);
+	TIME_DEAL_START_TIME_PAST(false, 70002, "타임딜 시작 시간은 현재보다 이전일 수 없습니다.", HttpStatus.BAD_REQUEST),
+
+	// 레디스 관련
+	REDIS_ACCESS_ERROR(false, 80000, "내부 시스템 오류(Redis 처리 실패)", HttpStatus.INTERNAL_SERVER_ERROR);
+
 
 	private final boolean isSuccess;
 	private final int code;
