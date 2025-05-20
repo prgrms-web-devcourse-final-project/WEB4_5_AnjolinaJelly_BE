@@ -40,12 +40,12 @@ public class TimeDealQueryRepositoryImpl implements TimeDealQueryRepository {
 			.from(timeDealItem)
 			.join(timeDealItem.timeDeal, timeDeal)
 			.join(timeDealItem.item, item)
-			.join(itemStock).on(itemStock.item.id.eq(item.id))
+			.join(itemStock).on(itemStock.timeDealItem.id.eq(timeDealItem.id))
 			.where(
 				timeDealNameContains(condition.timeDealName()),
 				timeDealIdEq(condition.timeDealId()),
 				itemNameContains(condition.timeDealItemName()),
-				itemIdEq(condition.timeDealItemId()),
+				timeDealItemIdEq(condition.timeDealItemId()),
 				statusEq(condition.status())
 			)
 			.fetch();
@@ -78,8 +78,8 @@ public class TimeDealQueryRepositoryImpl implements TimeDealQueryRepository {
 		return name != null ? item.name.contains(name) : null;
 	}
 
-	private BooleanExpression itemIdEq(Long id) {
-		return id != null ? item.id.eq(id) : null;
+	private BooleanExpression timeDealItemIdEq(Long id) {
+		return id != null ? timeDealItem.id.eq(id) : null;
 	}
 
 	private BooleanExpression statusEq(TimeDeal.TimeDealStatus status) {
@@ -103,7 +103,7 @@ public class TimeDealQueryRepositoryImpl implements TimeDealQueryRepository {
 				timeDealNameContains(condition.timeDealName()),
 				timeDealIdEq(condition.timeDealId()),
 				itemNameContains(condition.timeDealItemName()),
-				itemIdEq(condition.timeDealItemId()),
+				timeDealItemIdEq(condition.timeDealItemId()),
 				statusEq(condition.status())
 			)
 			.orderBy(timeDeal.createdAt.desc())
@@ -135,7 +135,7 @@ public class TimeDealQueryRepositoryImpl implements TimeDealQueryRepository {
 				timeDealNameContains(condition.timeDealName()),
 				timeDealIdEq(condition.timeDealId()),
 				itemNameContains(condition.timeDealItemName()),
-				itemIdEq(condition.timeDealItemId()),
+				timeDealItemIdEq(condition.timeDealItemId()),
 				statusEq(condition.status())
 			)
 			.fetchOne();
