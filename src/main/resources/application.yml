@@ -36,11 +36,6 @@ spring:
             enable: true
             required: true
 
-custom:
-  upload:
-    max-image-size: 5MB
-    max-file-size: 20MB
-
 resilience4j:
   circuitbreaker:
     instances:

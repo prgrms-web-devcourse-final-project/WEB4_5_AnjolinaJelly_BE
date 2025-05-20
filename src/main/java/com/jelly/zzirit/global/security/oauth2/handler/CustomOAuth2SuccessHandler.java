@@ -24,8 +24,9 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
 	private final TokenService tokenService;
 
 	@Override
-	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
-		MemberPrincipal memberPrincipal = (MemberPrincipal) authentication.getPrincipal();
+	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+		Authentication authentication) throws IOException {
+		MemberPrincipal memberPrincipal = (MemberPrincipal)authentication.getPrincipal();
 		Long userId = memberPrincipal.getMemberId();
 		Role role = memberPrincipal.getRole();
 
@@ -35,14 +36,16 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
 			memberPrincipal.getAttributes());
 
 		if (!response.isCommitted()) {
+			String redirectBaseUrl = AppConfig.getRedirectBaseUrl();
+
 			if (role == Role.ROLE_GUEST) {
 				log.info("➡GUEST 사용자 → /auth/callback 으로 리다이렉트 시도");
-				log.info("url = {}", AppConfig.getSiteFrontUrlList().get(1));
-				response.sendRedirect(AppConfig.getSiteFrontUrlList().get(1) + "/auth/callback");
+				log.info("url = {}", redirectBaseUrl);
+				response.sendRedirect(redirectBaseUrl + "/auth/callback");
 				return;
 			}
 			tokenService.generateTokensAndSetCookies(response, userId, role);
-			response.sendRedirect(AppConfig.getSiteFrontUrlList().get(1) + "/");
+			response.sendRedirect(redirectBaseUrl + "/");
 		} else {
 			log.warn("응답이 이미 커밋됨 — 리다이렉트 불가");
 		}

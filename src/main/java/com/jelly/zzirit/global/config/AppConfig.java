@@ -25,15 +25,6 @@ public class AppConfig {
 	private static List<String> siteFrontUrlList;
 
 	@Getter
-	private static String fileUploadDir;
-
-	@Getter
-	private static String customMaxImageSize;
-
-	@Getter
-	private static String customMaxFileSize;
-
-	@Getter
 	private static String siteDomain;
 
 	@Value("${custom.site.back-url}")
@@ -46,21 +37,6 @@ public class AppConfig {
 		AppConfig.siteFrontUrlList = Arrays.asList(siteFrontUrl.split(","));
 	}
 
-	@Value("${custom.file.upload-dir}")
-	public void setFileUploadDir(String fileUploadDir) {
-		AppConfig.fileUploadDir = fileUploadDir;
-	}
-
-	@Value("${custom.upload.max-image-size}")
-	public void setCustomMaxImageSize(String size) {
-		AppConfig.customMaxImageSize = size;
-	}
-
-	@Value("${custom.upload.max-file-size}")
-	public void setCustomMaxFileSize(String size) {
-		AppConfig.customMaxFileSize = size;
-	}
-
 	@Value("${custom.site.domain}")
 	public void setSiteDomain(String siteDomain) {
 		AppConfig.siteDomain = siteDomain;
@@ -69,5 +45,11 @@ public class AppConfig {
 	@Autowired
 	public void setTika(Tika tika) {
 		AppConfig.tika = tika;
+	}
+
+	public static String getRedirectBaseUrl() {
+		List<String> list = getSiteFrontUrlList();
+		if (list.size() == 1) return list.get(0);
+		return list.get(1);
 	}
 }
