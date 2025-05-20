@@ -2,6 +2,7 @@ package com.jelly.zzirit.domain.item.entity.stock;
 
 import com.jelly.zzirit.domain.admin.dto.request.ItemCreateRequest;
 import com.jelly.zzirit.domain.item.entity.Item;
+import com.jelly.zzirit.domain.item.entity.timedeal.TimeDealItem;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.dto.Empty;
 import com.jelly.zzirit.global.entity.BaseEntity;
@@ -12,6 +13,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,8 +29,12 @@ import lombok.experimental.SuperBuilder;
 public class ItemStock extends BaseEntity {
 
 	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "item_id", nullable = false, unique = true)
+	@JoinColumn(name = "item_id", unique = true)
 	private Item item;
+
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "timedeal_item_id", unique = true)
+	private TimeDealItem timeDealItem;
 
 	// 단일 quantity 는 "누가 선점했는지", "확정인지", 구분이 안 돼서 정합성 흐트러짐
 	@Column(name = "quantity", nullable = false)
@@ -58,5 +65,16 @@ public class ItemStock extends BaseEntity {
 		this.quantity = newQuantity;
 
 		return Empty.getInstance();
+	}
+
+	@PrePersist
+	@PreUpdate
+	private void validateExclusiveAssociation() {
+		boolean hasItem = this.item != null;
+		boolean hasTimeDealItem = this.timeDealItem != null;
+
+		if (hasItem == hasTimeDealItem) {
+			throw new InvalidItemException(BaseResponseStatus.INVALID_STOCK_FOREIGN_KEYS);
+		}
 	}
 }
