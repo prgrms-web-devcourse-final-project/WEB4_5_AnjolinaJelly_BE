@@ -8,6 +8,7 @@ import static org.springframework.restdocs.payload.JsonFieldType.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import com.jelly.zzirit.domain.order.dto.request.OrderItemCreateRequest;
@@ -42,7 +43,7 @@ class PaymentControllerTest extends AcceptanceTest {
 	void 결제_초기화_성공() {
 		PaymentRequest 요청 = new PaymentRequest(
 			List.of(new OrderItemCreateRequest(1L, "모나미 볼펜", 2)),
-			15000,
+			BigDecimal.valueOf(15000),
 			"문 앞에 놔주세요",
 			"서울 종로구 종로1길 10",
 			"101동 202호"

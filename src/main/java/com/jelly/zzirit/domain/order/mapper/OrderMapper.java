@@ -33,7 +33,7 @@ public class OrderMapper {
 		return Order.builder()
 			.member(member)
 			.orderNumber(orderNumber)
-			.totalPrice(BigDecimal.valueOf(dto.totalAmount()))
+			.totalPrice(dto.totalAmount())
 			.status(OrderStatus.PENDING)
 			.shippingRequest(dto.shippingRequest())
 			.address(dto.address())

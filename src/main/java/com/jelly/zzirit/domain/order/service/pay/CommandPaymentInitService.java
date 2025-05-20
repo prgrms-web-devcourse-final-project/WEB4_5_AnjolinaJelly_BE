@@ -37,7 +37,7 @@ public class CommandPaymentInitService {
 
 		return new PaymentInitResponse(
 			order.getOrderNumber(),
-			dto.totalAmount(),
+			dto.totalAmount().longValue(),
 			dto.orderItems().size() > 1
 				? dto.orderItems().getFirst().itemName() + " 외 " + (dto.orderItems().size() - 1) + "건"
 				: dto.orderItems().getFirst().itemName(),

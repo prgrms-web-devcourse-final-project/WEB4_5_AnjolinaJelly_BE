@@ -3,6 +3,7 @@ package com.jelly.zzirit.domain.order.service.pay;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -57,7 +58,7 @@ class CommandPaymentInitServiceTest {
 				new OrderItemCreateRequest(1L, "모나미 볼펜", 2),
 				new OrderItemCreateRequest(2L, "하이테크", 1)
 			),
-			15000,
+			BigDecimal.valueOf(10000),
 			"문 앞에 놔주세요",
 			"서울시 강남구",
 			"101호"
@@ -74,7 +75,7 @@ class CommandPaymentInitServiceTest {
 
 			// then
 			assertEquals(orderNumber, response.orderId());
-			assertEquals(15000, response.amount());
+			assertEquals(10000, response.amount());
 			assertEquals("모나미 볼펜 외 1건", response.orderName());
 			assertEquals(member.getMemberName(), response.customerName());
 		}
@@ -94,7 +95,7 @@ class CommandPaymentInitServiceTest {
 				service.createOrderAndReturnInit(
 					new PaymentRequest(
 						List.of(new OrderItemCreateRequest(1L, "모나미 볼펜", 2)),
-						15000,
+						BigDecimal.valueOf(15000),
 						"요청사항",
 						"주소",
 						"상세주소"
@@ -117,7 +118,7 @@ class CommandPaymentInitServiceTest {
 
 		PaymentRequest dto = new PaymentRequest(
 			List.of(new OrderItemCreateRequest(1L, "하이테크", 1)),
-			10000,
+			BigDecimal.valueOf(10000),
 			null,
 			"서울시 강남구",
 			"101호"
