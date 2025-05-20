@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.jelly.zzirit.domain.item.dto.request.TimeDealCreateRequest;
+import com.jelly.zzirit.domain.item.dto.request.TimeDealCreateRequest.TimeDealCreateItemDetail;
 import com.jelly.zzirit.domain.item.dto.response.CurrentTimeDealFetchResponse;
 import com.jelly.zzirit.domain.item.dto.response.CurrentTimeDealFetchResponse.CurrentTimeDealItem;
 import com.jelly.zzirit.domain.item.dto.response.TimeDealCreateResponse;
@@ -20,9 +21,9 @@ import com.jelly.zzirit.domain.item.entity.stock.ItemStock;
 import com.jelly.zzirit.domain.item.entity.timedeal.TimeDeal;
 import com.jelly.zzirit.domain.item.entity.timedeal.TimeDealItem;
 import com.jelly.zzirit.domain.item.repository.ItemRepository;
-import com.jelly.zzirit.domain.item.repository.stock.ItemStockRepository;
 import com.jelly.zzirit.domain.item.repository.TimeDealItemRepository;
 import com.jelly.zzirit.domain.item.repository.TimeDealRepository;
+import com.jelly.zzirit.domain.item.repository.stock.ItemStockRepository;
 import com.jelly.zzirit.global.dto.PageResponse;
 import com.jelly.zzirit.global.exception.custom.InvalidTimeDealException;
 
@@ -97,23 +98,22 @@ public class CommandTimeDealService {
 	}
 
 	// 타임딜 아이템 생성 및 해당 재고 저장
-	private void createTimeDealItemAndStock(TimeDeal timeDeal, TimeDealCreateRequest.TimeDealCreateItemDetail item) {
+	private void createTimeDealItemAndStock(TimeDeal timeDeal, TimeDealCreateItemDetail item) {
 		Item originalItem = itemRepository.getById(item.itemId());
-		Item clonedItemForTimeDeal = itemRepository.save(Item.from(originalItem));
 
-		BigDecimal discountedPrice = calculateDiscountedPrice(clonedItemForTimeDeal.getPrice(),
+		BigDecimal discountedPrice = calculateDiscountedPrice(originalItem.getPrice(),
 			timeDeal.getDiscountRatio());
 
-		timeDealItemRepository.save(new TimeDealItem(discountedPrice, timeDeal, clonedItemForTimeDeal));
-		itemStockRepository.save(new ItemStock(clonedItemForTimeDeal, item.quantity(), 0));
+		TimeDealItem timeDealItem = timeDealItemRepository.save(
+			new TimeDealItem(discountedPrice, timeDeal, originalItem));
+		itemStockRepository.save(new ItemStock(null, timeDealItem, item.quantity(), 0));
 	}
 
 	// 응답용 타임딜 아이템 리스트 생성
 	private List<TimeDealCreateItem> mapToResponseItems(TimeDeal timeDeal) {
 		return timeDealItemRepository.findAllByTimeDeal(timeDeal).stream()
 			.map(tdi -> {
-				Long itemId = tdi.getItem().getId();
-				int quantity = itemStockRepository.findByItemId(itemId)
+				int quantity = itemStockRepository.findByTimeDealItem(tdi)
 					.map(ItemStock::getQuantity)
 					.orElse(0);
 				return TimeDealCreateItem.from(tdi, quantity);
