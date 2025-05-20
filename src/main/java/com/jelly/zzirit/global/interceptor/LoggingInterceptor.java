@@ -30,5 +30,4 @@ public class LoggingInterceptor implements HandlerInterceptor {
 			log.warn(QUERY_COUNT_WARN_LOG, WARN_QUERY_COUNT);
 		}
 	}
-
 }
