@@ -1,5 +1,8 @@
 package com.jelly.zzirit.global.config;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.apache.tika.Tika;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,7 +22,7 @@ public class AppConfig {
 	private static String siteBackUrl;
 
 	@Getter
-	private static String siteFrontUrl;
+	private static List<String> siteFrontUrlList;
 
 	@Getter
 	private static String fileUploadDir;
@@ -40,7 +43,7 @@ public class AppConfig {
 
 	@Value("${custom.site.front-url}")
 	public void setSiteFrontUrl(String siteFrontUrl) {
-		AppConfig.siteFrontUrl = siteFrontUrl;
+		AppConfig.siteFrontUrlList = Arrays.asList(siteFrontUrl.split(","));
 	}
 
 	@Value("${custom.file.upload-dir}")

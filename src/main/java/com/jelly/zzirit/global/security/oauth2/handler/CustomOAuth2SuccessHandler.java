@@ -37,12 +37,11 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
 		if (!response.isCommitted()) {
 			if (role == Role.ROLE_GUEST) {
 				log.info("➡GUEST 사용자 → /auth/callback 으로 리다이렉트 시도");
-				response.sendRedirect(AppConfig.getSiteFrontUrl() + "/auth/callback");
+				response.sendRedirect(AppConfig.getSiteFrontUrlList().get(1) + "/auth/callback");
 				return;
 			}
 			tokenService.generateTokensAndSetCookies(response, userId, role);
-			log.info("➡️ 정회원 → 홈으로 리다이렉트 시도");
-			response.sendRedirect(AppConfig.getSiteFrontUrl() + "/");
+			response.sendRedirect(AppConfig.getSiteFrontUrlList().get(1) + "/");
 		} else {
 			log.warn("응답이 이미 커밋됨 — 리다이렉트 불가");
 		}
