@@ -4,17 +4,14 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.time.LocalDateTime;
 
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.jelly.zzirit.domain.item.entity.timedeal.TimeDeal;
-import com.jelly.zzirit.domain.item.entity.timedeal.TimeDeal.TimeDealStatus;
 import com.jelly.zzirit.domain.item.repository.TimeDealRepository;
 import com.jelly.zzirit.global.support.AcceptanceTest;
 
-@DisplayName("TimeDealSchedulerService 통합 테스트")
-class TimeDealSchedulerServiceTest extends AcceptanceTest {
+public class TimeDealSchedulerServiceTest extends AcceptanceTest {
 
 	@Autowired
 	private TimeDealSchedulerService timeDealSchedulerService;
@@ -29,17 +26,17 @@ class TimeDealSchedulerServiceTest extends AcceptanceTest {
 			.name("예정된 타임딜")
 			.startTime(LocalDateTime.now().minusMinutes(1))
 			.endTime(LocalDateTime.now().plusDays(1))
-			.status(TimeDealStatus.SCHEDULED)
+			.status(TimeDeal.TimeDealStatus.SCHEDULED)
 			.discountRatio(10)
 			.build());
 
 		// when
-		int updatedCount = timeDealSchedulerService.startScheduledDeals(LocalDateTime.now());
+		boolean updatedCount = timeDealSchedulerService.startScheduledDeals(LocalDateTime.now());
 
 		// then
 		TimeDeal updatedDeal = timeDealRepository.findById(deal.getId()).orElseThrow();
-		assertThat(updatedCount).isEqualTo(1);
-		assertThat(updatedDeal.getStatus()).isEqualTo(TimeDealStatus.ONGOING);
+		assertThat(updatedCount).isEqualTo(true);
+		assertThat(updatedDeal.getStatus()).isEqualTo(TimeDeal.TimeDealStatus.ONGOING);
 	}
 
 	@Test
@@ -49,16 +46,16 @@ class TimeDealSchedulerServiceTest extends AcceptanceTest {
 			.name("진행 중 타임딜")
 			.startTime(LocalDateTime.now().minusDays(2))
 			.endTime(LocalDateTime.now().minusMinutes(1))
-			.status(TimeDealStatus.ONGOING)
+			.status(TimeDeal.TimeDealStatus.ONGOING)
 			.discountRatio(20)
 			.build());
 
 		// when
-		int updatedCount = timeDealSchedulerService.endOngoingDeals(LocalDateTime.now());
+		boolean updatedCount = timeDealSchedulerService.endOngoingDeals(LocalDateTime.now());
 
 		// then
 		TimeDeal updatedDeal = timeDealRepository.findById(deal.getId()).orElseThrow();
-		assertThat(updatedCount).isEqualTo(1);
-		assertThat(updatedDeal.getStatus()).isEqualTo(TimeDealStatus.ENDED);
+		assertThat(updatedCount).isEqualTo(true);
+		assertThat(updatedDeal.getStatus()).isEqualTo(TimeDeal.TimeDealStatus.ENDED);
 	}
 }
