@@ -44,5 +44,4 @@ public class CommandPaymentInitService {
 			member.getMemberName()
 		);
 	}
-
 }
