@@ -1,6 +1,7 @@
 package com.jelly.zzirit.domain.order.service.order;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.jelly.zzirit.domain.item.repository.stock.ItemStockRepository;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
@@ -31,6 +32,7 @@ public class CommandStockService {
 		key = "#itemId",
 		leaseTime = 12L
 	)
+	@Transactional
 	public void restore(Long itemId, int quantity) {
 		boolean success = itemStockRepository.restoreStockIfPossible(itemId, quantity);
 
