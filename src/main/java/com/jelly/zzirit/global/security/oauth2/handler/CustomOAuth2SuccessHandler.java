@@ -24,22 +24,27 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
 	private final TokenService tokenService;
 
 	@Override
-	public void onAuthenticationSuccess(
-		HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
+	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
 		MemberPrincipal memberPrincipal = (MemberPrincipal) authentication.getPrincipal();
 		Long userId = memberPrincipal.getMemberId();
 		Role role = memberPrincipal.getRole();
 
 		log.info("OAuth 로그인 성공: 사용자 ID={}, 역할={}", userId, role);
+		log.info("사용자 attributes 존재 여부: isEmpty={} / 값={}",
+			memberPrincipal.getAttributes().isEmpty(),
+			memberPrincipal.getAttributes());
 
 		if (!response.isCommitted()) {
 			if (role == Role.ROLE_GUEST) {
-				log.info("GUEST 사용자 → /auth/callback 으로 리다이렉트");
+				log.info("➡GUEST 사용자 → /auth/callback 으로 리다이렉트 시도");
 				response.sendRedirect(AppConfig.getSiteFrontUrl() + "/auth/callback");
 				return;
-			} // 추가 정보를 받는 경우
+			}
 			tokenService.generateTokensAndSetCookies(response, userId, role);
-			response.sendRedirect(AppConfig.getSiteFrontUrl()  + "/");
+			log.info("➡️ 정회원 → 홈으로 리다이렉트 시도");
+			response.sendRedirect(AppConfig.getSiteFrontUrl() + "/");
+		} else {
+			log.warn("응답이 이미 커밋됨 — 리다이렉트 불가");
 		}
 	}
 }
