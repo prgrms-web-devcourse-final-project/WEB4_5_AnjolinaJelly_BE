@@ -1,11 +1,10 @@
 package com.jelly.zzirit.domain.admin.dto.response;
 
-import java.math.BigDecimal;
-
 import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.domain.item.entity.stock.ItemStock;
-
 import lombok.Builder;
+
+import java.math.BigDecimal;
 
 @Builder
 public record AdminItemFetchResponse(

@@ -22,6 +22,6 @@ public interface ItemQueryRepository {
 
 	Optional<AdminItemFetchResponse> findAdminItemById(Long itemId);
 
-	Page<AdminItemFetchResponse> findAdminItems(String name, Pageable pageable);
+	Page<AdminItemFetchResponse> findAdminItems(String name, String sort, Pageable pageable);
 
 }

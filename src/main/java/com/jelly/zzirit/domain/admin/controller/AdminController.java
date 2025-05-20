@@ -1,30 +1,12 @@
 package com.jelly.zzirit.domain.admin.controller;
 
-import java.io.IOException;
-import java.util.Optional;
-
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-
 import com.jelly.zzirit.domain.admin.dto.request.ItemCreateRequest;
 import com.jelly.zzirit.domain.admin.dto.request.ItemUpdateRequest;
 import com.jelly.zzirit.domain.admin.dto.response.AdminItemFetchResponse;
 import com.jelly.zzirit.domain.admin.dto.response.ImageUploadResponse;
 import com.jelly.zzirit.domain.admin.service.CommandAdminService;
-import com.jelly.zzirit.domain.admin.service.QueryAdminService;
 import com.jelly.zzirit.domain.admin.service.CommandS3Service;
+import com.jelly.zzirit.domain.admin.service.QueryAdminService;
 import com.jelly.zzirit.domain.item.dto.request.TimeDealCreateRequest;
 import com.jelly.zzirit.domain.item.dto.response.TimeDealCreateResponse;
 import com.jelly.zzirit.domain.item.dto.response.TimeDealFetchResponse;
@@ -34,15 +16,19 @@ import com.jelly.zzirit.domain.item.service.QueryTimeDealService;
 import com.jelly.zzirit.global.dto.BaseResponse;
 import com.jelly.zzirit.global.dto.Empty;
 import com.jelly.zzirit.global.dto.PageResponse;
-
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -72,11 +58,12 @@ public class AdminController {
 	@GetMapping("/items")
 	public BaseResponse<PageResponse<AdminItemFetchResponse>> getItems(
 			@RequestParam(required = false) String name,
+			@RequestParam(defaultValue = "desc") String sort,
 			@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "10") int size
 	) {
 		Pageable pageable = PageRequest.of(page, size);
-		return BaseResponse.success(queryAdminService.getSearchItems(name, pageable));
+		return BaseResponse.success(queryAdminService.getSearchItems(name, sort, pageable));
 	}
 
 	@Operation(summary = "관리자 상품 이미지 업로드", description = "상품 등록 전 이미지를 S3에 업로드하고 URL 반환")
@@ -96,9 +83,9 @@ public class AdminController {
 	}
 
 	@Operation(summary = "관리자 상품 수정", description = "관리자가 id로 상품(재고, 가격, 이미지)을 수정합니다.")
-	@PutMapping("/items/{itemId}")
+	@PutMapping("/items/{item-id}")
 	public BaseResponse<Empty> updateItem(
-		@PathVariable @NotNull Long itemId,
+		@PathVariable("item-id") @NotNull Long itemId,
 		@RequestBody @Valid ItemUpdateRequest request
 	) {
 		commandAdminItemService.updateItem(itemId, request);
@@ -106,9 +93,9 @@ public class AdminController {
 	}
 	
 	@Operation(summary = "관리자 상품 이미지 수정", description = "상품 ID로 기존 상품의 이미지를 새 이미지로 교체")
-	@PutMapping(value = "/items/{itemId}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	@PutMapping(value = "/items/{item-id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public BaseResponse<ImageUploadResponse> updateImage(
-		@PathVariable Long itemId,
+		@PathVariable("item-id") Long itemId,
 		@RequestPart("image") MultipartFile image
 	) throws IOException {
 		String uploadedUrl = commandS3Service.upload(image, "item-images");
@@ -117,8 +104,8 @@ public class AdminController {
 	}
 
 	@Operation(summary = "관리자 상품 삭제", description = "관리자가 id로 상품을 삭제합니다.")
-	@DeleteMapping("/items/{itemId}")
-	public BaseResponse<Empty> deleteItem(@PathVariable @NotNull Long itemId) {
+	@DeleteMapping("/items/{item-id}")
+	public BaseResponse<Empty> deleteItem(@PathVariable("item-id") @NotNull Long itemId) {
 		commandAdminItemService.deleteItem(itemId);
 		return BaseResponse.success();
 	}

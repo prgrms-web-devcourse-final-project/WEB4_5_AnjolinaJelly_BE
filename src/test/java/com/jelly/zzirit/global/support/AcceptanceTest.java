@@ -65,4 +65,15 @@ public abstract class AcceptanceTest extends TestContainerConfig {
 			tokenService.generateAccessToken(userId, Role.ROLE_USER)
 		).build();
 	}
+
+	public Cookie getAdminCookie() {
+		return getAdminCookie(1L);
+	}
+
+	public Cookie getAdminCookie(Long adminId) {
+		return new Cookie.Builder(
+				AuthConst.TOKEN_TYPE_ACCESS,
+				tokenService.generateAccessToken(adminId, Role.ROLE_ADMIN)
+		).build();
+	}
 }

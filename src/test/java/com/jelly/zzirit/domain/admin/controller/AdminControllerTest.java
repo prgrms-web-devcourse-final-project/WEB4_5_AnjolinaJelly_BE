@@ -1,180 +1,263 @@
 package com.jelly.zzirit.domain.admin.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import static io.restassured.RestAssured.*;
+import static org.springframework.http.MediaType.*;
+import static org.springframework.restdocs.payload.JsonFieldType.*;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
+
 import com.jelly.zzirit.domain.admin.dto.request.ItemCreateRequest;
 import com.jelly.zzirit.domain.admin.dto.request.ItemUpdateRequest;
-import com.jelly.zzirit.domain.admin.service.CommandS3Service;
-import com.jelly.zzirit.global.support.RabbitTestMemberConfig;
+import com.jelly.zzirit.domain.item.entity.Type;
+import com.jelly.zzirit.domain.item.entity.Brand;
+import com.jelly.zzirit.domain.item.entity.TypeBrand;
+import com.jelly.zzirit.domain.item.repository.BrandRepository;
+import com.jelly.zzirit.domain.item.repository.TypeBrandRepository;
+import com.jelly.zzirit.domain.item.repository.TypeRepository;
+import com.jelly.zzirit.global.support.AcceptanceTest;
+import com.jelly.zzirit.global.support.OpenApiDocumentationFilter;
+import io.restassured.http.Cookie;
+import io.restassured.response.Response;
+import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.restdocs.payload.FieldDescriptor;
+import org.springframework.restdocs.request.ParameterDescriptor;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 
-import static org.mockito.BDDMockito.given;
-import static org.mockito.ArgumentMatchers.any;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+public class AdminControllerTest extends AcceptanceTest {
 
-@SpringBootTest
-@AutoConfigureMockMvc
-class AdminControllerTest extends RabbitTestMemberConfig {
-
+    @Autowired private TypeRepository typeRepository;
+    @Autowired private BrandRepository brandRepository;
     @Autowired
-    private MockMvc mockMvc;
+    private TypeBrandRepository typeBrandRepository;
 
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @MockitoBean
-    private CommandS3Service commandS3Service;
+    private Long typeId;
+    private Long brandId;
 
     @BeforeEach
-    void setUpMockS3() throws IOException {
-        // Mock S3Service 응답 설정
-        given(commandS3Service.upload(any(MultipartFile.class), any(String.class)))
-                .willReturn("https://fake-s3-url.com/fake-image.jpg");
-    }
+    void setUp() {
+        Type type = typeRepository.save(new Type("노트북"));
+        Brand brand = brandRepository.save(new Brand("삼성"));
+        TypeBrand typeBrand = typeBrandRepository.save(new TypeBrand(type, brand));
+        typeId = type.getId();
+        brandId = brand.getId();
 
-    @Test
-    @DisplayName("상품 목록 조회 (성공)")
-    void getItems_shouldReturnSuccess() throws Exception {
-        mockMvc.perform(get("/api/admin/items")
-                .cookie(getAdminAccessTokenCookie()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true));
-    }
-
-    @Test
-    @DisplayName("상품 등록 요청 시 정상 응답")
-    void createItem_shouldReturnSuccess() throws Exception {
         ItemCreateRequest request = new ItemCreateRequest(
                 "테스트상품",
                 100,
                 new BigDecimal("9900"),
-                1L,
-                1L,
+                typeId,
+                brandId,
                 "https://example.com/image.jpg"
         );
-        mockMvc.perform(post("/api/admin/items")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request))
-                .cookie(getAdminAccessTokenCookie()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true));
+
+        given(spec)
+                .cookie(getAdminCookie())
+                .contentType(APPLICATION_JSON_VALUE)
+                .body(request)
+                .when()
+                .post("/api/admin/items")
+                .then()
+                .statusCode(200);
     }
 
     @Test
-    @DisplayName("상품 수정 요청 시 정상 응답")
-    void updateItem_shouldReturnSuccess() throws Exception {
-        ItemUpdateRequest request = new ItemUpdateRequest(50, new BigDecimal("8900"), "");
+    @DisplayName("관리자 상품 목록 조회 성공")
+    void 관리자_상품_목록_조회_성공() {
+        RequestSpecification 요청 = given(spec)
+                .cookie(getAdminCookie())
+                .queryParam("page", 0)
+                .queryParam("size", 10)
+                .filter(OpenApiDocumentationFilter.ofWithPathParamsAndResponseFields(
+                        "관리자 상품 목록 조회",
+                        new ParameterDescriptor[] {
+                                parameterWithName("name").description("상품명 (optional)").optional(),
+                                parameterWithName("sort").description("정렬 기준(desc/asc)").optional(),
+                                parameterWithName("page").description("페이지 번호").optional(),
+                                parameterWithName("size").description("페이지 크기").optional()
+                        },
+                        new FieldDescriptor[] {
+                                fieldWithPath("success").description("요청 성공 여부").type(BOOLEAN),
+                                fieldWithPath("code").description("응답 코드").type(NUMBER),
+                                fieldWithPath("httpStatus").description("HTTP 상태 코드").type(NUMBER),
+                                fieldWithPath("message").description("응답 메시지").type(STRING),
+                                fieldWithPath("result.content[].id").description("상품 ID").type(NUMBER),
+                                fieldWithPath("result.content[].name").description("상품 이름").type(STRING),
+                                fieldWithPath("result.content[].imageUrl").description("상품 이미지").type(STRING),
+                                fieldWithPath("result.content[].type").description("상품 타입").type(STRING),
+                                fieldWithPath("result.content[].brand").description("상품 브랜드").type(STRING),
+                                fieldWithPath("result.content[].price").description("상품 가격").type(NUMBER),
+                                fieldWithPath("result.content[].stockQuantity").description("재고 수량").type(NUMBER),
+                                fieldWithPath("result.pageNumber").description("현재 페이지").type(NUMBER),
+                                fieldWithPath("result.pageSize").description("페이지 크기").type(NUMBER),
+                                fieldWithPath("result.totalElements").description("총 요소 수").type(NUMBER),
+                                fieldWithPath("result.totalPages").description("총 페이지 수").type(NUMBER),
+                                fieldWithPath("result.last").description("마지막 페이지 여부").type(BOOLEAN)
+                        }
+                ));
 
-        mockMvc.perform(put("/api/admin/items/{itemId}", 1L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request))
-                        .cookie(getAdminAccessTokenCookie()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true));
+        Response 응답 = 요청.when()
+                .get("/api/admin/items");
+
+        응답.then()
+                .statusCode(200);
     }
 
     @Test
-    @DisplayName("상품 이미지 업로드 성공 (Mock S3)")
-    void uploadImage_shouldReturnImageUrl() throws Exception {
-        MockMultipartFile image = new MockMultipartFile(
-                "image", "image.jpg", MediaType.IMAGE_JPEG_VALUE, "fake-image-content".getBytes()
+    @DisplayName("관리자 상품 등록 성공")
+    void 관리자_상품_등록_성공() {
+        // given
+        ItemCreateRequest request = new ItemCreateRequest(
+                "관리자테스트상품",
+                50,
+                new BigDecimal("15900"),
+                1L,
+                1L,
+                "https://example.com/image.png"
         );
 
-        mockMvc.perform(multipart("/api/admin/items/image")
-                        .file(image)
-                        .cookie(getAdminAccessTokenCookie()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.result.imageUrl")
-                        .value("https://fake-s3-url.com/fake-image.jpg"));
+        Cookie adminCookie = getAdminCookie();
+
+        // when & then
+        given(spec)
+                .cookie(adminCookie)
+                .contentType(APPLICATION_JSON_VALUE)
+                .body(request)
+                .filter(OpenApiDocumentationFilter.ofWithRequestFieldsAndResponseFields(
+                        "관리자 상품 등록",
+                        requestFields(
+                                fieldWithPath("name").description("상품 이름").type(STRING),
+                                fieldWithPath("stockQuantity").description("재고 수량").type(NUMBER),
+                                fieldWithPath("price").description("상품 가격").type(NUMBER),
+                                fieldWithPath("typeId").description("상품 타입 ID").type(NUMBER),
+                                fieldWithPath("brandId").description("브랜드 ID").type(NUMBER),
+                                fieldWithPath("imageUrl").description("상품 이미지 URL").type(STRING)
+                        ),
+                        responseFields(
+                                fieldWithPath("success").description("요청 성공 여부").type(BOOLEAN),
+                                fieldWithPath("code").description("응답 코드").type(NUMBER),
+                                fieldWithPath("httpStatus").description("HTTP 상태 코드").type(NUMBER),
+                                fieldWithPath("message").description("응답 메시지").type(STRING),
+                                fieldWithPath("result").description("빈 응답 객체").type(OBJECT)
+                        )
+                ))
+                .when()
+                .post("/api/admin/items")
+                .then()
+                .log().all()
+                .statusCode(200);
     }
 
     @Test
-    @DisplayName("상품 이미지 수정 성공 (Mock S3)")
-    void updateImage_shouldReplaceImage() throws Exception {
-        MockMultipartFile image = new MockMultipartFile(
-                "image", "image.jpg", MediaType.IMAGE_JPEG_VALUE, "new-image-content".getBytes()
+    @DisplayName("관리자 상품 단건 조회 성공")
+    void 관리자_상품_단건_조회_성공() {
+        // 상품 목록 조회를 통해 itemId를 하나 가져옴
+        Long itemId = getFirstItemId();
+
+        given(spec)
+                .cookie(getAdminCookie())
+                .filter(OpenApiDocumentationFilter.ofWithPathParamsAndResponseFields(
+                        "관리자 상품 단건 조회",
+                        new ParameterDescriptor[]{
+                                parameterWithName("itemId").description("조회할 상품 ID")
+                        },
+                        new FieldDescriptor[]{
+                                fieldWithPath("success").description("요청 성공 여부").type(BOOLEAN),
+                                fieldWithPath("code").description("응답 코드").type(NUMBER),
+                                fieldWithPath("httpStatus").description("HTTP 상태 코드").type(NUMBER),
+                                fieldWithPath("message").description("응답 메시지").type(STRING),
+                                fieldWithPath("result.id").description("상품 ID").type(NUMBER),
+                                fieldWithPath("result.name").description("상품 이름").type(STRING),
+                                fieldWithPath("result.imageUrl").description("상품 이미지").type(STRING),
+                                fieldWithPath("result.type").description("상품 타입").type(STRING),
+                                fieldWithPath("result.brand").description("상품 브랜드").type(STRING),
+                                fieldWithPath("result.price").description("상품 가격").type(NUMBER),
+                                fieldWithPath("result.stockQuantity").description("재고 수량").type(NUMBER)
+                        }
+                ))
+                .when()
+                .get("/api/admin/items/{itemId}", itemId)
+                .then()
+                .statusCode(200);
+    }
+
+    @Test
+    @DisplayName("관리자 상품 수정 성공")
+    void 관리자_상품_수정_성공() {
+        Long itemId = getFirstItemId();
+
+        ItemUpdateRequest request = new ItemUpdateRequest(
+                80,
+                new BigDecimal("12900"),
+                "https://example.com/image.png"
         );
 
-        mockMvc.perform(multipart("/api/admin/items/{itemId}/image", 1L)
-                        .file(image)
-                        .with(req -> { req.setMethod("PUT"); return req; })
-                        .cookie(getAdminAccessTokenCookie())) // multipart PUT 요청 설정
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.result.imageUrl")
-                        .value("https://fake-s3-url.com/fake-image.jpg"));
+        given(spec)
+                .cookie(getAdminCookie())
+                .contentType(APPLICATION_JSON_VALUE)
+                .body(request)
+                .filter(OpenApiDocumentationFilter.ofWithRequestFieldsAndResponseFields(
+                        "관리자 상품 수정",
+                        requestFields(
+                                fieldWithPath("price").description("상품 가격").type(NUMBER),
+                                fieldWithPath("stockQuantity").description("재고 수량").type(NUMBER),
+                                fieldWithPath("imageUrl").description("상품 이미지 URL").type(STRING)
+                        ),
+                        responseFields(
+                                fieldWithPath("success").description("요청 성공 여부").type(BOOLEAN),
+                                fieldWithPath("code").description("응답 코드").type(NUMBER),
+                                fieldWithPath("httpStatus").description("HTTP 상태 코드").type(NUMBER),
+                                fieldWithPath("message").description("응답 메시지").type(STRING),
+                                fieldWithPath("result").description("빈 응답 객체").type(OBJECT)
+                        )
+                ))
+                .when()
+                .put("/api/admin/items/{itemId}", itemId)
+                .then()
+                .statusCode(200);
     }
 
     @Test
-    @DisplayName("상품 삭제 요청 시 정상 응답")
-    void deleteItem_shouldReturnSuccess() throws Exception {
-        mockMvc.perform(delete("/api/admin/items/{itemId}", 1L)
-                        .cookie(getAdminAccessTokenCookie()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true));
+    @DisplayName("관리자 상품 삭제 성공")
+    void 관리자_상품_삭제_성공() {
+        // 상품 목록에서 삭제할 ID 가져오기
+        Long itemId = getFirstItemId();
+
+        given(spec)
+                .cookie(getAdminCookie())
+                .filter(OpenApiDocumentationFilter.ofWithPathParamsAndResponseFields(
+                        "관리자 상품 삭제",
+                        new ParameterDescriptor[]{
+                                parameterWithName("itemId").description("삭제할 상품 ID")
+                        },
+                        new FieldDescriptor[]{
+                                fieldWithPath("success").description("요청 성공 여부").type(BOOLEAN),
+                                fieldWithPath("code").description("응답 코드").type(NUMBER),
+                                fieldWithPath("httpStatus").description("HTTP 상태 코드").type(NUMBER),
+                                fieldWithPath("message").description("응답 메시지").type(STRING),
+                                fieldWithPath("result").description("빈 응답 객체").type(OBJECT)
+                        }
+                ))
+                .when()
+                .delete("/api/admin/items/{itemId}", itemId)
+                .then()
+                .statusCode(200);
     }
+
+    private Long getFirstItemId() {
+        return ((Number) given(spec)
+                .cookie(getAdminCookie())
+                .queryParam("page", 0)
+                .queryParam("size", 1)
+                .when()
+                .get("/api/admin/items")
+                .then()
+                .extract()
+                .path("result.content[0].id")).longValue();
+    }
+
 }
-
-
-
-//    @Autowired
-//    private JwtUtil jwtUtil; // 테스트용 JWT 발급 유틸
-//
-//    @Test
-//    void 관리자_상품_조회_API_문서() {
-//        // 1. 테스트용 사용자 정보
-//        Long userId = 1L;
-//        Role role = Role.ROLE_USER;
-//
-//        // 2. JWT access token 발급 (1시간 유효)
-//        String accessToken = jwtUtil.createJwt("access", userId, role, 3600);
-//        System.out.println("accessToken: " + accessToken); // 디버깅용 출력
-//
-//        // 3. RestAssured spec 설정 + API 호출 + RestDocs 문서화
-//        String responseBody = this.spec
-//                // 인증 토큰 설정
-//                .header("Authorization", "Bearer " + accessToken)
-//                // 응답 필드에 대한 문서화 필터 등록 (OpenAPI + RestDocs 연동)
-//                .filter(OpenApiDocumentationFilter.ofWithResponseFields(
-//                        "adminItem-get-admin-item", // 문서 식별자 (파일 이름)
-//                        new FieldDescriptor[] {
-//                                fieldWithPath("success").description("요청 성공 여부")
-//                                        .attributes(
-//                                        key("title").value("AdminItemResponse"),  // Swagger 스키마 이름
-//                                        key("tags").value("adminItem")           // Swagger 그룹 태그
-//                                ),
-//                                fieldWithPath("code").description("응답 코드"),
-//                                fieldWithPath("httpStatus").description("HTTP 상태"),
-//                                fieldWithPath("message").description("응답 메시지"),
-//                                fieldWithPath("result[].id").description("상품 ID"),
-//                                fieldWithPath("result[].name").description("상품 이름"),
-//                                fieldWithPath("result[].imageUrl").description("상품 이미지 URL"),
-//                                fieldWithPath("result[].stockQuantity").description("재고 수량"),
-//                                fieldWithPath("result[].type").description("상품 종류"),
-//                                fieldWithPath("result[].brand").description("브랜드"),
-//                                fieldWithPath("result[].price").description("상품 가격")
-//                        }
-//                ))
-//                .when()
-//                .get("/api/admin/item") // 실제 요청 URI
-//                .then()
-//                .statusCode(200) // HTTP 상태 코드 검증
-//                .extract().asString(); // 응답 본문 추출 (문서화 검토용)
-//
-//        System.out.println("응답 바디: \n" + responseBody);
-//    }
-//}
