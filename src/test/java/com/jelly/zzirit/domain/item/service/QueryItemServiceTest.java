@@ -136,7 +136,7 @@ public class QueryItemServiceTest {
 		Type 노트북 = 노트북();
 		Brand 삼성 = 삼성();
 		Item 상품 = 삼성_노트북(타입_브랜드_생성(노트북, 삼성));
-		ItemStock 재고 = new ItemStock(상품, 10, 2);
+		ItemStock 재고 = new ItemStock(상품, null, 10, 2);
 		given(itemRepository.getById(상품.getId())).willReturn(상품);
 		given(itemStockRepository.findByItemId(상품.getId())).willReturn(Optional.of(재고));
 
