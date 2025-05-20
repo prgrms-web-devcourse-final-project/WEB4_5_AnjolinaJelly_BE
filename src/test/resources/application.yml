@@ -33,12 +33,6 @@ spring:
   jwt:
     secret: testtesttesttesttesttesttesttesttesttesttesttesttesttesttest
 
-  rabbitmq:
-    host: dummy
-    port: 1234
-    username: dummy
-    password: dummy
-
 oauth2:
   naver:
     client-id: test-naver-client-id

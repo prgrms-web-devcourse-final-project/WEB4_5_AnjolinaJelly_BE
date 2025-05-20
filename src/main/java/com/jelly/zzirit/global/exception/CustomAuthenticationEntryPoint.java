@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
@@ -28,12 +29,14 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
 	public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) {
 		Exception exception = (Exception) request.getAttribute("exception");
 
-		if (exception instanceof InvalidTokenException customEx) {
-			resolver.resolveException(request, response, null, new InvalidCustomException(customEx.getStatus()));
-		} else if (exception instanceof InvalidAuthenticationException customEx) {
-			resolver.resolveException(request, response, null, new InvalidCustomException(customEx.getStatus()));
-		} else {
-			resolver.resolveException(request, response, null, new InvalidCustomException(BaseResponseStatus.UNAUTHORIZED));
+		switch (exception) {
+			case InvalidTokenException customEx ->
+				resolver.resolveException(request, response, null, new InvalidCustomException(customEx.getStatus()));
+			case InvalidAuthenticationException customEx ->
+				resolver.resolveException(request, response, null, new InvalidCustomException(customEx.getStatus()));
+			case MethodArgumentNotValidException validEx -> resolver.resolveException(request, response, null, validEx);
+			case null, default -> resolver.resolveException(request, response, null,
+				new InvalidCustomException(BaseResponseStatus.UNAUTHORIZED));
 		}
 	}
 }

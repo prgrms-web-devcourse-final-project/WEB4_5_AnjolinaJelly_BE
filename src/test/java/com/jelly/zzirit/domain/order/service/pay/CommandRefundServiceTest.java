@@ -1,75 +1,69 @@
 package com.jelly.zzirit.domain.order.service.pay;
 
-import com.jelly.zzirit.domain.member.entity.Member;
-import com.jelly.zzirit.domain.order.domain.fixture.OrderFixture;
-import com.jelly.zzirit.domain.order.entity.Order;
-import com.jelly.zzirit.domain.order.service.payment.TossPaymentClient;
-import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
-import org.junit.jupiter.api.BeforeEach;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static com.jelly.zzirit.global.dto.BaseResponseStatus.ORDER_REFUND_FAILED;
-import static com.jelly.zzirit.global.dto.BaseResponseStatus.TOSS_REFUND_FAILED;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
+import com.jelly.zzirit.domain.member.domain.MemberFixture;
+import com.jelly.zzirit.domain.member.entity.Member;
+import com.jelly.zzirit.domain.order.domain.fixture.OrderFixture;
+import com.jelly.zzirit.domain.order.entity.Order;
+import com.jelly.zzirit.domain.order.service.payment.TossPaymentClient;
+import com.jelly.zzirit.global.dto.BaseResponseStatus;
+import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
 
 @ExtendWith(MockitoExtension.class)
-public class CommandRefundServiceTest {
+class CommandRefundServiceTest {
 
-    @Mock
-    private TossPaymentClient tossPaymentClient;
+	@InjectMocks
+	private CommandRefundService commandRefundService;
 
-    @Mock
-    private CommandRefundStatusService commandRefundStatusService;
+	@Mock
+	private TossPaymentClient tossPaymentClient;
 
-    @InjectMocks
-    private CommandRefundService commandRefundService;
+	@Mock
+	private CommandRefundStatusService commandRefundStatusService;
 
-    private Order order;
+	private final String paymentKey = "pay_abc123";
+	private final String reason = "테스트 환불 사유";
 
-    @BeforeEach
-    void setUp() {
-        Member member = mock(Member.class);
-        order = OrderFixture.결제된_주문_생성(member);
-    }
+	@Test
+	void 환불_성공시_API호출_및_성공상태_반영() {
+		// given
+		Member member = MemberFixture.일반_회원();
+		Order order = OrderFixture.결제된_주문_생성(member);
 
-    @Test
-    void 환불이_성공하면_환불_성공으로_처리된다() {
-        // given
-        String paymentKey = "pay_abc123";
-        String cancelReason = "사용자 주문 취소";
+		doNothing().when(tossPaymentClient).refund(paymentKey, order.getTotalPrice(), reason);
 
-        // when
-        commandRefundService.refund(order, paymentKey, cancelReason);
+		// when
+		commandRefundService.refund(order, paymentKey, reason);
 
-        // then
-        verify(tossPaymentClient).refund(paymentKey, order.getTotalPrice(), cancelReason);
-        verify(commandRefundStatusService).markAsRefunded(order, paymentKey, true);
-    }
+		// then
+		verify(tossPaymentClient).refund(paymentKey, order.getTotalPrice(), reason);
+		verify(commandRefundStatusService).markAsRefunded(order, paymentKey, true);
+	}
 
-    @Test
-    void 환불이_실패하면_예외를_던지고_환불_실패로_처리된다() {
-        // given
-        String paymentKey = "pay_xyz456";
-        String cancelReason = "사용자 주문 취소";
+	@Test
+	void 환불_실패시_API예외_발생_및_실패상태_반영() {
+		// given
+		Member member = MemberFixture.일반_회원();
+		Order order = OrderFixture.결제된_주문_생성(member);
 
-        doThrow(new InvalidOrderException(TOSS_REFUND_FAILED))
-            .when(tossPaymentClient)
-            .refund(paymentKey, order.getTotalPrice(), cancelReason);
+		doThrow(new RuntimeException("API 오류"))
+			.when(tossPaymentClient)
+			.refund(paymentKey, order.getTotalPrice(), reason);
 
-        // when & then
-        InvalidOrderException exception = assertThrows(
-            InvalidOrderException.class,
-            () -> commandRefundService.refund(order, paymentKey, cancelReason)
-        );
+		// when & then
+		InvalidOrderException ex = assertThrows(InvalidOrderException.class, () ->
+			commandRefundService.refund(order, paymentKey, reason)
+		);
 
-        assertEquals(ORDER_REFUND_FAILED, exception.getStatus());
-        verify(commandRefundStatusService).markAsRefunded(order, paymentKey, false);
-    }
-
+		assertEquals(BaseResponseStatus.ORDER_REFUND_FAILED, ex.getStatus());
+		verify(commandRefundStatusService).markAsRefunded(order, paymentKey, false);
+	}
 }

@@ -23,7 +23,9 @@ import com.jelly.zzirit.global.security.util.CookieUtil;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OAuthSignupRedirectService {
@@ -48,8 +50,11 @@ public class OAuthSignupRedirectService {
 		}
 
 		MemberPrincipal memberPrincipal = new MemberPrincipal(0L, Role.ROLE_GUEST);
+		log.info("GUEST 인증 객체 생성됨: {}", memberPrincipal);
+
 		Authentication authentication = new UsernamePasswordAuthenticationToken(memberPrincipal, null, memberPrincipal.getAuthorities());
 		SecurityContextHolder.getContext().setAuthentication(authentication);
+		log.info("SecurityContextHolder 인증 설정 완료");
 		return memberPrincipal;
 	}
 

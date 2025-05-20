@@ -26,11 +26,12 @@ public class CommandPaymentInitService {
 	private final MemberRepository memberRepository;
 
 	public PaymentInitResponse createOrderAndReturnInit(PaymentRequest dto) {
+		Long memberId = AuthMember.getMemberId();
+		Member member = memberRepository.findById(memberId)
+			.orElseThrow(() -> new InvalidUserException(BaseResponseStatus.USER_NOT_FOUND));
+
 		Long todaySequence = orderSequenceGenerator.getTodaySequence();
 		String orderNumber = Order.generateOrderNumber(todaySequence);
-
-		Member member = memberRepository.findById(AuthMember.getMemberId())
-			.orElseThrow(() -> new InvalidUserException(BaseResponseStatus.USER_NOT_FOUND));
 
 		Order order = tempOrderService.createTempOrder(dto, member, orderNumber);
 
@@ -43,4 +44,5 @@ public class CommandPaymentInitService {
 			member.getMemberName()
 		);
 	}
+
 }

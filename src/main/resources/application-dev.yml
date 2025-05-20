@@ -17,7 +17,7 @@ spring:
       simple:
         retry:
           enabled: true
-          max-attempts: 2
+          max-attempts: 3
           initial-interval: 1000
           multiplier: 1.5
           max-interval: 3000
