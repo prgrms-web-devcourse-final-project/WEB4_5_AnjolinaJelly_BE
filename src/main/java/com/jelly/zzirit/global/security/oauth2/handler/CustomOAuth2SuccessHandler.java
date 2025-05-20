@@ -37,6 +37,7 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
 		if (!response.isCommitted()) {
 			if (role == Role.ROLE_GUEST) {
 				log.info("➡GUEST 사용자 → /auth/callback 으로 리다이렉트 시도");
+				log.info("url = {}", AppConfig.getSiteFrontUrlList().get(1));
 				response.sendRedirect(AppConfig.getSiteFrontUrlList().get(1) + "/auth/callback");
 				return;
 			}
