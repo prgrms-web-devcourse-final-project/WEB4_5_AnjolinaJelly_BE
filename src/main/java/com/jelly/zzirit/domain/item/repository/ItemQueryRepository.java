@@ -2,17 +2,16 @@ package com.jelly.zzirit.domain.item.repository;
 
 import java.util.Optional;
 
-import com.jelly.zzirit.domain.admin.dto.response.AdminItemFetchResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import com.jelly.zzirit.domain.admin.dto.response.AdminItemFetchResponse;
 import com.jelly.zzirit.domain.item.dto.request.ItemFilterRequest;
 import com.jelly.zzirit.domain.item.entity.Item;
-import com.jelly.zzirit.domain.item.entity.timedeal.TimeDealItem;
 
 public interface ItemQueryRepository {
 
-	Page<TimeDealItem> findItems(
+	Page<Item> findItems(
 		ItemFilterRequest filter,
 		String sort,
 		Pageable pageable

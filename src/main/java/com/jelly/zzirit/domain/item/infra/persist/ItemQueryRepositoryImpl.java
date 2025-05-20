@@ -4,27 +4,27 @@ import static com.jelly.zzirit.domain.item.entity.QBrand.*;
 import static com.jelly.zzirit.domain.item.entity.QItem.*;
 import static com.jelly.zzirit.domain.item.entity.QType.*;
 import static com.jelly.zzirit.domain.item.entity.QTypeBrand.*;
-import static com.jelly.zzirit.domain.item.entity.timedeal.QTimeDealItem.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import com.jelly.zzirit.domain.admin.dto.response.AdminItemFetchResponse;
-import com.jelly.zzirit.domain.item.entity.*;
-import com.jelly.zzirit.domain.item.entity.stock.QItemStock;
-import com.jelly.zzirit.domain.item.entity.timedeal.TimeDealItem;
-import com.querydsl.core.types.Projections;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.jelly.zzirit.domain.admin.dto.response.AdminItemFetchResponse;
 import com.jelly.zzirit.domain.item.dto.request.ItemFilterRequest;
 import com.jelly.zzirit.domain.item.entity.Item;
+import com.jelly.zzirit.domain.item.entity.QBrand;
+import com.jelly.zzirit.domain.item.entity.QItem;
+import com.jelly.zzirit.domain.item.entity.QType;
+import com.jelly.zzirit.domain.item.entity.QTypeBrand;
+import com.jelly.zzirit.domain.item.entity.stock.QItemStock;
 import com.jelly.zzirit.domain.item.repository.ItemQueryRepository;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -39,14 +39,12 @@ public class ItemQueryRepositoryImpl implements ItemQueryRepository {
 	private final JPAQueryFactory queryFactory;
 
 	@Override
-	public Page<TimeDealItem> findItems(ItemFilterRequest filter, String sort, Pageable pageable) {
-		List<TimeDealItem> pagingItems = queryFactory.selectFrom(timeDealItem)
-			.join(timeDealItem.item, item).fetchJoin()
+	public Page<Item> findItems(ItemFilterRequest filter, String sort, Pageable pageable) {
+		List<Item> pagingItems = queryFactory.selectFrom(item)
 			.join(item.typeBrand, typeBrand).fetchJoin()
 			.join(typeBrand.type, type).fetchJoin()
 			.join(typeBrand.brand, brand).fetchJoin()
 			.where(
-				timeDealItem.timeDeal.endTime.after(LocalDateTime.now()),
 				isKeywordContain(filter.keyword()),
 				isTypeContain(filter.types()),
 				isBrandContain(filter.brands())
@@ -56,14 +54,12 @@ public class ItemQueryRepositoryImpl implements ItemQueryRepository {
 			.orderBy(sortByPrice(sort))
 			.fetch();
 
-		JPAQuery<Long> total = queryFactory.select(timeDealItem.count())
-			.from(timeDealItem)
-			.join(timeDealItem.item, item).fetchJoin()
-			.join(item.typeBrand, typeBrand).fetchJoin()
-			.join(typeBrand.type, type).fetchJoin()
-			.join(typeBrand.brand, brand).fetchJoin()
+		JPAQuery<Long> total = queryFactory.select(item.count())
+			.from(item)
+			.join(item.typeBrand, typeBrand)
+			.join(typeBrand.type, type)
+			.join(typeBrand.brand, brand)
 			.where(
-				timeDealItem.timeDeal.endTime.after(LocalDateTime.now()),
 				isKeywordContain(filter.keyword()),
 				isTypeContain(filter.types()),
 				isBrandContain(filter.brands())

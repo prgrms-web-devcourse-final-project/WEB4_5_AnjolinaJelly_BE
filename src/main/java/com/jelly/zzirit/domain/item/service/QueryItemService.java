@@ -9,12 +9,11 @@ import com.jelly.zzirit.domain.item.dto.response.ItemFetchResponse;
 import com.jelly.zzirit.domain.item.dto.response.SimpleItemFetchResponse;
 import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.domain.item.entity.stock.ItemStock;
-import com.jelly.zzirit.domain.item.entity.timedeal.TimeDeal;
 import com.jelly.zzirit.domain.item.entity.timedeal.TimeDealItem;
 import com.jelly.zzirit.domain.item.repository.ItemQueryRepository;
 import com.jelly.zzirit.domain.item.repository.ItemRepository;
-import com.jelly.zzirit.domain.item.repository.TimeDealItemRepository;
 import com.jelly.zzirit.domain.item.repository.stock.ItemStockRepository;
+import com.jelly.zzirit.domain.item.repository.TimeDealItemRepository;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.dto.PageResponse;
 import com.jelly.zzirit.global.exception.custom.InvalidItemException;
@@ -40,9 +39,7 @@ public class QueryItemService {
 			TimeDealItem timeDealItem = timeDealItemRepository.findActiveTimeDealItemByItemId(item.getId())
 				.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND));
 
-			if (timeDealItem.getTimeDeal().getStatus().equals(TimeDeal.TimeDealStatus.ONGOING)) {
-				return ItemFetchResponse.from(timeDealItem, itemStock.getQuantity());
-			}
+			return ItemFetchResponse.from(timeDealItem, itemStock.getQuantity());
 		}
 
 		return ItemFetchResponse.from(item, itemStock.getQuantity());
@@ -50,8 +47,11 @@ public class QueryItemService {
 
 	public PageResponse<SimpleItemFetchResponse> search(ItemFilterRequest request, String sort, Pageable pageable) {
 		return PageResponse.from(
-			itemQueryRepository.findItems(request, sort, pageable)
+			itemQueryRepository.findItems(request, sort, pageable).map(item ->
+				timeDealItemRepository.findActiveTimeDealItemByItemId(item.getId())
 					.map(SimpleItemFetchResponse::from)
+					.orElseGet(() -> SimpleItemFetchResponse.from(item))
+			)
 		);
 	}
 }
