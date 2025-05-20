@@ -3,6 +3,7 @@ package com.jelly.zzirit.domain.order.service.order.cancel;
 import static com.jelly.zzirit.global.dto.BaseResponseStatus.*;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.jelly.zzirit.domain.member.entity.Member;
 import com.jelly.zzirit.domain.order.entity.Order;
@@ -24,6 +25,7 @@ public class OrderCancellationFacade {
 	private final CommandStockService commandStockService;
 	private final OrderRepository orderRepository;
 
+	@Transactional
 	public void cancelOrderAndRefund(Long orderId, Member member) {
 		Order order = orderRepository.findByIdWithPayment(orderId)
 			.orElseThrow(() -> new InvalidOrderException(ORDER_NOT_FOUND));
