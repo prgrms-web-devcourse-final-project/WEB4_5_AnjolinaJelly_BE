@@ -21,7 +21,6 @@ public class CommandItemService {
 	public void updateItemStatusByTimeDeal(TimeDeal timeDeal, ItemStatus status) {
 		timeDealItemRepository.findAllByTimeDeal(timeDeal).stream()
 			.map(tdi -> tdi.getItem())
-			.distinct()
 			.forEach(item -> item.changeItemStatus(status));
 	}
 }
