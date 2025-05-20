@@ -1,5 +1,8 @@
 package com.jelly.zzirit.global.config;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.apache.tika.Tika;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,16 +22,7 @@ public class AppConfig {
 	private static String siteBackUrl;
 
 	@Getter
-	private static String siteFrontUrl;
-
-	@Getter
-	private static String fileUploadDir;
-
-	@Getter
-	private static String customMaxImageSize;
-
-	@Getter
-	private static String customMaxFileSize;
+	private static List<String> siteFrontUrlList;
 
 	@Getter
 	private static String siteDomain;
@@ -40,22 +34,7 @@ public class AppConfig {
 
 	@Value("${custom.site.front-url}")
 	public void setSiteFrontUrl(String siteFrontUrl) {
-		AppConfig.siteFrontUrl = siteFrontUrl;
-	}
-
-	@Value("${custom.file.upload-dir}")
-	public void setFileUploadDir(String fileUploadDir) {
-		AppConfig.fileUploadDir = fileUploadDir;
-	}
-
-	@Value("${custom.upload.max-image-size}")
-	public void setCustomMaxImageSize(String size) {
-		AppConfig.customMaxImageSize = size;
-	}
-
-	@Value("${custom.upload.max-file-size}")
-	public void setCustomMaxFileSize(String size) {
-		AppConfig.customMaxFileSize = size;
+		AppConfig.siteFrontUrlList = Arrays.asList(siteFrontUrl.split(","));
 	}
 
 	@Value("${custom.site.domain}")
@@ -66,5 +45,11 @@ public class AppConfig {
 	@Autowired
 	public void setTika(Tika tika) {
 		AppConfig.tika = tika;
+	}
+
+	public static String getRedirectBaseUrl() {
+		List<String> list = getSiteFrontUrlList();
+		if (list.size() == 1) return list.get(0);
+		return list.get(1);
 	}
 }

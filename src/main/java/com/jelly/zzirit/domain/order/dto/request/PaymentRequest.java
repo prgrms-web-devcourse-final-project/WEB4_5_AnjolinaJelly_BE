@@ -21,7 +21,7 @@ public record PaymentRequest(
 
 	@Schema(description = "총 결제 금액 (단위: 원)", example = "15000")
 	@Positive(message = "결제 금액은 0보다 커야 합니다.")
-	int totalAmount,
+	long totalAmount,
 
 	@Schema(description = "배송 요청사항", example = "문 앞에 놔주세요")
 	String shippingRequest,

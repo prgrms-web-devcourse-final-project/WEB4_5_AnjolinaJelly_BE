@@ -1,12 +1,6 @@
 package com.jelly.zzirit.domain.order.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-
-import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "결제 초기화 응답 DTO")
 public record PaymentInitResponse(
@@ -15,7 +9,7 @@ public record PaymentInitResponse(
 	String orderId,
 
 	@Schema(description = "결제 금액 (단위: 원)", example = "15000")
-	int amount,
+	long amount,
 
 	@Schema(description = "주문명")
 	String orderName,
