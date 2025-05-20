@@ -14,7 +14,9 @@ import com.jelly.zzirit.global.security.service.TokenService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
@@ -28,8 +30,11 @@ public class CustomOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
 		Long userId = memberPrincipal.getMemberId();
 		Role role = memberPrincipal.getRole();
 
+		log.info("OAuth 로그인 성공: 사용자 ID={}, 역할={}", userId, role);
+
 		if (!response.isCommitted()) {
 			if (role == Role.ROLE_GUEST) {
+				log.info("GUEST 사용자 → /auth/callback 으로 리다이렉트");
 				response.sendRedirect(AppConfig.getSiteFrontUrl() + "/auth/callback");
 				return;
 			} // 추가 정보를 받는 경우
