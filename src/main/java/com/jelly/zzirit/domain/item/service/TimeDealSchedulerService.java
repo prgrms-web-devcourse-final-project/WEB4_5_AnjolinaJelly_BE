@@ -22,7 +22,7 @@ public class TimeDealSchedulerService {
 	// 시작 시간이 현재보다 이전인 SCHEDULED 상태 타임딜을 ONGOING 상태로 변경
 	@Transactional
 	public boolean startScheduledDeals(LocalDateTime now) {
-		TimeDeal toStartDeal = timeDealRepository.findByStatusAndStartTimeLessThanEqual(
+		TimeDeal toStartDeal = timeDealRepository.findByStatusAndEndTimeBefore(
 			TimeDealStatus.SCHEDULED, now);
 		if (toStartDeal != null) {
 			toStartDeal.updateStatus(TimeDealStatus.ONGOING);
