@@ -21,9 +21,11 @@ public class TimeDealStatusScheduler {
 	public void updateTimeDealStatuses() {
 		LocalDateTime now = LocalDateTime.now();
 
-		int toStartDeals = timeDealSchedulerService.startScheduledDeals(now);
-		int toEndDeals = timeDealSchedulerService.endOngoingDeals(now);
+		boolean started = timeDealSchedulerService.startScheduledDeals(now);
+		boolean ended = timeDealSchedulerService.endOngoingDeals(now);
 
-		log.info("시작된 타임딜: {}개, 종료된 타임딜: {}개", toStartDeals, toEndDeals);
+		log.info("스케쥴러 동작: 시작 {}. 종료 {}.",
+			started ? "수행" : "미수행",
+			ended ? "수행" : "미수행");
 	}
 }
