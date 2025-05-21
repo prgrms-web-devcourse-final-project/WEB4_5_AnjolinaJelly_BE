@@ -28,6 +28,10 @@ jobs:
           key: ${{ secrets.EC2_KEY }}
           timeout: 15m
           script: |
+            echo "📌 JAVA_HOME 설정 (Java 21)"
+            export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
+            export PATH=$JAVA_HOME/bin:$PATH
+            
             echo "📁 프로젝트 디렉토리로 이동"
             cd ~/WEB4_5_AnjolinaJelly_BE
             git fetch origin
