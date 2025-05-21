@@ -1,4 +1,4 @@
-name: Deploy to EC2
+name: Deploy to EC2 (main auto)
 
 on:
   push:
@@ -25,12 +25,13 @@ jobs:
           timeout: 15m
           # script_stop: true  # 💥 스크립트 내부 명령 실패 시 즉시 종료!
           script: |
-            echo "📌 JAVA_HOME 설정 (Java 21)"
-            export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
-            export PATH=$JAVA_HOME/bin:$PATH
+#            echo "📌 JAVA_HOME 설정 (Java 21)"
+#            export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
+#            export PATH=$JAVA_HOME/bin:$PATH
             
             echo "📁 프로젝트 디렉토리로 이동"
             cd ~/WEB4_5_AnjolinaJelly_BE
+            git checkout main
             git pull origin main
 
             echo "💣 실행 중인 JAR 종료"
