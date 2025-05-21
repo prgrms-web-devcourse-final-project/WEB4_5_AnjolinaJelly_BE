@@ -15,7 +15,7 @@ public interface TimeDealRepository extends JpaRepository<TimeDeal, Long> {
 
 	List<TimeDeal> findByNameContaining(String timeDealName);
 
-	List<TimeDeal> findAllByStatusAndEndTimeBefore(TimeDeal.TimeDealStatus status, LocalDateTime endTime);
+	TimeDeal findByStatusAndEndTimeBefore(TimeDeal.TimeDealStatus status, LocalDateTime endTime);
 
-	List<TimeDeal> findAllByStatusAndStartTimeLessThanEqual(TimeDeal.TimeDealStatus status, LocalDateTime now);
+	TimeDeal findByStatusAndStartTimeLessThanEqual(TimeDeal.TimeDealStatus status, LocalDateTime now);
 }

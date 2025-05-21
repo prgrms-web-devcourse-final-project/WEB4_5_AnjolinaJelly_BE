@@ -91,7 +91,7 @@ class QueryTimeDealServiceTest {
 		@Test
 		void 상품_ID로_검색한다() {
 			TimeDealSearchCondition condition = TimeDealSearchCondition.from(
-				null, null, null, 11L, TimeDeal.TimeDealStatus.ONGOING
+				null, null, null, 99L, TimeDeal.TimeDealStatus.ONGOING
 			);
 			TimeDealFetchResponse mockResponse = createMockResponse();
 			given(timeDealQueryRepository.search(condition)).willReturn(List.of(mockResponse));
