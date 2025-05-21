@@ -81,7 +81,6 @@ public enum BaseResponseStatus {
 	NO_AUTHORITY(false, 40005, "수행할 권한이 없습니다.", HttpStatus.FORBIDDEN),
 	ACCOUNT_LOCKED(false, 40006, "로그인 시도가 너무 많습니다. 잠시 후 다시 시도해주세요.", HttpStatus.UNAUTHORIZED),
 
-
 	// JWT 관련
 	JWT_BLACKLISTED(false, 40010, "블랙리스트에 등록된 토큰입니다.", HttpStatus.UNAUTHORIZED),
 	JWT_INVALID(false, 40011, "잘못된 토큰입니다.", HttpStatus.UNAUTHORIZED),
@@ -106,8 +105,6 @@ public enum BaseResponseStatus {
 	INVALID_IMAGE_URL(false, 60007, "잘못된 이미지 URL 형식입니다.", HttpStatus.BAD_REQUEST),
 	INVALID_PRICE(false, 60008, "상품 가격은 0 이상이어야 합니다.", HttpStatus.BAD_REQUEST),
 	INVALID_STOCK(false, 60009, "상품 재고는 0 이상이어야 합니다.", HttpStatus.BAD_REQUEST),
-	INVALID_STOCK_FOREIGN_KEYS(false, 60012, "상품 재고에는 item 또는 timeDealItem 중 하나만 존재해야 합니다.",
-		HttpStatus.BAD_REQUEST),
 
 	// 장바구니 수량 조정 관련
 	INVALID_CART_QUANTITY(false, 60010, "장바구니 수량은 1개 이상이어야 합니다.", HttpStatus.BAD_REQUEST),
@@ -119,7 +116,6 @@ public enum BaseResponseStatus {
 
 	// 레디스 관련
 	REDIS_ACCESS_ERROR(false, 80000, "내부 시스템 오류(Redis 처리 실패)", HttpStatus.INTERNAL_SERVER_ERROR);
-
 
 	private final boolean isSuccess;
 	private final int code;
