@@ -74,7 +74,8 @@ public class ItemStock extends BaseEntity {
 		boolean hasTimeDealItem = this.timeDealItem != null;
 
 		if (hasItem == hasTimeDealItem) {
-			throw new InvalidItemException(BaseResponseStatus.INVALID_STOCK_FOREIGN_KEYS);
+			throw new IllegalStateException("ItemStock은 item과 timeDealItem 중 하나만 참조해야 합니다. 현재 상태: item="
+				+ (item != null) + ", timeDealItem=" + (timeDealItem != null));
 		}
 	}
 }
