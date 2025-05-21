@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.jelly.zzirit.domain.item.entity.stock.ItemStock;
+import com.jelly.zzirit.domain.item.entity.timedeal.TimeDealItem;
 
 @Repository
 public interface ItemStockRepository extends JpaRepository<ItemStock, Long>, ItemStockRepositoryCustom {
@@ -14,4 +15,6 @@ public interface ItemStockRepository extends JpaRepository<ItemStock, Long>, Ite
 	List<ItemStock> findAllByItemIdIn(List<Long> itemIds);
 
 	Optional<ItemStock> findByItemId(Long itemId);
+
+	Optional<ItemStock> findByTimeDealItem(TimeDealItem tdi);
 }

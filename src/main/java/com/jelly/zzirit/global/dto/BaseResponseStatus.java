@@ -81,7 +81,6 @@ public enum BaseResponseStatus {
 	NO_AUTHORITY(false, 40005, "수행할 권한이 없습니다.", HttpStatus.FORBIDDEN),
 	ACCOUNT_LOCKED(false, 40006, "로그인 시도가 너무 많습니다. 잠시 후 다시 시도해주세요.", HttpStatus.UNAUTHORIZED),
 
-
 	// JWT 관련
 	JWT_BLACKLISTED(false, 40010, "블랙리스트에 등록된 토큰입니다.", HttpStatus.UNAUTHORIZED),
 	JWT_INVALID(false, 40011, "잘못된 토큰입니다.", HttpStatus.UNAUTHORIZED),
@@ -117,7 +116,6 @@ public enum BaseResponseStatus {
 
 	// 레디스 관련
 	REDIS_ACCESS_ERROR(false, 80000, "내부 시스템 오류(Redis 처리 실패)", HttpStatus.INTERNAL_SERVER_ERROR);
-
 
 	private final boolean isSuccess;
 	private final int code;
