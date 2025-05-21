@@ -5,6 +5,7 @@ import static com.jelly.zzirit.global.dto.BaseResponseStatus.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -20,9 +21,9 @@ import com.jelly.zzirit.domain.item.entity.stock.ItemStock;
 import com.jelly.zzirit.domain.item.entity.timedeal.TimeDeal;
 import com.jelly.zzirit.domain.item.entity.timedeal.TimeDealItem;
 import com.jelly.zzirit.domain.item.repository.ItemRepository;
-import com.jelly.zzirit.domain.item.repository.stock.ItemStockRepository;
 import com.jelly.zzirit.domain.item.repository.TimeDealItemRepository;
 import com.jelly.zzirit.domain.item.repository.TimeDealRepository;
+import com.jelly.zzirit.domain.item.repository.stock.ItemStockRepository;
 import com.jelly.zzirit.global.dto.PageResponse;
 import com.jelly.zzirit.global.exception.custom.InvalidTimeDealException;
 
@@ -91,9 +92,13 @@ public class CommandTimeDealService {
 			throw new InvalidTimeDealException(TIME_DEAL_START_TIME_PAST);
 		}
 
-		if (isOverlappingTimeDeal(request.startTime(), request.endTime())) {
-			throw new InvalidTimeDealException(TIME_DEAL_TIME_OVERLAP);
-		}
+		validateTimeOverlap(request.startTime(), request.endTime());
+	}
+
+	private List<TimeDeal> getOverlappingDeals(LocalDateTime start, LocalDateTime end) {
+		return timeDealRepository.findAll().stream()
+			.filter(deal -> isTimeRangeOverlapping(deal.getStartTime(), deal.getEndTime(), start, end))
+			.toList();
 	}
 
 	// 타임딜 아이템 생성 및 해당 재고 저장
@@ -135,10 +140,31 @@ public class CommandTimeDealService {
 	}
 
 	// 기존 타임딜과 겹치는 기간이 있는지 여부 확인
-	private boolean isOverlappingTimeDeal(LocalDateTime start, LocalDateTime end) {
-		List<TimeDeal> existingDeals = timeDealRepository.findAll();
-		return existingDeals.stream().anyMatch(deal ->
-			isTimeRangeOverlapping(deal.getStartTime(), deal.getEndTime(), start, end)
-		);
+	private void validateTimeOverlap(LocalDateTime start, LocalDateTime end) {
+		List<TimeDeal> overlappingDeals = timeDealRepository.findAll().stream()
+			.filter(deal -> isTimeRangeOverlapping(deal.getStartTime(), deal.getEndTime(), start, end))
+			.toList();
+
+		if (!overlappingDeals.isEmpty()) {
+			LocalDateTime minStart = overlappingDeals.stream()
+				.map(TimeDeal::getStartTime)
+				.min(LocalDateTime::compareTo)
+				.orElse(start);
+
+			LocalDateTime maxEnd = overlappingDeals.stream()
+				.map(TimeDeal::getEndTime)
+				.max(LocalDateTime::compareTo)
+				.orElse(end);
+
+			String overlapRange = String.format(
+				"(%s ~ %s)",
+				minStart.format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm")),
+				maxEnd.format(DateTimeFormatter.ofPattern("HH:mm"))
+			);
+
+			String errorMessage = "타임 딜 시간을 조정해주세요. " + overlapRange;
+
+			throw new InvalidTimeDealException(TIME_DEAL_TIME_OVERLAP, errorMessage);
+		}
 	}
 }
