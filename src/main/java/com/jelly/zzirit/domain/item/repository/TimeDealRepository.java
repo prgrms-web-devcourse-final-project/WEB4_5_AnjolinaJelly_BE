@@ -23,6 +23,8 @@ public interface TimeDealRepository extends JpaRepository<TimeDeal, Long> {
 
 	TimeDeal findByStatusAndStartTimeLessThanEqual(TimeDeal.TimeDealStatus status, LocalDateTime now);
 
+	TimeDeal findTopByStatusOrderByStartTimeAsc(TimeDeal.TimeDealStatus status);
+
 	// ✅ 가장 늦은 타임딜 종료 시간 조회
 	@Query("SELECT MAX(t.endTime) FROM TimeDeal t")
 	Optional<LocalDateTime> findMaxEndTime();

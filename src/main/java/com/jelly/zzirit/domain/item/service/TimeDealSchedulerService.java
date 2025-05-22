@@ -25,8 +25,7 @@ public class TimeDealSchedulerService {
     @Transactional
     public boolean startScheduledDeals(LocalDateTime now) {
         log.info("🔔 SCHEDULED → ONGOING 상태 변경할 타임딜 조회 시작: {}", now);
-        TimeDeal toStartDeal = timeDealRepository.findByStatusAndStartTimeLessThanEqual(
-                TimeDealStatus.SCHEDULED, now);
+        TimeDeal toStartDeal = timeDealRepository.findTopByStatusOrderByStartTimeAsc(TimeDealStatus.SCHEDULED);
         log.info("🔔 SCHEDULED → ONGOING 상태 변경할 타임딜 조회 완료: {}", now);
 
         if (toStartDeal != null) {
