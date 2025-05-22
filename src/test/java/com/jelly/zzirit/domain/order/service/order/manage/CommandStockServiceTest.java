@@ -8,21 +8,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.jelly.zzirit.domain.item.domain.fixture.ItemFixture;
 import com.jelly.zzirit.domain.item.domain.fixture.ItemStockFixture;
+import com.jelly.zzirit.domain.item.entity.Brand;
 import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.domain.item.entity.Type;
-import com.jelly.zzirit.domain.item.entity.Brand;
 import com.jelly.zzirit.domain.item.entity.TypeBrand;
 import com.jelly.zzirit.domain.item.entity.stock.ItemStock;
+import com.jelly.zzirit.domain.item.repository.BrandRepository;
 import com.jelly.zzirit.domain.item.repository.ItemRepository;
 import com.jelly.zzirit.domain.item.repository.TypeBrandRepository;
 import com.jelly.zzirit.domain.item.repository.TypeRepository;
-import com.jelly.zzirit.domain.item.repository.BrandRepository;
 import com.jelly.zzirit.domain.item.repository.stock.ItemStockRepository;
 import com.jelly.zzirit.domain.order.service.order.CommandStockService;
+import com.jelly.zzirit.domain.order.util.AsyncStockHistoryUploader;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
 import com.jelly.zzirit.global.redis.TestContainerConfig;
@@ -56,10 +58,14 @@ class CommandStockServiceTest extends TestContainerConfig {
 	@Autowired
 	private TypeBrandRepository typeBrandRepository;
 
+	@MockitoBean
+	private AsyncStockHistoryUploader asyncStockHistoryUploader;
+
 	@PersistenceContext
 	private EntityManager em;
 
 	private ItemStock savedStock;
+	private String orderNumber;
 
 	@BeforeEach
 	void setUp() {
@@ -70,6 +76,8 @@ class CommandStockServiceTest extends TestContainerConfig {
 		Item item = itemRepository.save(ItemFixture.삼성_노트북(typeBrand));
 		ItemStock stock = ItemStockFixture.풀재고_상품(item);
 		savedStock = itemStockRepository.save(stock);
+
+		orderNumber = "ORD20240521-000001";
 	}
 
 	@Test
@@ -77,11 +85,10 @@ class CommandStockServiceTest extends TestContainerConfig {
 	void 재고가_충분할_때_decrease_정상작동() {
 		Long itemId = savedStock.getItem().getId();
 
-		// 로그: 초기 상태
 		ItemStock before = itemStockRepository.findByItemId(itemId).orElseThrow();
 
 		// when
-		commandStockService.decrease(itemId, 3);
+		commandStockService.decrease(orderNumber, itemId, 3);
 		em.flush();
 		em.clear();
 
@@ -96,9 +103,8 @@ class CommandStockServiceTest extends TestContainerConfig {
 	void 재고가_부족할_때_decrease_실패() {
 		Long itemId = savedStock.getItem().getId();
 
-		// when & then
 		InvalidOrderException ex = assertThrows(InvalidOrderException.class, () ->
-			commandStockService.decrease(itemId, 999)
+			commandStockService.decrease(orderNumber, itemId, 999)
 		);
 		assertEquals(BaseResponseStatus.STOCK_REDUCE_FAILED, ex.getStatus());
 	}
@@ -109,14 +115,14 @@ class CommandStockServiceTest extends TestContainerConfig {
 		Long itemId = savedStock.getItem().getId();
 
 		// given
-		commandStockService.decrease(itemId, 5);
+		commandStockService.decrease(orderNumber, itemId, 5);
 		em.flush();
 		em.clear();
 
 		ItemStock afterDecrease = itemStockRepository.findByItemId(itemId).orElseThrow();
 
 		// when
-		commandStockService.restore(itemId, 2);
+		commandStockService.restore(orderNumber, itemId, 2);
 		em.flush();
 		em.clear();
 
@@ -129,9 +135,8 @@ class CommandStockServiceTest extends TestContainerConfig {
 	@Test
 	@Transactional
 	void 존재하지_않는_재고_restore_실패() {
-		// when & then
 		InvalidOrderException ex = assertThrows(InvalidOrderException.class, () ->
-			commandStockService.restore(9999L, 1)
+			commandStockService.restore(orderNumber, 9999L, 1)
 		);
 		assertEquals(BaseResponseStatus.STOCK_RESTORE_FAILED, ex.getStatus());
 	}
