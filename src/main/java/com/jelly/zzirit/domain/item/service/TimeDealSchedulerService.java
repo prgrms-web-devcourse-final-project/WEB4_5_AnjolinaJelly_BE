@@ -1,6 +1,7 @@
 package com.jelly.zzirit.domain.item.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,12 +26,12 @@ public class TimeDealSchedulerService {
     @Transactional
     public boolean startScheduledDeals(LocalDateTime now) {
         log.info("🔔 SCHEDULED → ONGOING 상태 변경할 타임딜 조회 시작: {}", now);
-        TimeDeal toStartDeal = timeDealRepository.findTopByStatusOrderByStartTimeAsc(TimeDealStatus.SCHEDULED);
+        List<TimeDeal> toStartDeals = timeDealRepository.findByStatusAndStartTimeLessThanEqual(
+                TimeDealStatus.SCHEDULED, now);
         log.info("🔔 SCHEDULED → ONGOING 상태 변경할 타임딜 조회 완료: {}", now);
-
-        if (toStartDeal != null) {
-            toStartDeal.updateStatus(TimeDealStatus.ONGOING);
-            commandItemService.updateItemStatusByTimeDeal(toStartDeal, ItemStatus.TIME_DEAL);
+        if (toStartDeals != null && !toStartDeals.isEmpty()) {
+            toStartDeals.forEach(deal -> deal.updateStatus(TimeDealStatus.ONGOING));
+            toStartDeals.forEach(deal -> commandItemService.updateItemStatusByTimeDeal(deal, ItemStatus.TIME_DEAL));
             log.info("🔔 SCHEDULED → ONGOING 상태 변경 완료: {}", now);
             return true;
         }
@@ -41,12 +42,12 @@ public class TimeDealSchedulerService {
     @Transactional
     public boolean endOngoingDeals(LocalDateTime now) {
         log.info("🔔 ONGOING → ENDED 상태 변경할 타임딜 조회 완료: {}", now);
-        TimeDeal toEndDeal = timeDealRepository.findByStatusAndEndTimeBefore(TimeDealStatus.ONGOING,
+        List<TimeDeal> toEndDeals = timeDealRepository.findByStatusAndEndTimeBefore(TimeDealStatus.ONGOING,
                 now);
         log.info("🔔 ONGOING → ENDED 상태 변경할 타임딜 조회 완료: {}", now);
-        if (toEndDeal != null) {
-            toEndDeal.updateStatus(TimeDealStatus.ENDED);
-            commandItemService.updateItemStatusByTimeDeal(toEndDeal, ItemStatus.NONE);
+        if (toEndDeals != null && !toEndDeals.isEmpty()) {
+            toEndDeals.forEach(deal -> deal.updateStatus(TimeDealStatus.ENDED));
+            toEndDeals.forEach(deal -> commandItemService.updateItemStatusByTimeDeal(deal, ItemStatus.NONE));
             log.info("🔔 ONGOING → ENDED 상태 변경 완료: {}", now);
             return true;
         }
