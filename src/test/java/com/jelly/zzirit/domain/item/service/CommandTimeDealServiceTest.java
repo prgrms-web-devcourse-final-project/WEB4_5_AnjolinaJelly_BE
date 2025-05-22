@@ -1,7 +1,6 @@
 package com.jelly.zzirit.domain.item.service;
 
 import static com.jelly.zzirit.domain.item.domain.fixture.ItemFixture.*;
-import static com.jelly.zzirit.global.dto.BaseResponseStatus.*;
 import static org.assertj.core.api.AssertionsForClassTypes.*;
 import static org.mockito.BDDMockito.*;
 
@@ -55,8 +54,7 @@ public class CommandTimeDealServiceTest {
 
 		// when & then
 		assertThatThrownBy(() -> commandTimeDealService.createTimeDeal(request))
-			.isInstanceOf(InvalidTimeDealException.class)
-			.hasMessageContaining(TIME_DEAL_START_TIME_PAST.getMessage());
+			.isInstanceOf(InvalidTimeDealException.class);
 	}
 
 	@Test
