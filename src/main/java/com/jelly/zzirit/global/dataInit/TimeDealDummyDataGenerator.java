@@ -50,15 +50,13 @@ public class TimeDealDummyDataGenerator implements CommandLineRunner {
     }
 
     private void generateDeals(int count) {
-        LocalDateTime latestEndTime = timeDealRepository.findMaxEndTime()
-                .orElse(LocalDateTime.of(2025, 5, 21, 18, 0));
-        ZonedDateTime baseEndTime = latestEndTime.atZone(KST).plusMinutes(10);
-
         List<TimeDeal> timeDeals = new ArrayList<>();
         List<TimeDealItem> timeDealItems = new ArrayList<>();
         List<ItemStock> itemStocks = new ArrayList<>();
 
-        Item originalItem = itemRepository.getReferenceById(1L);
+        LocalDateTime latestEndTime = timeDealRepository.findMaxEndTime()
+                .orElse(LocalDateTime.of(2025, 5, 21, 18, 0));
+        ZonedDateTime baseEndTime = latestEndTime.atZone(KST).plusMinutes(10);
 
         for (int i = 0; i < count; i++) {
             ZonedDateTime dealStart = baseEndTime.plusMinutes(20L * i);
@@ -76,27 +74,28 @@ public class TimeDealDummyDataGenerator implements CommandLineRunner {
 
         timeDealRepository.saveAll(timeDeals);
 
-        Item clonedItem = itemRepository.save(Item.from(originalItem));
-        BigDecimal discountedPrice = clonedItem.getPrice()
+        Item item = itemRepository.getReferenceById(1L);
+        BigDecimal discountedPrice = item.getPrice()
                 .multiply(BigDecimal.valueOf(0.8)); // 20% 할인
-        ItemStock itemStock = ItemStock.builder()
-                .item(clonedItem)
-                .quantity(10)
-                .soldQuantity(0)
-                .build();
-        itemStocks.add(itemStock);
-        itemStockRepository.saveAll(itemStocks);
 
         for (TimeDeal timeDeal : timeDeals) {
             TimeDealItem timeDealItem = TimeDealItem.builder()
                     .price(discountedPrice)
                     .timeDeal(timeDeal)
-                    .item(clonedItem)
+                    .item(item)
                     .build();
             timeDealItems.add(timeDealItem);
+
+            ItemStock itemStock = ItemStock.builder()
+                    .timeDealItem(timeDealItem)
+                    .quantity(10)
+                    .soldQuantity(0)
+                    .build();
+            itemStocks.add(itemStock);
         }
 
         timeDealItemRepository.saveAll(timeDealItems);
+        itemStockRepository.saveAll(itemStocks);
 
         System.out.println("🎉 타임딜 더미 데이터 생성 완료!");
     }
