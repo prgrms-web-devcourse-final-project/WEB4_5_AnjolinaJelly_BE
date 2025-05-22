@@ -52,7 +52,7 @@ public class CartItemService {
 		ItemStock itemStock = resolveItemStockOrThrow(item, timeDealItem, totalQuantity);
 
 		CartItem cartItem = existing.map(ci -> {
-			ci.setQuantity(totalQuantity);
+			ci.changeQuantity(totalQuantity);
 			return ci;
 		}).orElseGet(() -> {
 			CartItem created = CartItem.of(cart, item, request.quantity());
@@ -107,7 +107,6 @@ public class CartItemService {
 		return CartItemMapper.mapToCartItem(cartItem, itemStock, timeDealItem, newQuantity);
 	}
 
-
 	private Cart getOrCreateCart(Long memberId) {
 		return cartRepository.findByMemberId(memberId)
 			.orElseGet(() -> {
@@ -132,11 +131,6 @@ public class CartItemService {
 			.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND));
 	}
 
-	private ItemStock getItemStock(Long itemId) {
-		return itemStockRepository.findByItemId(itemId)
-			.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_STOCK_NOT_FOUND));
-	}
-
 	private TimeDealItem getTimeDealItemIfApplicable(Item item) {
 		if (item.getItemStatus() != ItemStatus.TIME_DEAL)
 			return null;
@@ -144,22 +138,33 @@ public class CartItemService {
 	}
 
 	private ItemStock resolveItemStockOrThrow(Item item, TimeDealItem timeDealItem, int totalQuantity) {
-		// 해당 itemId로 등록된 모든 재고 가져오기
 		List<ItemStock> stocks = itemStockRepository.findAllByItemId(item.getId());
 
-		// 타임딜 상품인 경우 → 타임딜 ID가 일치하는 재고 선택
-		// 일반 상품인 경우 → timeDealItem이 null이고 itemId가 일치하는 재고 선택
-		ItemStock target = (timeDealItem != null)
-			? stocks.stream()
-			.filter(s -> s.getTimeDealItem() != null && s.getTimeDealItem().getId().equals(timeDealItem.getId()))
-			.findFirst()
-			.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_STOCK_NOT_FOUND))
-			: stocks.stream()
-			.filter(s -> s.getTimeDealItem() == null && s.getItem().getId().equals(item.getId()))
-			.findFirst()
-			.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_STOCK_NOT_FOUND));
+		ItemStock target = null;
+		if (timeDealItem != null) {
+			// 타임딜 상품 재고 조회
+			for (ItemStock stock : stocks) {
+				if (stock.getTimeDealItem() != null &&
+					stock.getTimeDealItem().getId().equals(timeDealItem.getId())) {
+					target = stock;
+					break;
+				}
+			}
+		} else {
+			// 일반 상품 재고 조회
+			for (ItemStock stock : stocks) {
+				if (stock.getTimeDealItem() == null &&
+					stock.getItem().getId().equals(item.getId())) {
+					target = stock;
+					break;
+				}
+			}
+		}
 
-		// 장바구니 수량이 재고 수량보다 많으면 예외 발생
+		if (target == null) {
+			throw new InvalidItemException(BaseResponseStatus.ITEM_STOCK_NOT_FOUND);
+		}
+
 		if (totalQuantity > target.getQuantity()) {
 			throw new InvalidItemException(BaseResponseStatus.CART_QUANTITY_EXCEEDS_STOCK);
 		}

@@ -2,7 +2,7 @@ package com.jelly.zzirit.domain.cart.service;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -46,9 +46,18 @@ public class CartService {
 	@Transactional
 	public CartFetchResponse getMyCart(Long memberId) {
 		Cart cart = getOrCreateCart(memberId);
+
+		// 장바구니 항목 조회
 		List<CartItem> cartItems = cartItemRepository.findAllWithItemByCartId(cart.getId());
-		Map<Long, List<ItemStock>> stockGroupMap = loadGroupedItemStocks(cartItems);
-		List<CartItemFetchResponse> responses = convertToResponses(cartItems, stockGroupMap);
+
+		// itemId 목록 추출
+		List<Long> itemIds = itemIds(cartItems);
+
+		// 재고 조회 후 복합 키 기반 Map 구성
+		List<ItemStock> stocks = itemStockRepository.findAllByItemIdIn(itemIds);
+		Map<String, ItemStock> stockMap = loadItemStockMap(stocks);
+
+		List<CartItemFetchResponse> responses = convertToResponses(cartItems, stockMap);
 
 		return new CartFetchResponse(
 			cart.getId(),
@@ -67,57 +76,54 @@ public class CartService {
 			});
 	}
 
-	private Map<Long, List<ItemStock>> loadGroupedItemStocks(List<CartItem> cartItems) {
-		List<Long> itemIds = cartItems.stream()
+	private List<Long> itemIds(List<CartItem> cartItems) {
+		return cartItems.stream()
 			.map(cartItem -> cartItem.getItem().getId())
 			.distinct()
 			.toList();
+	}
 
-		List<ItemStock> stocks = itemStockRepository.findAllByItemId(itemIds);
+	private String generateStockKey(Long itemId, Long timeDealItemId) {
+		return itemId + ":" + (timeDealItemId != null ? timeDealItemId : "null");
+	}
 
+	private Map<String, ItemStock> loadItemStockMap(List<ItemStock> stocks) {
 		return stocks.stream()
-			.collect(Collectors.groupingBy(stock -> stock.getItem().getId()));
+			.collect(Collectors.toMap(
+				stock -> generateStockKey(
+					stock.getItem().getId(),
+					stock.getTimeDealItem() != null ? stock.getTimeDealItem().getId() : null
+				),
+				Function.identity()
+			));
 	}
 
 	private List<CartItemFetchResponse> convertToResponses(List<CartItem> cartItems,
-		Map<Long, List<ItemStock>> stockGroupMap) {
+		Map<String, ItemStock> stockMap) {
+
 		return cartItems.stream()
 			.map(cartItem -> {
 				Item item = cartItem.getItem();
-				int originalQuantity = cartItem.getQuantity();
+				int quantity = cartItem.getQuantity();
 
 				TimeDealItem timeDealItem = getTimeDealItemIfApplicable(item);
 
-				Optional<ItemStock> stockOptional = selectStockForItem(item, timeDealItem,
-					stockGroupMap.getOrDefault(item.getId(), List.of()));
+				// 복합 키 조회
+				String key = generateStockKey(item.getId(), timeDealItem != null ? timeDealItem.getId() : null);
+				ItemStock itemStock = stockMap.get(key);
 
-				if (stockOptional.isEmpty() || stockOptional.get().getQuantity() == 0) {
+				// 재고 없거나 0이면 품절 처리
+				if (itemStock == null || itemStock.getQuantity() == 0) {
 					ItemStock soldOutStock = markAsSoldOut(item);
-					return CartItemMapper.mapToCartItem(cartItem, soldOutStock, timeDealItem, 0);
+					return CartItemMapper.mapToCartItem(cartItem, soldOutStock, timeDealItem, quantity);
 				}
 
-				ItemStock itemStock = stockOptional.get();
-
-				// 재고보다 많은 수량일 경우 수량을 1로 조정하여 응답에 반영
-				int finalQuantity = originalQuantity > itemStock.getQuantity() ? 1 : originalQuantity;
+				// 수량 초과 시 1로 보정
+				int finalQuantity = quantity > itemStock.getQuantity() ? 1 : quantity;
 
 				return CartItemMapper.mapToCartItem(cartItem, itemStock, timeDealItem, finalQuantity);
 			})
 			.toList();
-	}
-
-	private Optional<ItemStock> selectStockForItem(Item item, TimeDealItem timeDealItem, List<ItemStock> stocks) {
-		if (timeDealItem != null) {
-			return stocks.stream()
-				.filter(stock -> stock.getTimeDealItem() != null && stock.getTimeDealItem()
-					.getId()
-					.equals(timeDealItem.getId()))
-				.findFirst();
-		} else {
-			return stocks.stream()
-				.filter(stock -> stock.getTimeDealItem() == null && stock.getItem().getId().equals(item.getId()))
-				.findFirst();
-		}
 	}
 
 	private TimeDealItem getTimeDealItemIfApplicable(Item item) {
@@ -137,14 +143,14 @@ public class CartService {
 
 	private int calculateTotalQuantity(List<CartItemFetchResponse> responses) {
 		return responses.stream()
-			.filter(res -> res.quantity() > 0)
+			.filter(res -> !res.isSoldOut())
 			.mapToInt(CartItemFetchResponse::quantity)
 			.sum();
 	}
 
 	private int calculateTotalPrice(List<CartItemFetchResponse> responses) {
 		return responses.stream()
-			.filter(res -> res.quantity() > 0)
+			.filter(res -> !res.isSoldOut())
 			.mapToInt(CartItemFetchResponse::totalPrice)
 			.sum();
 	}
