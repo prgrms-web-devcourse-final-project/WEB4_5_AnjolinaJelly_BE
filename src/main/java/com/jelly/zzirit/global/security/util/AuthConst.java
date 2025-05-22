@@ -27,4 +27,7 @@ public class AuthConst {
 	public static final String TEMP_USER_EMAIL = "email";
 	public static final String TEMP_PROVIDER = "provider";
 	public static final String TEMP_PROVIDER_ID = "providerId";
+
+	// 클라이언트 IP 추출용 헤더
+	public static final String HEADER_X_FORWARDED_FOR = "X-Forwarded-For";
 }

@@ -25,6 +25,7 @@ import com.jelly.zzirit.global.exception.custom.InvalidRedisException;
 import com.jelly.zzirit.global.security.model.MemberPrincipal;
 import com.jelly.zzirit.global.security.service.TokenService;
 import com.jelly.zzirit.global.security.util.AccountLoginRateUtil;
+import com.jelly.zzirit.global.security.util.AuthConst;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
@@ -50,7 +51,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 	}
 
 	private String extractClientIp(HttpServletRequest request) {
-		String xff = request.getHeader("X-Forwarded-For");
+		String xff = request.getHeader(AuthConst.HEADER_X_FORWARDED_FOR);
 		if (xff != null && !xff.isBlank()) {
 			return xff.split(",")[0].trim();
 		}
@@ -59,11 +60,12 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
 	@Override
 	public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse res) throws AuthenticationException {
+		String ip = extractClientIp(req);
+
 		try {
 			Map<String, String> credentials = objectMapper.readValue(req.getInputStream(), new TypeReference<>() {});
 			String email = credentials.get("username");
 			String password = credentials.get("password");
-			String ip = extractClientIp(req);
 
 			rateLimiter.checkIpRateLimit(ip);
 			rateLimiter.checkAccountLock(email);
@@ -86,13 +88,12 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
 	@Override
 	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) {
+		String ip = extractClientIp(request);
 		MemberPrincipal principal = (MemberPrincipal) authentication.getPrincipal();
 		Long userId = principal.getMemberId();
 		Role role = principal.getRole();
 		String email = principal.getUsername();
-		String ip = extractClientIp(request);
 
-		// ✅ 실패 기록 초기화
 		rateLimiter.resetLoginFailures(email, ip);
 
 		tokenService.invalidatePreviousTokens(request);
@@ -105,20 +106,21 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
 	@Override
 	protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException {
+		String ip = extractClientIp(request);
+
 		log.error("인증 실패: {}", failed.getMessage());
 		log.error("인증 예외 유형: {}", failed.getClass().getSimpleName());
 
 		try {
 			Map<String, String> credentials = objectMapper.readValue(request.getInputStream(), new TypeReference<>() {});
 			String email = credentials.get("username");
-			String ip = extractClientIp(request);
-
 			rateLimiter.recordLoginFailure(email, ip);
 		} catch (Exception ex) {
 			log.warn("로그인 실패 기록 중 예외 발생", ex);
 		}
 
 		Exception ex = (Exception) request.getAttribute("exception");
+
 		BaseResponse<Empty> errorResponse =
 			(ex instanceof InvalidAuthenticationException iae)
 				? BaseResponse.error(iae.getStatus())

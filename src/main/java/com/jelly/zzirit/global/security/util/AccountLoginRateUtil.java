@@ -20,14 +20,13 @@ public class AccountLoginRateUtil {
 		this.redisTemplate = redisTemplate;
 	}
 
-	// 차단 기준
 	private static final int MAX_FAIL_ACCOUNT = 5;
 	private static final int MAX_FAIL_IP = 10;
 	private static final int MAX_RATE_IP_PER_MIN = 20;
 
-	// 차단 지속 시간
 	private static final Duration BLOCK_DURATION = Duration.ofMinutes(5);
 	private static final Duration RATE_WINDOW = Duration.ofMinutes(1);
+
 
 	private String keyFailAccount(String email) { return "login:fail:account:" + email; }
 	// 계정 기준 실패 횟수 카운트 키
