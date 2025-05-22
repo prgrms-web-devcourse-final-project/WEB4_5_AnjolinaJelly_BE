@@ -12,4 +12,6 @@ public interface CartItemQueryRepository {
 	Optional<CartItem> findWithItemJoinByCartIdAndItemId(Long cartId, Long itemId);
 
 	List<Long> findExistingItemIdsInCart(Long cartId, List<Long> itemIds);
+
+	Optional<CartItem> findCartItemWithAllJoins(Long cartId, Long itemId);
 }

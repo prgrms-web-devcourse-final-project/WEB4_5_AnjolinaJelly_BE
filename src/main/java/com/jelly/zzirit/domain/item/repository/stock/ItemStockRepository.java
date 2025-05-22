@@ -16,5 +16,7 @@ public interface ItemStockRepository extends JpaRepository<ItemStock, Long>, Ite
 
 	Optional<ItemStock> findByItemId(Long itemId);
 
+	List<ItemStock> findAllByItemId(Long itemId);
+
 	Optional<ItemStock> findByTimeDealItem(TimeDealItem tdi);
 }

@@ -1,6 +1,7 @@
 package com.jelly.zzirit.domain.cart.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,24 +43,21 @@ public class CartItemService {
 	public CartItemFetchResponse addItemToCart(Long memberId, CartItemCreateRequest request) {
 		Cart cart = getOrCreateCart(memberId);
 		Item item = getItemWithTypeJoin(request.itemId());
-		ItemStock itemStock = getItemStock(item.getId());
-
-		CartItem cartItem = cartItemRepository.findByCartIdAndItemId(cart.getId(), item.getId())
-			.map(existing -> {
-				int newQuantity = existing.getQuantity() + request.quantity();
-				if (newQuantity > itemStock.getQuantity()) {
-					throw new InvalidItemException(BaseResponseStatus.CART_QUANTITY_EXCEEDS_STOCK);
-				}
-				existing.setQuantity(newQuantity);
-				return existing;
-			})
-			.orElseGet(() -> {
-				CartItem created = CartItem.of(cart, item, request.quantity());
-				cartItemRepository.save(created);
-				return created;
-			});
-
 		TimeDealItem timeDealItem = getTimeDealItemIfApplicable(item);
+
+		Optional<CartItem> existing = cartItemRepository.findCartItemWithAllJoins(cart.getId(), item.getId());
+		int existingQuantity = existing.map(CartItem::getQuantity).orElse(0);
+		int totalQuantity = existingQuantity + request.quantity();
+
+		ItemStock itemStock = resolveItemStockOrThrow(item, timeDealItem, totalQuantity);
+
+		CartItem cartItem = existing.map(ci -> {
+			ci.setQuantity(totalQuantity);
+			return ci;
+		}).orElseGet(() -> {
+			CartItem created = CartItem.of(cart, item, request.quantity());
+			return cartItemRepository.save(created);
+		});
 
 		return CartItemMapper.mapToCartItem(cartItem, itemStock, timeDealItem);
 	}
@@ -73,7 +71,8 @@ public class CartItemService {
 
 	@Transactional
 	public void removeItemsFromCart(Long memberId, List<Long> itemIds) {
-		if (itemIds == null || itemIds.isEmpty()) return;
+		if (itemIds == null || itemIds.isEmpty())
+			return;
 
 		Long cartId = getCart(memberId).getId();
 		List<Long> existingItemIds = cartItemRepository.findExistingItemIdsInCart(cartId, itemIds);
@@ -93,24 +92,21 @@ public class CartItemService {
 	@Transactional
 	public CartItemFetchResponse modifyQuantity(Long memberId, Long itemId, int delta) {
 		Cart cart = getCart(memberId);
-		CartItem cartItem = cartItemRepository.findWithItemJoinByCartIdAndItemId(cart.getId(), itemId)
-			.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND_IN_CART));
+		CartItem cartItem = getCartItem(cart.getId(), itemId);
+		Item item = cartItem.getItem();
 
 		int newQuantity = cartItem.getQuantity() + delta;
-		if (newQuantity <= 0) {
+		if (newQuantity < 1) {
 			throw new InvalidItemException(BaseResponseStatus.INVALID_CART_QUANTITY);
 		}
 
-		Item item = cartItem.getItem();
-		ItemStock itemStock = getItemStock(item.getId());
-		if (newQuantity > itemStock.getQuantity()) {
-			throw new InvalidItemException(BaseResponseStatus.CART_QUANTITY_EXCEEDS_STOCK);
-		}
-
-		cartItem.setQuantity(newQuantity);
 		TimeDealItem timeDealItem = getTimeDealItemIfApplicable(item);
-		return CartItemMapper.mapToCartItem(cartItem, itemStock, timeDealItem);
+		ItemStock itemStock = resolveItemStockOrThrow(item, timeDealItem, newQuantity);
+		cartItem.changeQuantity(newQuantity);
+
+		return CartItemMapper.mapToCartItem(cartItem, itemStock, timeDealItem, newQuantity);
 	}
+
 
 	private Cart getOrCreateCart(Long memberId) {
 		return cartRepository.findByMemberId(memberId)
@@ -145,5 +141,29 @@ public class CartItemService {
 		if (item.getItemStatus() != ItemStatus.TIME_DEAL)
 			return null;
 		return timeDealItemRepository.findActiveTimeDealItemByItemId(item.getId()).orElse(null);
+	}
+
+	private ItemStock resolveItemStockOrThrow(Item item, TimeDealItem timeDealItem, int totalQuantity) {
+		// 해당 itemId로 등록된 모든 재고 가져오기
+		List<ItemStock> stocks = itemStockRepository.findAllByItemId(item.getId());
+
+		// 타임딜 상품인 경우 → 타임딜 ID가 일치하는 재고 선택
+		// 일반 상품인 경우 → timeDealItem이 null이고 itemId가 일치하는 재고 선택
+		ItemStock target = (timeDealItem != null)
+			? stocks.stream()
+			.filter(s -> s.getTimeDealItem() != null && s.getTimeDealItem().getId().equals(timeDealItem.getId()))
+			.findFirst()
+			.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_STOCK_NOT_FOUND))
+			: stocks.stream()
+			.filter(s -> s.getTimeDealItem() == null && s.getItem().getId().equals(item.getId()))
+			.findFirst()
+			.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_STOCK_NOT_FOUND));
+
+		// 장바구니 수량이 재고 수량보다 많으면 예외 발생
+		if (totalQuantity > target.getQuantity()) {
+			throw new InvalidItemException(BaseResponseStatus.CART_QUANTITY_EXCEEDS_STOCK);
+		}
+
+		return target;
 	}
 }
