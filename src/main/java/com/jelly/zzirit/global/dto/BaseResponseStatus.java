@@ -47,6 +47,7 @@ public enum BaseResponseStatus {
 	TOSS_PAYMENT_REQUEST_FAILED(false, 3000, "토스 결제 요청에 실패했습니다.", HttpStatus.BAD_GATEWAY),
 	ITEM_NOT_FOUND(false, 3001, "해당 상품이 존재하지 않습니다.", HttpStatus.BAD_REQUEST),
 	ORDER_NOT_FOUND(false, 3002, "주문 정보를 찾을 수 없습니다.", HttpStatus.BAD_REQUEST),
+	INVALID_TIMEDEAL_ITEM(false, 3012, "유효한 타임딜 상품이 아닙니다.", HttpStatus.BAD_REQUEST),
 	PAYMENT_AMOUNT_MISMATCH(false, 3003, "결제 금액이 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
 	ORDER_ID_MISMATCH(false, 3004, "주문 번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST),
 	ALREADY_PROCESSED(false, 3005, "이미 처리된 주문입니다.", HttpStatus.BAD_REQUEST),
