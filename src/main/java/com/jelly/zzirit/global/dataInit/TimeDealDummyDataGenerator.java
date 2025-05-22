@@ -9,6 +9,7 @@ import com.jelly.zzirit.domain.item.repository.stock.ItemStockRepository;
 import com.jelly.zzirit.domain.item.repository.TimeDealItemRepository;
 import com.jelly.zzirit.domain.item.repository.TimeDealRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +21,7 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class TimeDealDummyDataGenerator implements CommandLineRunner {
@@ -38,14 +40,14 @@ public class TimeDealDummyDataGenerator implements CommandLineRunner {
 
         if (totalCount < 20000) {
             int toCreate = (int) (20000 - totalCount);
-            System.out.println("📦 타임딜 부족: " + totalCount + "개 → " + toCreate + "개 추가 생성");
+            log.info("📦 타임딜 부족: {}개 → {}개 추가 생성", totalCount, toCreate);
             generateDeals(toCreate);
         } else if (totalCount > 20000) {
             int toDelete = (int) (totalCount - 20000);
-            System.out.println("🧹 타임딜 과잉: " + totalCount + "개 → " + toDelete + "개 삭제");
+            log.info("🧹 타임딜 과잉: {}개 → {}개 삭제", totalCount, toDelete);
             timeDealRepository.deleteTopNByIdDesc(toDelete);
         } else {
-            System.out.println("✅ 타임딜 개수 정확함: 20,000개");
+            log.info("✅ 타임딜 개수 정확함: 20,000개");
         }
     }
 
@@ -97,6 +99,6 @@ public class TimeDealDummyDataGenerator implements CommandLineRunner {
         timeDealItemRepository.saveAll(timeDealItems);
         itemStockRepository.saveAll(itemStocks);
 
-        System.out.println("🎉 타임딜 더미 데이터 생성 완료!");
+        log.info("🎉 타임딜 더미 데이터 생성 완료!");
     }
 }
