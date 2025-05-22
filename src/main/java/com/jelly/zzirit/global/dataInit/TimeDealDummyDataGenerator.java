@@ -8,7 +8,6 @@ import com.jelly.zzirit.domain.item.repository.*;
 import com.jelly.zzirit.domain.item.repository.stock.ItemStockRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,7 +21,7 @@ import java.util.List;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class TimeDealDummyDataGenerator implements CommandLineRunner {
+public class TimeDealDummyDataGenerator{
 
     private final BrandRepository brandRepository;
     private final TypeRepository typeRepository;
@@ -34,9 +33,8 @@ public class TimeDealDummyDataGenerator implements CommandLineRunner {
 
     private static final ZoneId KST = ZoneId.of("Asia/Seoul");
 
-    @Override
     @Transactional
-    public void run(String... args) {
+    public void generateInitialData() {
         long totalCount = timeDealRepository.count();
 
         if (totalCount < 20000) {
