@@ -56,7 +56,7 @@ public class TimeDealDummyDataGenerator{
         List<ItemStock> itemStocks = new ArrayList<>();
 
         LocalDateTime latestEndTime = timeDealRepository.findMaxEndTime()
-                .orElse(LocalDateTime.of(2025, 5, 22, 17, 0));
+                .orElse(LocalDateTime.of(2025, 5, 23, 10, 0));
         ZonedDateTime baseEndTime = latestEndTime.atZone(KST).plusMinutes(10);
 
         for (int i = 0; i < count; i++) {
