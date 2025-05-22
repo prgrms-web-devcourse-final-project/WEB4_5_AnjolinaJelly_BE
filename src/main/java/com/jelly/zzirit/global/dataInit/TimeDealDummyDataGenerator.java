@@ -1,13 +1,11 @@
 package com.jelly.zzirit.global.dataInit;
 
-import com.jelly.zzirit.domain.item.entity.Item;
+import com.jelly.zzirit.domain.item.entity.*;
 import com.jelly.zzirit.domain.item.entity.stock.ItemStock;
 import com.jelly.zzirit.domain.item.entity.timedeal.TimeDeal;
 import com.jelly.zzirit.domain.item.entity.timedeal.TimeDealItem;
-import com.jelly.zzirit.domain.item.repository.ItemRepository;
+import com.jelly.zzirit.domain.item.repository.*;
 import com.jelly.zzirit.domain.item.repository.stock.ItemStockRepository;
-import com.jelly.zzirit.domain.item.repository.TimeDealItemRepository;
-import com.jelly.zzirit.domain.item.repository.TimeDealRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -26,6 +24,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TimeDealDummyDataGenerator implements CommandLineRunner {
 
+    private final BrandRepository brandRepository;
+    private final TypeRepository typeRepository;
+    private final TypeBrandRepository typeBrandRepository;
     private final TimeDealRepository timeDealRepository;
     private final TimeDealItemRepository timeDealItemRepository;
     private final ItemRepository itemRepository;
@@ -76,7 +77,50 @@ public class TimeDealDummyDataGenerator implements CommandLineRunner {
 
         timeDealRepository.saveAll(timeDeals);
 
-        Item item = itemRepository.getReferenceById(1L);
+        // Item(1L)이 없으면 관련 엔티티들 생성
+        Item item;
+        if (!itemRepository.existsById(1L)) {
+            log.info("📌 Item ID 1이 존재하지 않아 더미 엔티티 생성 중");
+
+            Brand dummyBrand = Brand.builder()
+                    .name("더미 브랜드")
+                    .build();
+
+            Type dummyType = Type.builder()
+                    .name("더미 종류")
+                    .build();
+
+            TypeBrand dummyTypeBrand = TypeBrand.builder()
+                    .brand(dummyBrand)
+                    .type(dummyType)
+                    .build();
+
+            item = Item.builder()
+                    .name("더미 상품")
+                    .price(BigDecimal.valueOf(10000))
+                    .imageUrl("https://dummy.image.url/item.jpg")
+                    .itemStatus(ItemStatus.NONE)
+                    .typeBrand(dummyTypeBrand)
+                    .build();
+
+            ItemStock itemStock = ItemStock.builder()
+                    .item(item)
+                    .quantity(9999)
+                    .soldQuantity(0)
+                    .build();
+
+            // save 순서 주의: 자식보다 부모 먼저!
+            brandRepository.save(dummyBrand);
+            typeRepository.save(dummyType);
+            typeBrandRepository.save(dummyTypeBrand);
+            itemRepository.save(item); // Cascade가 없으면 따로 다 저장해도 됨
+            itemStockRepository.save(itemStock);
+
+            log.info("✅ 더미 상품 및 재고 데이터 생성 완료");
+        } else {
+            item = itemRepository.getReferenceById(1L);
+        }
+
         BigDecimal discountedPrice = item.getPrice()
                 .multiply(BigDecimal.valueOf(0.8)); // 20% 할인
 
