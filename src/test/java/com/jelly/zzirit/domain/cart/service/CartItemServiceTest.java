@@ -84,7 +84,7 @@ class CartItemServiceTest {
 		given(cartRepository.findByMemberId(memberId)).willReturn(Optional.of(cart));
 		given(itemQueryRepository.findItemWithTypeJoin(item.getId())).willReturn(Optional.of(item));
 		given(cartItemRepository.findCartItemWithAllJoins(cart.getId(), item.getId())).willReturn(Optional.empty());
-		given(itemStockRepository.findAllByItemId(item.getId())).willReturn(List.of(itemStock));
+		given(itemStockRepository.findByItemId(item.getId())).willReturn(Optional.of(itemStock));
 		given(cartItemRepository.save(any(CartItem.class))).willReturn(savedCartItem);
 
 		CartItemFetchResponse result = cartItemService.addItemToCart(memberId, request);
@@ -112,9 +112,8 @@ class CartItemServiceTest {
 		given(cartRepository.findByMemberId(memberId)).willReturn(Optional.of(cart));
 		given(itemQueryRepository.findItemWithTypeJoin(item.getId())).willReturn(Optional.of(item));
 		given(cartItemRepository.findCartItemWithAllJoins(cart.getId(), item.getId())).willReturn(Optional.empty());
-		given(timeDealItemRepository.findActiveTimeDealItemByItemId(item.getId())).willReturn(
-			Optional.of(timeDealItem));
-		given(itemStockRepository.findAllByItemId(item.getId())).willReturn(List.of(timeDealStock));
+		given(timeDealItemRepository.findActiveByItemId(item.getId())).willReturn(Optional.of(timeDealItem));
+		given(itemStockRepository.findByTimeDealItem(timeDealItem)).willReturn(Optional.of(timeDealStock));
 		given(cartItemRepository.save(any(CartItem.class))).willReturn(savedCartItem);
 
 		CartItemFetchResponse result = cartItemService.addItemToCart(memberId, request);
@@ -135,7 +134,7 @@ class CartItemServiceTest {
 		given(cartRepository.findByMemberId(memberId)).willReturn(Optional.of(cart));
 		given(itemQueryRepository.findItemWithTypeJoin(item.getId())).willReturn(Optional.of(item));
 		given(cartItemRepository.findCartItemWithAllJoins(cart.getId(), item.getId())).willReturn(Optional.empty());
-		given(itemStockRepository.findAllByItemId(item.getId())).willReturn(List.of(itemStock));
+		given(itemStockRepository.findByItemId(item.getId())).willReturn(Optional.of(itemStock));
 
 		// when & then - 재고가 0이면 예외 발생
 		assertThatThrownBy(() -> cartItemService.addItemToCart(memberId, request)).isInstanceOf(
@@ -147,7 +146,7 @@ class CartItemServiceTest {
 		CartItem cartItem = CartItem.of(cart, item, 2);
 		given(cartRepository.findByMemberId(memberId)).willReturn(Optional.of(cart));
 		given(cartItemRepository.findByCartIdAndItemId(cart.getId(), item.getId())).willReturn(Optional.of(cartItem));
-		given(itemStockRepository.findAllByItemId(item.getId())).willReturn(List.of(itemStock));
+		given(itemStockRepository.findByItemId(item.getId())).willReturn(Optional.of(itemStock));
 
 		CartItemFetchResponse increased = cartItemService.modifyQuantity(memberId, item.getId(), +1);
 		assertThat(increased.quantity()).isEqualTo(3);
@@ -163,7 +162,7 @@ class CartItemServiceTest {
 
 		given(cartRepository.findByMemberId(memberId)).willReturn(Optional.of(cart));
 		given(cartItemRepository.findByCartIdAndItemId(cart.getId(), item.getId())).willReturn(Optional.of(cartItem));
-		given(itemStockRepository.findAllByItemId(item.getId())).willReturn(List.of(itemStock));
+		given(itemStockRepository.findByItemId(item.getId())).willReturn(Optional.of(itemStock));
 
 		assertThatThrownBy(() -> cartItemService.modifyQuantity(memberId, item.getId(), -1)).isInstanceOf(
 			InvalidItemException.class).hasMessageContaining("장바구니 수량은 1개 이상이어야 합니다.");
@@ -305,7 +304,7 @@ class CartItemServiceTest {
 		given(cartRepository.save(any(Cart.class))).willReturn(newCart);
 		given(itemQueryRepository.findItemWithTypeJoin(item.getId())).willReturn(Optional.of(item));
 		given(cartItemRepository.findCartItemWithAllJoins(newCart.getId(), item.getId())).willReturn(Optional.empty());
-		given(itemStockRepository.findAllByItemId(item.getId())).willReturn(List.of(itemStock));
+		given(itemStockRepository.findByItemId(item.getId())).willReturn(Optional.of(itemStock));
 		given(cartItemRepository.save(any(CartItem.class))).willReturn(savedCartItem);
 
 		// when
@@ -330,13 +329,14 @@ class CartItemServiceTest {
 		given(itemQueryRepository.findItemWithTypeJoin(item.getId())).willReturn(Optional.of(item));
 		given(cartItemRepository.findCartItemWithAllJoins(cart.getId(), item.getId())).willReturn(
 			Optional.of(existingCartItem));
-		given(itemStockRepository.findAllByItemId(item.getId())).willReturn(List.of(itemStock));
+		given(itemStockRepository.findByItemId(item.getId())).willReturn(Optional.of(itemStock));
 
 		// when & then
 		assertThatThrownBy(() -> cartItemService.addItemToCart(memberId, request)).isInstanceOf(
 				InvalidItemException.class)
 			.hasMessageContaining(BaseResponseStatus.CART_QUANTITY_EXCEEDS_STOCK.getMessage());
 	}
+
 
 	@Test
 	void 장바구니_상품_삭제_예외() {
@@ -378,7 +378,7 @@ class CartItemServiceTest {
 
 		given(cartRepository.findByMemberId(memberId)).willReturn(Optional.of(cart));
 		given(itemQueryRepository.findItemWithTypeJoin(item.getId())).willReturn(Optional.of(item));
-		given(itemStockRepository.findAllByItemId(item.getId())).willReturn(List.of());
+		given(itemStockRepository.findByItemId(item.getId())).willReturn(Optional.empty());
 
 		assertThatThrownBy(() -> cartItemService.addItemToCart(memberId, request)).isInstanceOf(
 			InvalidItemException.class).hasMessageContaining(BaseResponseStatus.ITEM_STOCK_NOT_FOUND.getMessage());
@@ -400,9 +400,8 @@ class CartItemServiceTest {
 		given(cartRepository.findByMemberId(memberId)).willReturn(Optional.of(cart));
 		given(itemQueryRepository.findItemWithTypeJoin(item.getId())).willReturn(Optional.of(item));
 		given(cartItemRepository.findCartItemWithAllJoins(cart.getId(), item.getId())).willReturn(Optional.empty());
-		given(timeDealItemRepository.findActiveTimeDealItemByItemId(item.getId())).willReturn(
-			Optional.of(timeDealItem));
-		given(itemStockRepository.findAllByItemId(item.getId())).willReturn(List.of(itemStock)); // 일반 재고만 있음
+		given(timeDealItemRepository.findActiveByItemId(item.getId())).willReturn(Optional.of(timeDealItem));
+		given(itemStockRepository.findByTimeDealItem(timeDealItem)).willReturn(Optional.empty());
 
 		// when & then
 		assertThatThrownBy(() -> cartItemService.addItemToCart(memberId, request)).isInstanceOf(
@@ -412,18 +411,12 @@ class CartItemServiceTest {
 	@Test
 	void 일반_상품_재고_없음_예외() {
 		// given
-		ItemStock timeDealStock = ItemStock.builder()
-			.item(item)
-			.timeDealItem(TimeDealItem.builder().id(999L).build()) // 다른 타임딜 재고
-			.quantity(10)
-			.build();
-
 		CartItemCreateRequest request = new CartItemCreateRequest(item.getId(), 1);
 
 		given(cartRepository.findByMemberId(memberId)).willReturn(Optional.of(cart));
 		given(itemQueryRepository.findItemWithTypeJoin(item.getId())).willReturn(Optional.of(item));
 		given(cartItemRepository.findCartItemWithAllJoins(cart.getId(), item.getId())).willReturn(Optional.empty());
-		given(itemStockRepository.findAllByItemId(item.getId())).willReturn(List.of(timeDealStock));
+		given(itemStockRepository.findByItemId(item.getId())).willReturn(Optional.empty());
 
 		// when & then
 		assertThatThrownBy(() -> cartItemService.addItemToCart(memberId, request)).isInstanceOf(
