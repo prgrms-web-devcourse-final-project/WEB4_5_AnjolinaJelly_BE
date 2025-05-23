@@ -29,7 +29,7 @@ public class TimeDealSchedulerService {
         List<TimeDeal> toStartDeals = timeDealRepository.findByStatusAndStartTimeLessThanEqual(
                 TimeDealStatus.SCHEDULED, now);
         log.info("🔔 SCHEDULED → ONGOING 상태 변경할 타임딜 조회 완료: {}", now);
-        if (toStartDeals != null && !toStartDeals.isEmpty()) {
+        if (!toStartDeals.isEmpty()) {
             toStartDeals.forEach(deal -> deal.updateStatus(TimeDealStatus.ONGOING));
             toStartDeals.forEach(deal -> commandItemService.updateItemStatusByTimeDeal(deal, ItemStatus.TIME_DEAL));
             log.info("🔔 SCHEDULED → ONGOING 상태 변경 완료: {}", now);
