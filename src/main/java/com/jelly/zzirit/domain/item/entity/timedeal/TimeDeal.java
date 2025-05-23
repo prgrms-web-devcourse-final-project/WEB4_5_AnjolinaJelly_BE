@@ -5,10 +5,7 @@ import java.time.LocalDateTime;
 import com.jelly.zzirit.domain.item.dto.request.TimeDealCreateRequest;
 import com.jelly.zzirit.global.entity.BaseTime;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,6 +17,9 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@Table(name = "time_deal", indexes = {
+		@Index(name = "idx_status_start_time", columnList = "status, start_time")
+})
 public class TimeDeal extends BaseTime {
 
 	@Column(name = "name", nullable = false)
