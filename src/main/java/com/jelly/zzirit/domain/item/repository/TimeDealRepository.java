@@ -25,11 +25,11 @@ public interface TimeDealRepository extends JpaRepository<TimeDeal, Long> {
 
 	TimeDeal findTopByStatusOrderByStartTimeAsc(TimeDeal.TimeDealStatus status);
 
-	// ✅ 가장 늦은 타임딜 종료 시간 조회
+	// 가장 늦은 타임딜 종료 시간 조회
 	@Query("SELECT MAX(t.endTime) FROM TimeDeal t")
 	Optional<LocalDateTime> findMaxEndTime();
 
-	// ✅ ID 기준 내림차순으로 n개 삭제 (native 쿼리)
+	// ID 기준 내림차순으로 n개 삭제 (native 쿼리) -> 그냥 데이터 삽입이라서 굳이 튜닝은 안 함.
 	@Modifying
 	@Transactional
 	@Query(value = "DELETE FROM time_deal WHERE id IN (SELECT id FROM time_deal ORDER BY id DESC LIMIT :limit)", nativeQuery = true)
