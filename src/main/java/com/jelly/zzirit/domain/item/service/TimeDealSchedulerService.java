@@ -45,7 +45,7 @@ public class TimeDealSchedulerService {
         List<TimeDeal> toEndDeals = timeDealRepository.findByStatusAndEndTimeBefore(TimeDealStatus.ONGOING,
                 now);
         log.info("🔔 ONGOING → ENDED 상태 변경할 타임딜 조회 완료: {}", now);
-        if (toEndDeals != null && !toEndDeals.isEmpty()) {
+        if (!toEndDeals.isEmpty()) {
             toEndDeals.forEach(deal -> deal.updateStatus(TimeDealStatus.ENDED));
             toEndDeals.forEach(deal -> commandItemService.updateItemStatusByTimeDeal(deal, ItemStatus.NONE));
             log.info("🔔 ONGOING → ENDED 상태 변경 완료: {}", now);
