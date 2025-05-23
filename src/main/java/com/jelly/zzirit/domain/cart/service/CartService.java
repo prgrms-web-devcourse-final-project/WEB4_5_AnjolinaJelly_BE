@@ -16,7 +16,6 @@ import com.jelly.zzirit.domain.cart.mapper.CartItemMapper;
 import com.jelly.zzirit.domain.cart.repository.CartItemRepository;
 import com.jelly.zzirit.domain.cart.repository.CartRepository;
 import com.jelly.zzirit.domain.item.entity.Item;
-import com.jelly.zzirit.domain.item.entity.ItemStatus;
 import com.jelly.zzirit.domain.item.entity.stock.ItemStock;
 import com.jelly.zzirit.domain.item.entity.timedeal.TimeDealItem;
 import com.jelly.zzirit.domain.item.repository.TimeDealItemRepository;
@@ -27,7 +26,9 @@ import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.exception.custom.InvalidUserException;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CartService {
@@ -46,18 +47,13 @@ public class CartService {
 	@Transactional
 	public CartFetchResponse getMyCart(Long memberId) {
 		Cart cart = getOrCreateCart(memberId);
-
-		// 장바구니 항목 조회
 		List<CartItem> cartItems = cartItemRepository.findAllWithItemByCartId(cart.getId());
-
-		// itemId 목록 추출
 		List<Long> itemIds = itemIds(cartItems);
 
-		// 재고 조회 후 복합 키 기반 Map 구성
-		List<ItemStock> stocks = itemStockRepository.findAllByItemIdIn(itemIds);
-		Map<String, ItemStock> stockMap = loadItemStockMap(stocks);
+		Map<Long, TimeDealItem> timeDealItemMap = loadActiveTimeDealItemMap(itemIds);
+		Map<Long, ItemStock> normalStockMap = loadNormalItemStockMap(itemIds);
 
-		List<CartItemFetchResponse> responses = convertToResponses(cartItems, stockMap);
+		List<CartItemFetchResponse> responses = convertToCartResponses(cartItems, timeDealItemMap, normalStockMap);
 
 		return new CartFetchResponse(
 			cart.getId(),
@@ -83,53 +79,45 @@ public class CartService {
 			.toList();
 	}
 
-	private String generateStockKey(Long itemId, Long timeDealItemId) {
-		return itemId + ":" + (timeDealItemId != null ? timeDealItemId : "null");
-	}
-
-	private Map<String, ItemStock> loadItemStockMap(List<ItemStock> stocks) {
-		return stocks.stream()
-			.collect(Collectors.toMap(
-				stock -> generateStockKey(
-					stock.getItem().getId(),
-					stock.getTimeDealItem() != null ? stock.getTimeDealItem().getId() : null
-				),
-				Function.identity()
-			));
-	}
-
-	private List<CartItemFetchResponse> convertToResponses(List<CartItem> cartItems,
-		Map<String, ItemStock> stockMap) {
-
+	private List<CartItemFetchResponse> convertToCartResponses(List<CartItem> cartItems,
+		Map<Long, TimeDealItem> timeDealItemMap,
+		Map<Long, ItemStock> normalStockMap) {
 		return cartItems.stream()
 			.map(cartItem -> {
 				Item item = cartItem.getItem();
-				int quantity = cartItem.getQuantity();
 
-				TimeDealItem timeDealItem = getTimeDealItemIfApplicable(item);
+				TimeDealItem timeDealItem = timeDealItemMap.get(item.getId());
 
-				// 복합 키 조회
-				String key = generateStockKey(item.getId(), timeDealItem != null ? timeDealItem.getId() : null);
-				ItemStock itemStock = stockMap.get(key);
+				ItemStock itemStock = (timeDealItem != null)
+					? itemStockRepository.findByTimeDealItem(timeDealItem).orElse(null)
+					: normalStockMap.get(item.getId());
 
-				// 재고 없거나 0이면 품절 처리
-				if (itemStock == null || itemStock.getQuantity() == 0) {
-					ItemStock soldOutStock = markAsSoldOut(item);
-					return CartItemMapper.mapToCartItem(cartItem, soldOutStock, timeDealItem, quantity);
+				int stockQuantity = (itemStock != null) ? itemStock.getQuantity() : 0;
+
+				if (stockQuantity == 0) {
+					return CartItemMapper.mapToCartItem(cartItem, markAsSoldOut(item), timeDealItem, 0);
 				}
 
-				// 수량 초과 시 1로 보정
-				int finalQuantity = quantity > itemStock.getQuantity() ? 1 : quantity;
+				int currentQuantity = cartItem.getQuantity();
+				int finalQuantity = Math.min(currentQuantity, stockQuantity);
 
+				if (finalQuantity != currentQuantity) {
+					cartItem.changeQuantity(finalQuantity);
+					cartItemRepository.save(cartItem);
+				}
 				return CartItemMapper.mapToCartItem(cartItem, itemStock, timeDealItem, finalQuantity);
 			})
 			.toList();
 	}
 
-	private TimeDealItem getTimeDealItemIfApplicable(Item item) {
-		if (item.getItemStatus() != ItemStatus.TIME_DEAL)
-			return null;
-		return timeDealItemRepository.findActiveTimeDealItemByItemId(item.getId()).orElse(null);
+	private Map<Long, TimeDealItem> loadActiveTimeDealItemMap(List<Long> itemIds) {
+		return timeDealItemRepository.findActiveByItemIds(itemIds).stream()
+			.collect(Collectors.toMap(t -> t.getItem().getId(), Function.identity()));
+	}
+
+	private Map<Long, ItemStock> loadNormalItemStockMap(List<Long> itemIds) {
+		return itemStockRepository.findAllByItemIdIn(itemIds).stream()
+			.collect(Collectors.toMap(s -> s.getItem().getId(), Function.identity()));
 	}
 
 	private ItemStock markAsSoldOut(Item item) {

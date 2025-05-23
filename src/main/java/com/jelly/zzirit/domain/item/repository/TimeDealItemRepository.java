@@ -17,6 +17,12 @@ public interface TimeDealItemRepository extends JpaRepository<TimeDealItem, Long
 	@Query("SELECT tdi FROM TimeDealItem tdi WHERE tdi.item.id = :itemId AND tdi.timeDeal.startTime <= CURRENT_TIMESTAMP AND tdi.timeDeal.endTime >= CURRENT_TIMESTAMP")
 	Optional<TimeDealItem> findActiveTimeDealItemByItemId(@Param("itemId") Long itemId);
 
+	@Query("SELECT t FROM TimeDealItem t WHERE t.item.id IN :itemIds AND t.timeDeal.status = 'ONGOING'")
+	List<TimeDealItem> findActiveByItemIds(@Param("itemIds") List<Long> itemIds);
+
+	@Query("SELECT t FROM TimeDealItem t WHERE t.item.id = :itemId AND t.timeDeal.status = 'ONGOING'")
+	Optional<TimeDealItem> findActiveByItemId(@Param("itemId") Long itemId);
+
 	List<TimeDealItem> findAllByTimeDeal(TimeDeal timeDeal);
 
 	List<TimeDealItem> findByItem_NameContaining(String timeDealItemName);
