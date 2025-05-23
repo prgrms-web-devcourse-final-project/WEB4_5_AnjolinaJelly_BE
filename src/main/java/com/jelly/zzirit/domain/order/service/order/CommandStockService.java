@@ -6,6 +6,7 @@ import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import com.jelly.zzirit.domain.item.entity.Item;
+import com.jelly.zzirit.domain.item.entity.timedeal.TimeDeal;
 import com.jelly.zzirit.domain.item.repository.ItemRepository;
 import com.jelly.zzirit.domain.item.repository.TimeDealItemRepository;
 import com.jelly.zzirit.domain.item.repository.stock.ItemStockRepository;
@@ -16,9 +17,7 @@ import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
 import com.jelly.zzirit.global.redis.lock.DistributedLock;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CommandStockService {
@@ -31,12 +30,17 @@ public class CommandStockService {
 	@DistributedLock(key = "#itemId", leaseTime = 12L)
 	@Transactional
 	public void decrease(String orderNumber, Long itemId, int quantity) {
-		Item item = itemRepository.findById(itemId)
-			.orElseThrow(() -> new InvalidOrderException(BaseResponseStatus.ITEM_NOT_FOUND));
+		Item item = findItemOrThrow(itemId);
+		boolean success;
 
-		boolean success = item.validateTimeDeal()
-			? tryDecreaseTimeDealStock(itemId, quantity)
-			: itemStockRepository.decreaseStockIfEnough(itemId, quantity);
+		if (item.validateTimeDeal()) {
+			success = timeDealItemRepository.findByItemId(itemId)
+				.filter(tdi -> tdi.getTimeDeal().getStatus() == TimeDeal.TimeDealStatus.ONGOING)
+				.map(tdi -> itemStockRepository.decreaseTimeDealStockIfEnough(tdi.getId(), quantity))
+				.orElseGet(() -> itemStockRepository.decreaseStockIfEnough(itemId, quantity));
+		} else {
+			success = itemStockRepository.decreaseStockIfEnough(itemId, quantity);
+		}
 
 		if (!success) {
 			throw new InvalidOrderException(BaseResponseStatus.STOCK_REDUCE_FAILED);
@@ -45,15 +49,23 @@ public class CommandStockService {
 		registerLogAfterCommit(StockChangeEvent.decrease(itemId, orderNumber, quantity));
 	}
 
-	@Transactional
 	@DistributedLock(key = "#itemId", leaseTime = 12L)
+	@Transactional
 	public void restore(String orderNumber, Long itemId, int quantity) {
-		Item item = itemRepository.findById(itemId)
-			.orElseThrow(() -> new InvalidOrderException(BaseResponseStatus.ITEM_NOT_FOUND));
+		Item item = findItemOrThrow(itemId);
+		boolean success;
 
-		boolean success = item.validateTimeDeal()
-			? tryRestoreTimeDealStock(itemId, quantity)
-			: itemStockRepository.restoreStockIfPossible(itemId, quantity);
+		if (item.validateTimeDeal()) {
+			success = timeDealItemRepository.findByItemId(itemId)
+				.filter(tdi -> {
+					TimeDeal.TimeDealStatus status = tdi.getTimeDeal().getStatus();
+					return status == TimeDeal.TimeDealStatus.ONGOING || status == TimeDeal.TimeDealStatus.ENDED;
+				})
+				.map(tdi -> itemStockRepository.restoreTimeDealStockIfPossible(tdi.getId(), quantity))
+				.orElseGet(() -> itemStockRepository.restoreStockIfPossible(itemId, quantity));
+		} else {
+			success = itemStockRepository.restoreStockIfPossible(itemId, quantity);
+		}
 
 		if (!success) {
 			throw new InvalidOrderException(BaseResponseStatus.STOCK_RESTORE_FAILED);
@@ -62,16 +74,9 @@ public class CommandStockService {
 		registerLogAfterCommit(StockChangeEvent.restore(itemId, orderNumber, quantity));
 	}
 
-	private boolean tryDecreaseTimeDealStock(Long itemId, int quantity) {
-		return timeDealItemRepository.findByItemId(itemId)
-			.map(tdi -> itemStockRepository.decreaseTimeDealStockIfEnough(tdi.getId(), quantity))
-			.orElseGet(() -> itemStockRepository.decreaseStockIfEnough(itemId, quantity));
-	}
-
-	private boolean tryRestoreTimeDealStock(Long itemId, int quantity) {
-		return timeDealItemRepository.findByItemId(itemId)
-			.map(tdi -> itemStockRepository.restoreTimeDealStockIfPossible(tdi.getId(), quantity))
-			.orElseGet(() -> itemStockRepository.restoreStockIfPossible(itemId, quantity));
+	private Item findItemOrThrow(Long itemId) {
+		return itemRepository.findById(itemId)
+			.orElseThrow(() -> new InvalidOrderException(BaseResponseStatus.ITEM_NOT_FOUND));
 	}
 
 	private void registerLogAfterCommit(StockChangeEvent event) {
