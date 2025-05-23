@@ -15,7 +15,7 @@ spring:
         default-requeue-rejected: false
 
   datasource:
-    url: jdbc:mysql://localhost:3406/zzirit-dev?useSSL=false&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://15.165.27.231:3306/zzirit-dev?useSSL=false&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
     # 추후 운영환경용 db docker file 작성 후 다시 prod 로 변경 예정
     driver-class-name: com.mysql.cj.jdbc.Driver
 
