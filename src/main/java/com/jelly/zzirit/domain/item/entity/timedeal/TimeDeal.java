@@ -17,9 +17,6 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Table(name = "time_deal", indexes = {
-	@Index(name = "idx_status_start_time", columnList = "discount_ratio, start_time")
-})
 public class TimeDeal extends BaseTime {
 
 	@Column(name = "name", nullable = false)
