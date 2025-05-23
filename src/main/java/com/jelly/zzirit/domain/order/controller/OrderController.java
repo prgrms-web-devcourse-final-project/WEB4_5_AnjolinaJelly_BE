@@ -46,7 +46,7 @@ public class OrderController {
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, "createdAt"));
 
         return BaseResponse.success(PageResponse.from(
-          queryOrderService.findPagedOrders(memberId, pageable)
+            queryOrderService.findPagedOrders(memberId, pageable)
                 .map(OrderFetchResponse::from)
         ));
     }
