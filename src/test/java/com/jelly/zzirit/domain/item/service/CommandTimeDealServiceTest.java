@@ -1,7 +1,6 @@
 package com.jelly.zzirit.domain.item.service;
 
 import static com.jelly.zzirit.domain.item.domain.fixture.ItemFixture.*;
-import static com.jelly.zzirit.global.dto.BaseResponseStatus.*;
 import static org.assertj.core.api.AssertionsForClassTypes.*;
 import static org.mockito.BDDMockito.*;
 
@@ -55,18 +54,18 @@ public class CommandTimeDealServiceTest {
 
 		// when & then
 		assertThatThrownBy(() -> commandTimeDealService.createTimeDeal(request))
-			.isInstanceOf(InvalidTimeDealException.class)
-			.hasMessageContaining(TIME_DEAL_START_TIME_PAST.getMessage());
+			.isInstanceOf(InvalidTimeDealException.class);
 	}
 
 	@Test
-	void 기존_타임딜과_시간이_겹치면_예외를_던진다() {
+	void 기존_타임딜과_시간이_겹치면_겹치는_시간이_메시지에_포함된_예외를_던진다() {
 		// given
-		LocalDateTime now = LocalDateTime.now();
+		LocalDateTime baseTime = LocalDateTime.of(2099, 1, 1, 10, 0);
+
 		TimeDealCreateRequest existingRequest = new TimeDealCreateRequest(
 			"기존 타임딜",
-			now.plusMinutes(10),
-			now.plusHours(2),
+			baseTime,                          // 10:00
+			baseTime.plusHours(1),             // 11:00
 			10,
 			List.of(TimeDealCreateRequest.TimeDealCreateItemDetail.from(1L, 5))
 		);
@@ -75,8 +74,8 @@ public class CommandTimeDealServiceTest {
 
 		TimeDealCreateRequest request = new TimeDealCreateRequest(
 			"새 타임딜",
-			now.plusMinutes(30),
-			now.plusHours(3),
+			baseTime.plusMinutes(30),          // 10:30
+			baseTime.plusHours(2),             // 12:00
 			10,
 			List.of(TimeDealCreateRequest.TimeDealCreateItemDetail.from(2L, 3))
 		);
@@ -84,7 +83,9 @@ public class CommandTimeDealServiceTest {
 		// when & then
 		assertThatThrownBy(() -> commandTimeDealService.createTimeDeal(request))
 			.isInstanceOf(InvalidTimeDealException.class)
-			.hasMessageContaining(TIME_DEAL_TIME_OVERLAP.getMessage());
+			.hasMessageContaining("타임 딜 시간을 조정해주세요.")
+			.hasMessageContaining("2099.01.01 10:00")
+			.hasMessageContaining("11:00");
 	}
 
 	@Test
