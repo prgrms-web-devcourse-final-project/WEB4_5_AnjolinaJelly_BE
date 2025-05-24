@@ -1,6 +1,7 @@
 package com.jelly.zzirit.domain.admin.controller;
 
 import static io.restassured.RestAssured.*;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.springframework.http.MediaType.*;
 import static org.springframework.restdocs.payload.JsonFieldType.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
@@ -12,8 +13,10 @@ import com.jelly.zzirit.domain.item.entity.Type;
 import com.jelly.zzirit.domain.item.entity.Brand;
 import com.jelly.zzirit.domain.item.entity.TypeBrand;
 import com.jelly.zzirit.domain.item.repository.BrandRepository;
+import com.jelly.zzirit.domain.item.repository.TimeDealRepository;
 import com.jelly.zzirit.domain.item.repository.TypeBrandRepository;
 import com.jelly.zzirit.domain.item.repository.TypeRepository;
+import com.jelly.zzirit.global.dataInit.TimeDealDummyDataGenerator;
 import com.jelly.zzirit.global.support.AcceptanceTest;
 import com.jelly.zzirit.global.support.OpenApiDocumentationFilter;
 import io.restassured.http.Cookie;
@@ -63,6 +66,21 @@ public class AdminControllerTest extends AcceptanceTest {
                 .post("/api/admin/items")
                 .then()
                 .statusCode(200);
+    }
+
+    @Autowired
+    TimeDealDummyDataGenerator generator;
+
+    @Autowired
+    TimeDealRepository timeDealRepository;
+
+    @Test
+    void test_with_2만개() {
+        generator.generateInitialData();
+
+        long count = timeDealRepository.count();
+
+        assertThat(count).isEqualTo(20_000);
     }
 
     @Test

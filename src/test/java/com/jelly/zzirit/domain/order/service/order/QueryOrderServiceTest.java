@@ -15,7 +15,6 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
@@ -53,7 +52,7 @@ public class QueryOrderServiceTest {
 
         when(recentOrder.getId()).thenReturn(recentOrderId);
         when(oldOrder.getId()).thenReturn(oldOrderId);
-        when(orderRepository.findOrderIdsByMemberIdAndStatuses(eq(memberId), any(), eq(pageable)))
+        when(orderRepository.findOrderIdsByMemberId(eq(memberId), eq(pageable)))
             .thenReturn(pagedOrderIds);
         when(orderRepository.findByIdsWithItems(orderIds))
             .thenReturn(List.of(recentOrder, oldOrder));
@@ -73,7 +72,7 @@ public class QueryOrderServiceTest {
         Long memberId = 1L;
         Page<Long> pagedOrderIds = new PageImpl<>(Collections.emptyList(), pageable, 0);
 
-        when(orderRepository.findOrderIdsByMemberIdAndStatuses(eq(memberId), any(), eq(pageable)))
+        when(orderRepository.findOrderIdsByMemberId(eq(memberId), eq(pageable)))
             .thenReturn(pagedOrderIds);
 
         // when

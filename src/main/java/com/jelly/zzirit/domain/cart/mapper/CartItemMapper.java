@@ -3,39 +3,40 @@ package com.jelly.zzirit.domain.cart.mapper;
 import com.jelly.zzirit.domain.cart.dto.response.CartItemFetchResponse;
 import com.jelly.zzirit.domain.cart.entity.CartItem;
 import com.jelly.zzirit.domain.item.entity.Item;
-import com.jelly.zzirit.domain.item.entity.ItemStatus;
 import com.jelly.zzirit.domain.item.entity.stock.ItemStock;
 import com.jelly.zzirit.domain.item.entity.timedeal.TimeDealItem;
 
 public class CartItemMapper {
 
-	public static CartItemFetchResponse mapToCartItem(CartItem cartItem, ItemStock itemStock, TimeDealItem timeDealItem) {
+	public static CartItemFetchResponse mapToCartItem(CartItem cartItem, ItemStock itemStock,
+		TimeDealItem timeDealItem) {
+		return mapToCartItem(cartItem, itemStock, timeDealItem, cartItem.getQuantity());
+	}
+
+	public static CartItemFetchResponse mapToCartItem(CartItem cartItem, ItemStock itemStock,
+		TimeDealItem timeDealItem, int quantity) {
 		Item item = cartItem.getItem();
-		int quantity = cartItem.getQuantity();
+
 		int originalPrice = item.getPrice().intValue();
+		int discountedPrice = originalPrice;
+		Integer discountRatio = null;
+		boolean isTimeDeal = false;
 
-		boolean isTimeDeal = item.getItemStatus() == ItemStatus.TIME_DEAL;
-
-		int discountedPrice = isTimeDeal
-			? timeDealItem.getPrice().intValue()
-			: originalPrice;
-
-		Integer discountRatio = isTimeDeal
-			? timeDealItem.getTimeDeal().getDiscountRatio()
-			: null;
+		if (timeDealItem != null) {
+			discountedPrice = timeDealItem.getPrice().intValue();
+			discountRatio = timeDealItem.getTimeDeal().getDiscountRatio();
+			isTimeDeal = true;
+		}
 
 		int totalPrice = discountedPrice * quantity;
 		boolean isSoldOut = itemStock.getQuantity() == 0;
-
-		String typeName = item.getTypeBrand().getType().getName();
-		String brandName = item.getTypeBrand().getBrand().getName();
 
 		return new CartItemFetchResponse(
 			cartItem.getId(),
 			item.getId(),
 			item.getName(),
-			typeName,
-			brandName,
+			item.getTypeBrand().getType().getName(),
+			item.getTypeBrand().getBrand().getName(),
 			quantity,
 			item.getImageUrl(),
 			originalPrice,

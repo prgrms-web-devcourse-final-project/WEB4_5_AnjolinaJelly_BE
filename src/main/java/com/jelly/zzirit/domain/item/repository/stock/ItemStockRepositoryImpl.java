@@ -1,10 +1,16 @@
 package com.jelly.zzirit.domain.item.repository.stock;
 
+import java.util.List;
+
+import org.springframework.stereotype.Repository;
+
+import com.jelly.zzirit.domain.item.entity.stock.ItemStock;
 import com.jelly.zzirit.domain.item.entity.stock.QItemStock;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import lombok.RequiredArgsConstructor;
 
+@Repository
 @RequiredArgsConstructor
 public class ItemStockRepositoryImpl implements ItemStockRepositoryCustom {
 
@@ -66,5 +72,12 @@ public class ItemStockRepositoryImpl implements ItemStockRepositoryCustom {
 			.execute();
 
 		return affectedRows > 0;
+
+  @Override
+	public List<ItemStock> findAllByItemId(List<Long> itemIds) {
+		return queryFactory
+			.selectFrom(QItemStock.itemStock)
+			.where(QItemStock.itemStock.item.id.in(itemIds))
+			.fetch();
 	}
 }

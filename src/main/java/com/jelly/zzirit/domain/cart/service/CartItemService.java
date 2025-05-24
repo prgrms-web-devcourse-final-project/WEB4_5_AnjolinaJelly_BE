@@ -1,6 +1,7 @@
 package com.jelly.zzirit.domain.cart.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,74 +43,65 @@ public class CartItemService {
 	public CartItemFetchResponse addItemToCart(Long memberId, CartItemCreateRequest request) {
 		Cart cart = getOrCreateCart(memberId);
 		Item item = getItemWithTypeJoin(request.itemId());
-		ItemStock itemStock = getItemStock(item.getId());
+		TimeDealItem timeDealItem = getActiveTimeDealItem(item);
 
-		CartItem cartItem = cartItemRepository.findByCartIdAndItemId(cart.getId(), item.getId())
-			.map(existing -> {
-				int newQuantity = existing.getQuantity() + request.quantity();
-				if (newQuantity > itemStock.getQuantity()) {
-					throw new InvalidItemException(BaseResponseStatus.CART_QUANTITY_EXCEEDS_STOCK);
-				}
-				existing.setQuantity(newQuantity);
-				return existing;
-			})
-			.orElseGet(() -> {
-				CartItem created = CartItem.of(cart, item, request.quantity());
-				cartItemRepository.save(created);
-				return created;
-			});
+		Optional<CartItem> existing = cartItemRepository.findCartItemWithAllJoins(cart.getId(), item.getId());
+		int existingQuantity = existing.map(CartItem::getQuantity).orElse(0);
+		int totalQuantity = existingQuantity + request.quantity();
 
-		TimeDealItem timeDealItem = getTimeDealItemIfApplicable(item);
+		ItemStock itemStock = resolveItemStockOrThrow(item, timeDealItem, totalQuantity);
+
+		CartItem cartItem = existing.map(addItem -> {
+			addItem.changeQuantity(totalQuantity);
+			return addItem;
+		}).orElseGet(() -> {
+			CartItem created = CartItem.of(cart, item, request.quantity());
+			return cartItemRepository.save(created);
+		});
 
 		return CartItemMapper.mapToCartItem(cartItem, itemStock, timeDealItem);
 	}
 
 	@Transactional
-	public void removeItemToCart(Long memberId, Long itemId) {
+	public CartItemFetchResponse modifyQuantity(Long memberId, Long itemId, int delta) {
 		Cart cart = getCart(memberId);
 		CartItem cartItem = getCartItem(cart.getId(), itemId);
+		Item item = cartItem.getItem();
+
+		int newQuantity = cartItem.getQuantity() + delta;
+		if (newQuantity < 1) {
+			throw new InvalidItemException(BaseResponseStatus.INVALID_CART_QUANTITY);
+		}
+
+		TimeDealItem timeDealItem = getActiveTimeDealItem(item);
+		ItemStock itemStock = resolveItemStockOrThrow(item, timeDealItem, newQuantity);
+		cartItem.changeQuantity(newQuantity);
+
+		return CartItemMapper.mapToCartItem(cartItem, itemStock, timeDealItem, newQuantity);
+	}
+
+	@Transactional
+	public void removeItemToCart(Long memberId, Long itemId) {
+		CartItem cartItem = getCartItem(getCart(memberId).getId(), itemId);
 		cartItemRepository.delete(cartItem);
 	}
 
 	@Transactional
 	public void removeItemsFromCart(Long memberId, List<Long> itemIds) {
-		if (itemIds == null || itemIds.isEmpty()) return;
+		if (itemIds == null || itemIds.isEmpty())
+			return;
 
 		Long cartId = getCart(memberId).getId();
 		List<Long> existingItemIds = cartItemRepository.findExistingItemIdsInCart(cartId, itemIds);
-		if (existingItemIds.isEmpty()) {
+		if (existingItemIds.isEmpty())
 			throw new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND_IN_CART);
-		}
 
 		cartItemRepository.deleteAllByCartIdAndItemIdIn(cartId, existingItemIds);
 	}
 
 	@Transactional
 	public void removeAllItemsFromCart(Long memberId) {
-		Long cartId = getCart(memberId).getId();
-		cartItemRepository.deleteByCartId(cartId);
-	}
-
-	@Transactional
-	public CartItemFetchResponse modifyQuantity(Long memberId, Long itemId, int delta) {
-		Cart cart = getCart(memberId);
-		CartItem cartItem = cartItemRepository.findWithItemJoinByCartIdAndItemId(cart.getId(), itemId)
-			.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND_IN_CART));
-
-		int newQuantity = cartItem.getQuantity() + delta;
-		if (newQuantity <= 0) {
-			throw new InvalidItemException(BaseResponseStatus.INVALID_CART_QUANTITY);
-		}
-
-		Item item = cartItem.getItem();
-		ItemStock itemStock = getItemStock(item.getId());
-		if (newQuantity > itemStock.getQuantity()) {
-			throw new InvalidItemException(BaseResponseStatus.CART_QUANTITY_EXCEEDS_STOCK);
-		}
-
-		cartItem.setQuantity(newQuantity);
-		TimeDealItem timeDealItem = getTimeDealItemIfApplicable(item);
-		return CartItemMapper.mapToCartItem(cartItem, itemStock, timeDealItem);
+		cartItemRepository.deleteByCartId(getCart(memberId).getId());
 	}
 
 	private Cart getOrCreateCart(Long memberId) {
@@ -136,14 +128,23 @@ public class CartItemService {
 			.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND));
 	}
 
-	private ItemStock getItemStock(Long itemId) {
-		return itemStockRepository.findByItemId(itemId)
-			.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_STOCK_NOT_FOUND));
-	}
-
-	private TimeDealItem getTimeDealItemIfApplicable(Item item) {
+	private TimeDealItem getActiveTimeDealItem(Item item) {
 		if (item.getItemStatus() != ItemStatus.TIME_DEAL)
 			return null;
-		return timeDealItemRepository.findActiveTimeDealItemByItemId(item.getId()).orElse(null);
+		return timeDealItemRepository.findActiveByItemId(item.getId()).orElse(null);
+	}
+
+	private ItemStock resolveItemStockOrThrow(Item item, TimeDealItem timeDealItem, int totalQuantity) {
+		ItemStock target = (timeDealItem != null)
+			? itemStockRepository.findByTimeDealItem(timeDealItem)
+			.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_STOCK_NOT_FOUND))
+			: itemStockRepository.findByItemId(item.getId())
+			.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_STOCK_NOT_FOUND));
+
+		if (totalQuantity > target.getQuantity()) {
+			throw new InvalidItemException(BaseResponseStatus.CART_QUANTITY_EXCEEDS_STOCK);
+		}
+
+		return target;
 	}
 }
