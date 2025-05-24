@@ -72,7 +72,8 @@ public class ItemStockRepositoryImpl implements ItemStockRepositoryCustom {
 			.execute();
 
 		return affectedRows > 0;
-		
+	}
+	
 	@Override
 	public List<ItemStock> findAllByItemId(List<Long> itemIds) {
 		return queryFactory
