@@ -65,6 +65,7 @@ class OrderCancellationFacadeTest {
         int itemQuantity = 3;
         String paymentKey = "payment-key";
         String cancelReason = "사용자 주문 취소";
+        String orderNumber = "ORD20240521-000001";
 
         when(orderRepository.findByIdWithPayment(orderId)).thenReturn(Optional.of(order));
         doNothing().when(orderCancelValidator).validate(order, member);
@@ -77,14 +78,16 @@ class OrderCancellationFacadeTest {
         when(orderItem.getItem()).thenReturn(item);
         when(orderItem.getQuantity()).thenReturn(itemQuantity);
         when(item.getId()).thenReturn(itemId);
-        doNothing().when(commandStockService).restore(itemId, itemQuantity);
+
+        when(order.getOrderNumber()).thenReturn(orderNumber);
+        doNothing().when(commandStockService).restore(orderNumber, itemId, itemQuantity);
 
         // when
         orderCancellationFacade.cancelOrderAndRefund(orderId, member);
 
         // then
         verify(commandRefundService).refund(order, paymentKey, cancelReason);
-        verify(commandStockService).restore(itemId, itemQuantity);
+        verify(commandStockService).restore(orderNumber, itemId, itemQuantity);
     }
 
     @Test

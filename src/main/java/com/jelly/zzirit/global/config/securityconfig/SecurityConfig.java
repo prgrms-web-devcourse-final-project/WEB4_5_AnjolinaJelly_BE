@@ -26,6 +26,7 @@ import com.jelly.zzirit.global.security.oauth2.handler.CustomOAuth2FailureHandle
 import com.jelly.zzirit.global.security.oauth2.handler.CustomOAuth2SuccessHandler;
 import com.jelly.zzirit.global.security.oauth2.service.CustomOAuth2UserService;
 import com.jelly.zzirit.global.security.service.TokenService;
+import com.jelly.zzirit.global.security.util.AccountLoginRateUtil;
 import com.jelly.zzirit.global.security.util.JwtUtil;
 import com.jelly.zzirit.global.security.util.RedisBlacklistUtil;
 
@@ -60,9 +61,12 @@ public class SecurityConfig {
 	}
 
 	@Bean
-	public LoginFilter loginFilter(AuthenticationManager authenticationManager, ObjectMapper objectMapper,
-		TokenService tokenService) {
-		return new LoginFilter(authenticationManager, objectMapper, tokenService);
+	public LoginFilter loginFilter(
+		AuthenticationManager authenticationManager,
+		ObjectMapper objectMapper,
+		TokenService tokenService,
+		AccountLoginRateUtil accountLoginRateUtil) {
+		return new LoginFilter(authenticationManager, objectMapper, tokenService, accountLoginRateUtil);
 	}
 
 	@Bean
