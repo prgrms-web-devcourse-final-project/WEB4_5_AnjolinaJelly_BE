@@ -2,6 +2,7 @@ package com.jelly.zzirit.domain.cart.service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -15,7 +16,6 @@ import com.jelly.zzirit.domain.cart.mapper.CartItemMapper;
 import com.jelly.zzirit.domain.cart.repository.CartItemRepository;
 import com.jelly.zzirit.domain.cart.repository.CartRepository;
 import com.jelly.zzirit.domain.item.entity.Item;
-import com.jelly.zzirit.domain.item.entity.ItemStatus;
 import com.jelly.zzirit.domain.item.entity.stock.ItemStock;
 import com.jelly.zzirit.domain.item.entity.timedeal.TimeDealItem;
 import com.jelly.zzirit.domain.item.repository.TimeDealItemRepository;
@@ -23,11 +23,12 @@ import com.jelly.zzirit.domain.item.repository.stock.ItemStockRepository;
 import com.jelly.zzirit.domain.member.entity.Member;
 import com.jelly.zzirit.domain.member.repository.MemberRepository;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
-import com.jelly.zzirit.global.exception.custom.InvalidItemException;
 import com.jelly.zzirit.global.exception.custom.InvalidUserException;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CartService {
@@ -47,8 +48,12 @@ public class CartService {
 	public CartFetchResponse getMyCart(Long memberId) {
 		Cart cart = getOrCreateCart(memberId);
 		List<CartItem> cartItems = cartItemRepository.findAllWithItemByCartId(cart.getId());
-		Map<Long, ItemStock> stockMap = loadItemStockMap(cartItems);
-		List<CartItemFetchResponse> responses = convertToResponses(cartItems, stockMap);
+		List<Long> itemIds = itemIds(cartItems);
+
+		Map<Long, TimeDealItem> timeDealItemMap = loadActiveTimeDealItemMap(itemIds);
+		Map<Long, ItemStock> normalStockMap = loadNormalItemStockMap(itemIds);
+
+		List<CartItemFetchResponse> responses = convertToCartResponses(cartItems, timeDealItemMap, normalStockMap);
 
 		return new CartFetchResponse(
 			cart.getId(),
@@ -67,31 +72,61 @@ public class CartService {
 			});
 	}
 
-	private Map<Long, ItemStock> loadItemStockMap(List<CartItem> cartItems) {
-		List<Long> itemIds = cartItems.stream()
+	private List<Long> itemIds(List<CartItem> cartItems) {
+		return cartItems.stream()
 			.map(cartItem -> cartItem.getItem().getId())
 			.distinct()
 			.toList();
-
-		return itemStockRepository.findAllByItemIdIn(itemIds).stream()
-			.collect(Collectors.toMap(stock -> stock.getItem().getId(), stock -> stock));
 	}
 
-	private List<CartItemFetchResponse> convertToResponses(List<CartItem> cartItems, Map<Long, ItemStock> stockMap) {
+	private List<CartItemFetchResponse> convertToCartResponses(List<CartItem> cartItems,
+		Map<Long, TimeDealItem> timeDealItemMap,
+		Map<Long, ItemStock> normalStockMap) {
 		return cartItems.stream()
 			.map(cartItem -> {
 				Item item = cartItem.getItem();
-				ItemStock itemStock = stockMap.get(item.getId());
-				if (itemStock == null) {
-					throw new InvalidItemException(BaseResponseStatus.ITEM_STOCK_NOT_FOUND);
+
+				TimeDealItem timeDealItem = timeDealItemMap.get(item.getId());
+
+				ItemStock itemStock = (timeDealItem != null)
+					? itemStockRepository.findByTimeDealItem(timeDealItem).orElse(null)
+					: normalStockMap.get(item.getId());
+
+				int stockQuantity = (itemStock != null) ? itemStock.getQuantity() : 0;
+
+				if (stockQuantity == 0) {
+					return CartItemMapper.mapToCartItem(cartItem, markAsSoldOut(item), timeDealItem, 0);
 				}
 
-				TimeDealItem timeDealItem = item.getItemStatus() == ItemStatus.TIME_DEAL
-					? timeDealItemRepository.findActiveTimeDealItemByItemId(item.getId()).orElse(null)
-					: null;
+				int currentQuantity = cartItem.getQuantity();
+				int finalQuantity = Math.min(currentQuantity, stockQuantity);
 
-				return CartItemMapper.mapToCartItem(cartItem, itemStock, timeDealItem);
-			}).toList();
+				if (finalQuantity != currentQuantity) {
+					cartItem.changeQuantity(finalQuantity);
+					cartItemRepository.save(cartItem);
+				}
+				return CartItemMapper.mapToCartItem(cartItem, itemStock, timeDealItem, finalQuantity);
+			})
+			.toList();
+	}
+
+	private Map<Long, TimeDealItem> loadActiveTimeDealItemMap(List<Long> itemIds) {
+		return timeDealItemRepository.findActiveByItemIds(itemIds).stream()
+			.collect(Collectors.toMap(t -> t.getItem().getId(), Function.identity()));
+	}
+
+	private Map<Long, ItemStock> loadNormalItemStockMap(List<Long> itemIds) {
+		return itemStockRepository.findAllByItemIdIn(itemIds).stream()
+			.collect(Collectors.toMap(s -> s.getItem().getId(), Function.identity()));
+	}
+
+	private ItemStock markAsSoldOut(Item item) {
+		return ItemStock.builder()
+			.item(item)
+			.quantity(0)
+			.soldQuantity(0)
+			.timeDealItem(null)
+			.build();
 	}
 
 	private int calculateTotalQuantity(List<CartItemFetchResponse> responses) {

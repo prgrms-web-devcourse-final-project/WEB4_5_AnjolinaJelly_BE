@@ -1,7 +1,11 @@
 package com.jelly.zzirit.domain.cart.entity;
 
+import static com.jelly.zzirit.global.dto.BaseResponseStatus.*;
+
 import com.jelly.zzirit.domain.item.entity.Item;
+import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.entity.BaseTime;
+import com.jelly.zzirit.global.exception.custom.InvalidItemException;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -42,7 +46,10 @@ public class CartItem extends BaseTime {
 			.build();
 	}
 
-	public void increaseQuantity(Integer additionalQuantity) {
-		this.quantity += additionalQuantity;
+	public void changeQuantity(int newQuantity) {
+		if (newQuantity < 1) {
+			throw new InvalidItemException(BaseResponseStatus.INVALID_CART_QUANTITY);
+		}
+		this.quantity = newQuantity;
 	}
 }
