@@ -6,6 +6,7 @@ import com.jelly.zzirit.domain.item.entity.timedeal.TimeDeal;
 import com.jelly.zzirit.domain.item.entity.timedeal.TimeDealItem;
 import com.jelly.zzirit.domain.item.repository.*;
 import com.jelly.zzirit.domain.item.repository.stock.ItemStockRepository;
+import com.jelly.zzirit.domain.item.scheduler.DelayQueueProcessor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -30,6 +31,7 @@ public class TimeDealDummyDataGenerator{
     private final TimeDealItemRepository timeDealItemRepository;
     private final ItemRepository itemRepository;
     private final ItemStockRepository itemStockRepository;
+    private final DelayQueueProcessor delayQueueProcessor;
 
     private static final ZoneId KST = ZoneId.of("Asia/Seoul");
 
@@ -74,6 +76,10 @@ public class TimeDealDummyDataGenerator{
         }
 
         timeDealRepository.saveAll(timeDeals);
+
+        for (TimeDeal timeDeal : timeDeals) {
+            delayQueueProcessor.schedule(timeDeal);
+        }
 
         // Item(1L)이 없으면 관련 엔티티들 생성
         Item item;
