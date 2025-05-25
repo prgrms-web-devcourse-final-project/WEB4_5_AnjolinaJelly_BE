@@ -3,12 +3,14 @@ package com.jelly.zzirit.domain.item.scheduler;
 import com.jelly.zzirit.domain.item.entity.timedeal.TimeDeal;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Getter
 @RequiredArgsConstructor
 public class DelayedTimeDeal implements Delayed {
@@ -23,6 +25,7 @@ public class DelayedTimeDeal implements Delayed {
 
         LocalDateTime targetTime = isStarting ? timeDeal.getStartTime() : timeDeal.getEndTime();
         this.expTime = targetTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        log.info("타임딜 큐 객체 생성 :  id({}), isStarting({}), expTime({})", this.timeDealId, this.isStarting, this.expTime);
     }
 
     @Override
