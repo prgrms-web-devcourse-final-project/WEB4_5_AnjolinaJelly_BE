@@ -34,4 +34,6 @@ public interface TimeDealRepository extends JpaRepository<TimeDeal, Long> {
 	@Transactional
 	@Query(value = "DELETE FROM time_deal WHERE id IN (SELECT id FROM time_deal ORDER BY id DESC LIMIT :limit)", nativeQuery = true)
 	void deleteTopNByIdDesc(@Param("limit") int limit);
+
+	List<TimeDeal> findAllByStatusIn(List<TimeDeal.TimeDealStatus> scheduled);
 }
