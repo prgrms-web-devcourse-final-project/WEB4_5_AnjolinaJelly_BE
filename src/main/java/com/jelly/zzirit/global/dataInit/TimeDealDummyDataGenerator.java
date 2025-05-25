@@ -34,23 +34,22 @@ public class TimeDealDummyDataGenerator{
     private static final ZoneId KST = ZoneId.of("Asia/Seoul");
 
     @Transactional
-    public void generateInitialData() {
+    public void generateInitialData(int GOAL_COUNT, long INTERVAL) {
         long totalCount = timeDealRepository.count();
-
-        if (totalCount < 20000) {
-            int toCreate = (int) (20000 - totalCount);
+        if (totalCount < GOAL_COUNT) {
+            int toCreate = (int) (GOAL_COUNT - totalCount);
             log.info("📦 타임딜 부족: {}개 → {}개 추가 생성", totalCount, toCreate);
-            generateDeals(toCreate);
-        } else if (totalCount > 20000) {
-            int toDelete = (int) (totalCount - 20000);
+            generateDeals(toCreate, INTERVAL);
+        } else if (totalCount > GOAL_COUNT) {
+            int toDelete = (int) (totalCount - GOAL_COUNT);
             log.info("🧹 타임딜 과잉: {}개 → {}개 삭제", totalCount, toDelete);
             timeDealRepository.deleteTopNByIdDesc(toDelete);
         } else {
-            log.info("✅ 타임딜 개수 정확함: 20,000개");
+            log.info("✅ 타임딜 개수 정확함: {}개", GOAL_COUNT);
         }
     }
 
-    private void generateDeals(int count) {
+    private void generateDeals(int count, long INTERVAL) {
         List<TimeDeal> timeDeals = new ArrayList<>();
         List<TimeDealItem> timeDealItems = new ArrayList<>();
         List<ItemStock> itemStocks = new ArrayList<>();
@@ -60,8 +59,8 @@ public class TimeDealDummyDataGenerator{
         ZonedDateTime baseEndTime = latestEndTime.atZone(KST).plusMinutes(10);
 
         for (int i = 0; i < count; i++) {
-            ZonedDateTime dealStart = baseEndTime.plusMinutes(20L * i);
-            ZonedDateTime dealEnd = dealStart.plusMinutes(10);
+            ZonedDateTime dealStart = baseEndTime.plusMinutes(2 * INTERVAL * i);
+            ZonedDateTime dealEnd = dealStart.plusMinutes(INTERVAL);
 
             TimeDeal timeDeal = TimeDeal.builder()
                     .name("타임딜 " + (i + 1))
