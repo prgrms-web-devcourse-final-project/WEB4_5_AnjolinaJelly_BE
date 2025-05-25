@@ -44,7 +44,11 @@ public class S3MultipartUploadController {
 
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentLength(request.getFileSize());
-        metadata.setContentType(URLConnection.guessContentTypeFromName(request.getFileType()));
+        String contentType = URLConnection.guessContentTypeFromName(request.getOriginalFileName());
+        if (contentType == null) {
+            contentType = "application/octet-stream"; // fallback (안전한 기본값)
+        }
+        metadata.setContentType(contentType);
 
         InitiateMultipartUploadRequest uploadRequest =
                 new InitiateMultipartUploadRequest(bucket, objectKey, metadata);
