@@ -23,7 +23,6 @@ import java.util.List;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@Profile("prod")
 public class TimeDealDummyDataGenerator{
 
     private final BrandRepository brandRepository;
