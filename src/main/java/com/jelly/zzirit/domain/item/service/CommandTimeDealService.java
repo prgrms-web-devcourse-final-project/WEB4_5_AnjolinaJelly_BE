@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.jelly.zzirit.domain.item.scheduler.DelayQueueProcessor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +38,7 @@ public class CommandTimeDealService {
 	private final TimeDealRepository timeDealRepository;
 	private final TimeDealItemRepository timeDealItemRepository;
 	private final ItemStockRepository itemStockRepository;
+	private final DelayQueueProcessor delayQueueProcessor;
 
 	/**
 	 * 타임딜을 생성합니다.
@@ -46,11 +48,13 @@ public class CommandTimeDealService {
 	 * @return TimeDealCreateResponse 응답 DTO
 	 */
 	@Transactional
-	public TimeDealCreateResponse createTimeDeal(TimeDealCreateRequest request) {
+	public TimeDealCreateResponse createTimeDeal(TimeDealCreateRequest request){
 		validateTimeDealRequest(request);
 		TimeDeal timeDeal = timeDealRepository.save(TimeDeal.from(request));
 		request.items().forEach(item -> createTimeDealItemAndStock(timeDeal, item));
 		List<TimeDealCreateItem> responseItems = mapToResponseItems(timeDeal);
+
+		delayQueueProcessor.schedule(timeDeal);
 
 		return TimeDealCreateResponse.from(timeDeal, responseItems);
 	}
