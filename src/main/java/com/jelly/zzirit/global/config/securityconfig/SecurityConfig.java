@@ -93,7 +93,7 @@ public class SecurityConfig {
 					"/actuator/**",
 					"/favicon.ico"
 				).permitAll()
-				.requestMatchers("/api/admin/**").hasRole(Role.ROLE_ADMIN.getKey())
+				.requestMatchers("/api/admin/**","/api/s3").hasRole(Role.ROLE_ADMIN.getKey())
 				.anyRequest().authenticated()
 			);
 
