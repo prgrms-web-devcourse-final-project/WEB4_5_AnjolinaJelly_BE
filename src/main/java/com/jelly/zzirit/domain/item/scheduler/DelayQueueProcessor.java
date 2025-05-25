@@ -56,11 +56,11 @@ public class DelayQueueProcessor {
         if(event.getIsStarting()){
             deal.updateStatus(TimeDealStatus.ONGOING);
             commandItemService.updateItemStatusByTimeDeal(deal, ItemStatus.TIME_DEAL);
-            log.info("✅ 타임딜 시작됨: {}", deal.getId());
+            log.info("✅ 타임딜 시작됨: id({}), 현재시각({})", deal.getId(), System.currentTimeMillis());
         } else {
             deal.updateStatus(TimeDealStatus.ENDED);
             commandItemService.updateItemStatusByTimeDeal(deal, ItemStatus.NONE);
-            log.info("⛔ 타임딜 종료됨: {}", deal.getId());
+            log.info("⛔ 타임딜 종료됨: id({}), 현재시각({})", deal.getId(), System.currentTimeMillis());
         }
     }
 }
