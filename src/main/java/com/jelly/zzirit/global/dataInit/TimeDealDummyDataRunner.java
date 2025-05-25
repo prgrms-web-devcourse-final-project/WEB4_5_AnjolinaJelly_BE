@@ -16,6 +16,6 @@ public class TimeDealDummyDataRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        generator.generateInitialData(3, 1);
+        generator.generateInitialData(20000, 1);
     }
 }
