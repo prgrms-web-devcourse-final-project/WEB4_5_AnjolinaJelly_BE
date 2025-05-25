@@ -16,15 +16,25 @@ import com.jelly.zzirit.global.exception.custom.InvalidAuthenticationException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class CustomOAuth2FailureHandler extends SimpleUrlAuthenticationFailureHandler {
 
 	private final ObjectMapper objectMapper;
 
 	@Override
-	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException {
+	public void onAuthenticationFailure(HttpServletRequest request,
+		HttpServletResponse response,
+		AuthenticationException exception) throws IOException {
+
+		// ✅ 로그 추가
+		log.error("❌ OAuth2 인증 실패 발생");
+		log.error("❌ 예외 클래스: {}", exception.getClass().getName());
+		log.error("❌ 예외 메시지: {}", exception.getMessage(), exception);
+
 		Exception customException = (Exception) request.getAttribute("exception");
 
 		BaseResponseStatus status = (customException instanceof InvalidAuthenticationException authEx)
