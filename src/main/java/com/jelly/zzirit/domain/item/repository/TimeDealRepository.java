@@ -36,4 +36,8 @@ public interface TimeDealRepository extends JpaRepository<TimeDeal, Long> {
 	@Transactional
 	@Query("DELETE FROM TimeDeal t WHERE t.id IN :ids")
 	void deleteByIds(@Param("ids") List<Long> ids);
+
+	@Query("SELECT td FROM TimeDeal td WHERE td.status = 'SCHEDULED' AND td.startTime BETWEEN :now AND :weekLater")
+	List<TimeDeal> findUpcomingScheduledDeals(@Param("now") LocalDateTime now,
+		@Param("weekLater") LocalDateTime weekLater);
 }

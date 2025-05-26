@@ -2,10 +2,12 @@ package com.jelly.zzirit.domain.item.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.jelly.zzirit.domain.item.delayQueue.TimeDealDelayTask;
 import com.jelly.zzirit.domain.item.entity.ItemStatus;
 import com.jelly.zzirit.domain.item.entity.timedeal.TimeDeal;
 import com.jelly.zzirit.domain.item.entity.timedeal.TimeDeal.TimeDealStatus;
@@ -21,6 +23,7 @@ public class TimeDealSchedulerService {
 
 	private final TimeDealRepository timeDealRepository;
 	private final CommandItemService commandItemService;
+	private final BlockingQueue<TimeDealDelayTask> timeDealDelayQueue;
 
 	// 시작 시간이 현재보다 이전인 SCHEDULED 상태 타임딜을 ONGOING 상태로 변경
 	@Transactional
@@ -52,5 +55,23 @@ public class TimeDealSchedulerService {
 			return true;
 		}
 		return false;
+	}
+
+	@Transactional
+	public void loadUpcomingDealsToQueue() {
+		LocalDateTime now = LocalDateTime.now();
+		LocalDateTime weekLater = now.plusWeeks(1);
+
+		List<TimeDeal> deals = timeDealRepository.findUpcomingScheduledDeals(now, weekLater);
+
+		for (TimeDeal deal : deals) {
+			TimeDealDelayTask startTask = new TimeDealDelayTask(deal, deal.getStartTime());
+			TimeDealDelayTask endTask = new TimeDealDelayTask(deal, deal.getEndTime());
+
+			timeDealDelayQueue.offer(startTask);
+			timeDealDelayQueue.offer(endTask);
+
+			log.info("타임딜 큐 등록 - 타임딜 ID: {}, 시작시간: {}, 종료시간: {}", deal.getId(), deal.getStartTime(), deal.getEndTime());
+		}
 	}
 }
