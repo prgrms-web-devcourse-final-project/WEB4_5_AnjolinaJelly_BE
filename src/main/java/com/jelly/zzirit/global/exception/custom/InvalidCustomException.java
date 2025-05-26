@@ -12,4 +12,9 @@ public class InvalidCustomException extends RuntimeException {
 		super(status.getMessage());
 		this.status = status;
 	}
+
+	public InvalidCustomException(BaseResponseStatus status, String detailMessage) {
+		super(detailMessage);
+		this.status = status;
+	}
 }
