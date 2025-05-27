@@ -53,8 +53,6 @@ public class TimeDealDelayQueueManager {
 			schedulerService.endOngoingDeal(timeDeal);
 		}
 
-		timeDealRepository.save(timeDeal);
-
 		TimeDeal updatedTimeDeal = timeDealRepository.findById(timeDeal.getId())
 			.orElseThrow(() -> new IllegalArgumentException("타임딜을 찾을 수 없습니다. ID: " + timeDeal.getId()));
 
