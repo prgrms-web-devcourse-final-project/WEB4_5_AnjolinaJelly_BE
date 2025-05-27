@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
 
-@Profile({"prod"})
+@Profile({"dev", "prod"})
 @Component
 @RequiredArgsConstructor
 public class TimeDealDummyDataRunner implements CommandLineRunner {
