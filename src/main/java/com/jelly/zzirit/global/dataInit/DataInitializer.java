@@ -20,7 +20,7 @@ public class DataInitializer {
 	@Bean
 	public CommandLineRunner importSqlIfEmpty() {
 		return args -> {
-			if (itemRepository.count() == 0) {
+			if (itemRepository.count() < 2) {
 				sqlScriptExecutor.executeSqlFile("classpath:data.sql");
 				log.info("JPA 기반 SQL 파일 실행 완료");
 			} else {
