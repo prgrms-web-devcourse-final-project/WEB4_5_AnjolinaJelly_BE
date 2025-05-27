@@ -22,11 +22,14 @@ public class TimeDealDelayConsumer {
 			while (!Thread.currentThread().isInterrupted()) {
 				try {
 					TimeDealDelayTask task = queue.take(); // Blocking
-					log.info("✅ 타임딜 실행: id={}, 상태={}, 실행시간={}", task.getTimeDeal().getId(),
-						task.getTimeDeal().getStatus(), task.getTriggerTimeMillis());
-					timeDealDelayQueueManager.execute(task.getTimeDeal());
+					log.info("✅ 타임딜 실행 준비: id={}, 실행시간={}", task.getTimeDealId(), task.getTriggerTimeMillis());
+
+					timeDealDelayQueueManager.execute(task.getTimeDealId());
+
 				} catch (InterruptedException e) {
 					Thread.currentThread().interrupt();
+				} catch (Exception e) {
+					log.error("타임딜 실행 중 예외 발생", e);
 				}
 			}
 		});

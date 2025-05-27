@@ -5,8 +5,6 @@ import java.time.ZoneId;
 import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;
 
-import com.jelly.zzirit.domain.item.entity.timedeal.TimeDeal;
-
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -14,11 +12,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class TimeDealDelayTask implements Delayed {
 
-	private final TimeDeal timeDeal;
+	private final long timeDealId;
 	private final long triggerTimeMillis;
 
-	public TimeDealDelayTask(TimeDeal timeDeal, LocalDateTime executeAt) {
-		this.timeDeal = timeDeal;
+	// 타임딜 ID만 저장
+	public TimeDealDelayTask(long timeDealId, LocalDateTime executeAt) {
+		this.timeDealId = timeDealId;
 		this.triggerTimeMillis = executeAt.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
 	}
 

@@ -4,6 +4,7 @@ import static com.jelly.zzirit.domain.item.util.TimeDealUtil.*;
 import static com.jelly.zzirit.global.dto.BaseResponseStatus.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -38,6 +39,7 @@ public class CommandTimeDealService {
 	private final TimeDealRepository timeDealRepository;
 	private final TimeDealItemRepository timeDealItemRepository;
 	private final ItemStockRepository itemStockRepository;
+	private final TimeDealSchedulerService timeDealSchedulerService;
 
 	/**
 	 * 타임딜을 생성합니다.
@@ -48,12 +50,30 @@ public class CommandTimeDealService {
 	 */
 	@Transactional
 	public TimeDealCreateResponse createTimeDeal(TimeDealCreateRequest request) {
+		// 타임딜 요청 유효성 검사
 		validateTimeDealRequest(request);
+
+		// 타임딜 저장
 		TimeDeal timeDeal = timeDealRepository.save(TimeDeal.from(request));
+
+		// 타임딜 아이템과 재고 저장
 		request.items().forEach(item -> createTimeDealItemAndStock(timeDeal, item));
+
+		// 타임딜이 오늘 등록된 경우 큐에 바로 추가
+		if (isToday(timeDeal.getStartTime())) {
+			timeDealSchedulerService.loadUpcomingDealsToQueue();
+		}
+
+		// 타임딜 응답 아이템 생성
 		List<TimeDealCreateItem> responseItems = mapToResponseItems(timeDeal);
 
 		return TimeDealCreateResponse.from(timeDeal, responseItems);
+	}
+
+	// 오늘 날짜인지 확인하는 메서드
+	private boolean isToday(LocalDateTime startTime) {
+		LocalDate today = LocalDate.now();
+		return !startTime.toLocalDate().isBefore(today);
 	}
 
 	/**
