@@ -29,11 +29,13 @@ public interface TimeDealRepository extends JpaRepository<TimeDeal, Long> {
 	@Query("SELECT MAX(t.endTime) FROM TimeDeal t")
 	Optional<LocalDateTime> findMaxEndTime();
 
-	// ID 기준 내림차순으로 n개 삭제 (native 쿼리) -> 그냥 데이터 삽입이라서 굳이 튜닝은 안 함.
+	@Query(value = "SELECT id FROM time_deal ORDER BY id DESC LIMIT :limit", nativeQuery = true)
+	List<Long> findTopNIdsByIdDesc(@Param("limit") int limit);
+
 	@Modifying
 	@Transactional
-	@Query(value = "DELETE FROM time_deal WHERE id IN (SELECT id FROM time_deal ORDER BY id DESC LIMIT :limit)", nativeQuery = true)
-	void deleteTopNByIdDesc(@Param("limit") int limit);
+	@Query("DELETE FROM TimeDeal t WHERE t.id IN :ids")
+	void deleteByIds(@Param("ids") List<Long> ids);
 
 	@Query("SELECT t FROM TimeDeal t " +
 		   "WHERE t.status IN :statuses " +
