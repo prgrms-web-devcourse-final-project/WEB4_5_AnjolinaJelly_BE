@@ -32,6 +32,8 @@ public class CommandTimeDealServiceTest {
 	private TimeDealItemRepository timeDealItemRepository;
 	@Mock
 	private ItemStockRepository itemStockRepository;
+	@Mock
+	private TimeDealSchedulerService timeDealSchedulerService;
 	@InjectMocks
 	private CommandTimeDealService commandTimeDealService;
 
