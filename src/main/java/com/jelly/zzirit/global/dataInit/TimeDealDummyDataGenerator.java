@@ -58,7 +58,7 @@ public class TimeDealDummyDataGenerator{
 
         LocalDateTime latestEndTime = timeDealRepository.findMaxEndTime()
                 .orElse(LocalDateTime.now());
-        ZonedDateTime baseEndTime = latestEndTime.atZone(KST).plusMinutes(10);
+        ZonedDateTime baseEndTime = latestEndTime.atZone(KST).plusMinutes(INTERVAL);
 
         for (int i = 0; i < count; i++) {
             ZonedDateTime dealStart = baseEndTime.plusMinutes(2 * INTERVAL * i);
