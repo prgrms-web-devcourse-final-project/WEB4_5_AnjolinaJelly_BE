@@ -9,6 +9,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -83,7 +84,8 @@ public class DelayQueueProcessor {
         }
     }
 
-    private void process(DelayedTimeDeal event){
+    @Transactional
+    protected void process(DelayedTimeDeal event){
         TimeDeal deal = timeDealRepository.findById(event.getTimeDealId())
                 .orElse(null);
         if(deal == null) return;
