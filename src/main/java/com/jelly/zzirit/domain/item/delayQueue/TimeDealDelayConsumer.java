@@ -24,7 +24,7 @@ public class TimeDealDelayConsumer {
 					TimeDealDelayTask task = queue.take(); // Blocking
 					log.info("✅ 타임딜 실행 준비: id={}, 실행시간={}", task.getTimeDealId(), task.getTriggerTimeMillis());
 
-					timeDealDelayQueueManager.execute(task.getTimeDealId());
+					timeDealDelayQueueManager.execute(task);
 
 				} catch (InterruptedException e) {
 					Thread.currentThread().interrupt();

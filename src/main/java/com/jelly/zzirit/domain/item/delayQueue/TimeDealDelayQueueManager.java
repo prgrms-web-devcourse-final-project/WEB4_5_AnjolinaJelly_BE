@@ -2,7 +2,10 @@ package com.jelly.zzirit.domain.item.delayQueue;
 
 import static com.jelly.zzirit.domain.item.entity.timedeal.TimeDeal.TimeDealStatus.*;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 import org.springframework.stereotype.Component;
 
@@ -26,22 +29,22 @@ public class TimeDealDelayQueueManager {
 		producer.register(timeDeal);
 	}
 
-	public void execute(Long timeDealId) {
-		// 타임딜 조회
-		TimeDeal timeDeal = timeDealRepository.findById(timeDealId)
-			.orElseThrow(() -> new IllegalArgumentException("타임딜을 찾을 수 없습니다. ID: " + timeDealId));
+	public void execute(TimeDealDelayTask timeDealDelayTask) {
 
 		LocalDateTime currentTime = LocalDateTime.now();
-		LocalDateTime triggerTime = timeDeal.getStartTime();
+		Instant currentInstant = currentTime.atZone(ZoneId.systemDefault()).toInstant();
+		Instant triggerInstant = Instant.ofEpochMilli(timeDealDelayTask.getTriggerTimeMillis());
 
-		// 큐에서 꺼낸 직후 로깅
-		long delayInSeconds = java.time.Duration.between(triggerTime, currentTime).toSeconds();
-		log.info("큐에서 꺼낸 직후 - 타임딜 ID: {}, 현재 시간: {}, 트리거 시간: {}, 지연 시간(초): {}",
-			timeDeal.getId(), currentTime, triggerTime, delayInSeconds);
+		long delayInSeconds = Duration.between(triggerInstant, currentInstant).toSeconds();
 
-		// 상태 변경을 위한 execute() 호출 직후 로깅
-		log.info("상태 변경 직후 - 타임딜 ID: {}, 현재 시간: {}, 상태: {}",
-			timeDeal.getId(), currentTime, timeDeal.getStatus());
+		log.info("execute() 호출 - 타임딜 ID: {}, 현재 시간: {}, 트리거 시간: {}, 지연 시간(초): {}",
+			timeDealDelayTask.getTimeDealId(), LocalDateTime.now(), timeDealDelayTask.getTriggerTimeMillis(),
+			delayInSeconds);
+
+		// 타임딜 조회
+		TimeDeal timeDeal = timeDealRepository.findById(timeDealDelayTask.getTimeDealId())
+			.orElseThrow(
+				() -> new IllegalArgumentException("타임딜을 찾을 수 없습니다. ID: " + timeDealDelayTask.getTimeDealId()));
 
 		// 상태 변경
 		if (timeDeal.getStatus() == SCHEDULED) {
@@ -55,7 +58,8 @@ public class TimeDealDelayQueueManager {
 		TimeDeal updatedTimeDeal = timeDealRepository.findById(timeDeal.getId())
 			.orElseThrow(() -> new IllegalArgumentException("타임딜을 찾을 수 없습니다. ID: " + timeDeal.getId()));
 
-		log.info("상태 변경 완료 - 타임딜 ID: {}, 현재 시간: {}, 변경된 상태: {}",
-			updatedTimeDeal.getId(), currentTime, updatedTimeDeal.getStatus());
+		// 타임딜이 실행된 후 경과 시간
+		long elapsedTimeMillis = Duration.between(triggerInstant, Instant.now()).toMillis();
+		log.info("타임딜 트리거 타임과 실행 완료 시간 차이: {}", elapsedTimeMillis);
 	}
 }
