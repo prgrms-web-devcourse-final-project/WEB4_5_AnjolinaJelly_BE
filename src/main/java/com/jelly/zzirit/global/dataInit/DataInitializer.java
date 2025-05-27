@@ -8,6 +8,7 @@ import com.jelly.zzirit.domain.item.repository.ItemRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.annotation.Order;
 
 @Slf4j
 @Configuration
@@ -18,6 +19,7 @@ public class DataInitializer {
 	private final SqlScriptExecutor sqlScriptExecutor;
 
 	@Bean
+	@Order(1)
 	public CommandLineRunner importSqlIfEmpty() {
 		return args -> {
 			if (itemRepository.count() < 2) {
