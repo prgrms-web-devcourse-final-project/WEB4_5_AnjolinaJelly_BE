@@ -28,4 +28,10 @@ public interface TimeDealItemRepository extends JpaRepository<TimeDealItem, Long
 	List<TimeDealItem> findByItem_NameContaining(String timeDealItemName);
 
 	TimeDealItem findTimeDealItemById(Long timeDealItemId);
+
+	@Query("SELECT t FROM TimeDealItem t " +
+		   "JOIN FETCH t.item " +
+		   "WHERE t.timeDeal = :timeDeal")
+	List<TimeDealItem> findAllWithItemsByTimeDeal(@Param("timeDeal") TimeDeal timeDeal);
+
 }
