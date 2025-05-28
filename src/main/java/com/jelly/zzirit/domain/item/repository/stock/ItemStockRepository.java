@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.domain.item.entity.stock.ItemStock;
 import com.jelly.zzirit.domain.item.entity.timedeal.TimeDealItem;
 
@@ -27,8 +28,8 @@ public interface ItemStockRepository extends JpaRepository<ItemStock, Long>, Ite
 	Optional<ItemStock> findByTimeDealItem(TimeDealItem tdi);
 
 	@Lock(LockModeType.PESSIMISTIC_WRITE)
-	@Query("select s from ItemStock s where s.item.id = :itemId")
-	Optional<ItemStock> findByItemIdPessimisticLock(@Param("itemId") Long itemId);
+	@Query("select s from ItemStock s where s.item = :item")
+	Optional<ItemStock> findByItemPessimisticLock(@Param("item")Item item);
 
 	@Query("SELECT s FROM ItemStock s WHERE s.timeDealItem.id = :timeDealItemId")
 	Optional<ItemStock> findByTimeDealItemId(@Param("timeDealItemId") Long timeDealItemId);

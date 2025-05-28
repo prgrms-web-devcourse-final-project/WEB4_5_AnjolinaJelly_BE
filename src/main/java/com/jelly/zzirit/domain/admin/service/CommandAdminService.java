@@ -48,7 +48,7 @@ public class CommandAdminService {
 	public void updateItem(@NotNull Long itemId, ItemUpdateRequest request) {
 		Item item = itemRepository.findByIdPessimisticLock(itemId)
 			.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND));
-		ItemStock itemStock = itemStockRepository.findByItemIdPessimisticLock(itemId)
+		ItemStock itemStock = itemStockRepository.findByItemPessimisticLock(item)
 			.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_STOCK_NOT_FOUND));
 
 		item.update(request.price(), request.imageUrl());
