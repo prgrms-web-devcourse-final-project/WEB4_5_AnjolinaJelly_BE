@@ -41,7 +41,7 @@ public class TimeDealDummyDataGenerator{
             int toCreate = (int) (20000 - totalCount);
             log.info("📦 타임딜 부족: {}개 → {}개 추가 생성", totalCount, toCreate);
             generateDeals(toCreate);
-        }
+        } 
     }
 
     private void generateDeals(int count) {
