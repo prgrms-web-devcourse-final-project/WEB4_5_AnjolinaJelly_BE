@@ -101,7 +101,7 @@ public class CommandAdminServiceTest {
         Long itemId = 1L;
         ItemUpdateRequest request = new ItemUpdateRequest(10, new BigDecimal("10000"), "");
 
-        when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
+        when(itemRepository.findByIdPessimisticLock(itemId)).thenReturn(Optional.empty());
 
         // when & then
         InvalidItemException exception = assertThrows(InvalidItemException.class,
@@ -117,8 +117,8 @@ public class CommandAdminServiceTest {
         Item item = mock(Item.class);
         ItemUpdateRequest request = new ItemUpdateRequest(30, new BigDecimal("15000"), "");
 
-        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
-        when(itemStockRepository.findByItemId(itemId)).thenReturn(Optional.empty());
+        when(itemRepository.findByIdPessimisticLock(itemId)).thenReturn(Optional.of(item));
+        when(itemStockRepository.findByItemPessimisticLock(item)).thenReturn(Optional.empty());
 
         // when & then
         InvalidItemException exception = assertThrows(InvalidItemException.class,
@@ -140,8 +140,8 @@ public class CommandAdminServiceTest {
         );
 
         // mock 객체 반환 설정
-        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
-        when(itemStockRepository.findByItemId(itemId)).thenReturn(Optional.of(itemStock));
+        when(itemRepository.findByIdPessimisticLock(itemId)).thenReturn(Optional.of(item));
+        when(itemStockRepository.findByItemPessimisticLock(item)).thenReturn(Optional.of(itemStock));
 
         // when
         commandAdminItemService.updateItem(itemId, request);
