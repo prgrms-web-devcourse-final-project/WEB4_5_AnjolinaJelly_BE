@@ -41,13 +41,6 @@ public class TimeDealDummyDataGenerator{
             int toCreate = (int) (20000 - totalCount);
             log.info("📦 타임딜 부족: {}개 → {}개 추가 생성", totalCount, toCreate);
             generateDeals(toCreate);
-        } else if (totalCount > 20000) {
-            int toDelete = (int) (totalCount - 20000);
-            log.info("🧹 타임딜 과잉: {}개 → {}개 삭제", totalCount, toDelete);
-            List<Long> ids = timeDealRepository.findTopNIdsByIdDesc(toDelete);
-            timeDealRepository.deleteByIds(ids);
-        } else {
-            log.info("✅ 타임딜 개수 정확함: 20,000개");
         }
     }
 
