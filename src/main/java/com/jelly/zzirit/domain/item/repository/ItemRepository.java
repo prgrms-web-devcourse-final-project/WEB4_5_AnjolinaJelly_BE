@@ -1,5 +1,7 @@
 package com.jelly.zzirit.domain.item.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
@@ -14,7 +16,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 
     @Lock(value = LockModeType.PESSIMISTIC_WRITE)
     @Query("select i from Item i where i.id = :itemId")
-    Item findByIdPessimisticLock(Long itemId);
+    Optional<Item> findByIdPessimisticLock(Long itemId);
 
     default Item getById(Long itemId) {
         return findById(itemId).orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND));
