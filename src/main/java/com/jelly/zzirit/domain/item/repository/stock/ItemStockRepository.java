@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.jelly.zzirit.domain.item.entity.stock.ItemStock;
@@ -19,4 +21,7 @@ public interface ItemStockRepository extends JpaRepository<ItemStock, Long>, Ite
 	List<ItemStock> findAllByItemId(Long itemId);
 
 	Optional<ItemStock> findByTimeDealItem(TimeDealItem tdi);
+
+	@Query("SELECT s FROM ItemStock s WHERE s.timeDealItem.id = :timeDealItemId")
+	Optional<ItemStock> findByTimeDealItemId(@Param("timeDealItemId") Long timeDealItemId);
 }

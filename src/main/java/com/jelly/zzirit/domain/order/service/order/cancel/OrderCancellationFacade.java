@@ -43,6 +43,10 @@ public class OrderCancellationFacade {
 	}
 
 	private void restoreStock(Order order) {
-		order.getOrderItems().forEach(item -> commandStockService.restore(item.getItem().getId(), item.getQuantity()));
+		order.getOrderItems()
+			.forEach(item -> commandStockService.restore(
+				order.getOrderNumber(),
+				item.getItem().getId(),
+				item.getQuantity()));
 	}
 }
