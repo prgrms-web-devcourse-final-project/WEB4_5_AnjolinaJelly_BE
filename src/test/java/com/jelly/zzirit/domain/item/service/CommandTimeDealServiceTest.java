@@ -7,6 +7,7 @@ import static org.mockito.BDDMockito.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.jelly.zzirit.domain.item.scheduler.DelayQueueProcessor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -34,6 +35,8 @@ public class CommandTimeDealServiceTest {
 	private ItemStockRepository itemStockRepository;
 	@InjectMocks
 	private CommandTimeDealService commandTimeDealService;
+	@Mock
+	private DelayQueueProcessor delayQueueProcessor;
 
 	@BeforeEach
 	void setUp() {
