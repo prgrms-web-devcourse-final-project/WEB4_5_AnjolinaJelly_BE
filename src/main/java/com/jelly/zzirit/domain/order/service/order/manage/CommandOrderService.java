@@ -49,7 +49,7 @@ public class CommandOrderService {
 	public void completeOrder(Order order) {
 
 		order.getOrderItems().forEach(item ->
-			commandStockService.decrease(item.getItem().getId(), item.getQuantity())
+			commandStockService.decrease(order.getOrderNumber(), item.getItem().getId(), item.getQuantity())
 		);
 
 		order.changeStatus(OrderStatus.PAID);

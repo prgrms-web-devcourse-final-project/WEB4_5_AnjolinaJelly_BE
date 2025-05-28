@@ -34,4 +34,5 @@ public interface TimeDealItemRepository extends JpaRepository<TimeDealItem, Long
 		   "WHERE t.timeDeal = :timeDeal")
 	List<TimeDealItem> findAllWithItemsByTimeDeal(@Param("timeDeal") TimeDeal timeDeal);
 
+	Optional<TimeDealItem> findByItemId(Long itemId);
 }
