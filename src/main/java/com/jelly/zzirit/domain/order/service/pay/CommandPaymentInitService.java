@@ -32,7 +32,6 @@ public class CommandPaymentInitService {
 
 		Long todaySequence = orderSequenceGenerator.getTodaySequence();
 		String orderNumber = Order.generateOrderNumber(todaySequence);
-
 		Order order = tempOrderService.createTempOrder(dto, member, orderNumber);
 
 		return new PaymentInitResponse(

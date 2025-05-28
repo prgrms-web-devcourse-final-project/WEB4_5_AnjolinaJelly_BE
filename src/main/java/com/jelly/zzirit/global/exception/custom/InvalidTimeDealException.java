@@ -7,6 +7,10 @@ import lombok.Getter;
 @Getter
 public class InvalidTimeDealException extends InvalidCustomException {
 	public InvalidTimeDealException(BaseResponseStatus status) {
-		super(status);
+		super(status, "");
+	}
+
+	public InvalidTimeDealException(BaseResponseStatus status, String detailMessage) {
+		super(status, detailMessage);
 	}
 }

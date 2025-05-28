@@ -1,13 +1,10 @@
-DELETE
-FROM `item_stock`;
-DELETE
-FROM `item`;
-DELETE
-FROM `type_brand`;
-DELETE
-FROM `type`;
-DELETE
-FROM `brand`;
+DELETE FROM `item_stock`;
+DELETE FROM `time_deal_item`;
+DELETE FROM `time_deal`;
+DELETE FROM `item`;
+DELETE FROM `type_brand`;
+DELETE FROM `type`;
+DELETE FROM `brand`;
 
 INSERT INTO `type` (`id`, `name`, `created_at`, `updated_at`)
 VALUES (1, '노트북', NOW(), NOW()),

@@ -3,6 +3,7 @@ package com.jelly.zzirit.global.config.securityconfig.oauth2config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 import org.springframework.stereotype.Component;
 
@@ -32,6 +33,9 @@ public class SocialClientRegistration {
 
 	@Value("${oauth2.kakao.client-id}")
 	private String kakaoClientId;
+
+	@Value("${oauth2.kakao.client-secret}")
+	private String kakaoClientSecret;
 
 	@Value("${oauth2.kakao.redirect-uri}")
 	private String kakaoRedirectUri;
@@ -69,6 +73,7 @@ public class SocialClientRegistration {
 	public ClientRegistration kakaoClientRegistration() {
 		return ClientRegistration.withRegistrationId("kakao")
 			.clientId(kakaoClientId)
+			.clientSecret(kakaoClientSecret)
 			.redirectUri(kakaoRedirectUri)
 			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
 			.scope("profile_nickname", "account_email")
@@ -76,6 +81,7 @@ public class SocialClientRegistration {
 			.tokenUri("https://kauth.kakao.com/oauth/token")
 			.userInfoUri("https://kapi.kakao.com/v2/user/me")
 			.userNameAttributeName("id")
+			.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
 			.build();
 	}
 }

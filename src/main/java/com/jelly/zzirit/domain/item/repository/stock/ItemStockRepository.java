@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
+
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -28,4 +29,8 @@ public interface ItemStockRepository extends JpaRepository<ItemStock, Long>, Ite
 	@Lock(LockModeType.PESSIMISTIC_WRITE)
 	@Query("select s from ItemStock s where s.item.id = :itemId")
 	Optional<ItemStock> findByItemIdPessimisticLock(@Param("itemId") Long itemId);
+
+	@Query("SELECT s FROM ItemStock s WHERE s.timeDealItem.id = :timeDealItemId")
+	Optional<ItemStock> findByTimeDealItemId(@Param("timeDealItemId") Long timeDealItemId);
+
 }

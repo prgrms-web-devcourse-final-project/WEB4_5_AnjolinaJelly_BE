@@ -9,7 +9,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import com.jelly.zzirit.domain.member.domain.MemberFixture;
 import com.jelly.zzirit.domain.member.entity.Member;
@@ -38,42 +41,50 @@ class CommandRefundStatusServiceTest {
 
 	@Test
 	void 환불_성공시_ORDER와_PAYMENT가_CANCELLED로_변경된다() {
-		// given
-		Member member = MemberFixture.일반_회원();
-		Order order = OrderFixture.결제된_주문_생성(member);
-		Payment payment = order.getPayment();
+		try (MockedStatic<TransactionSynchronizationManager> mockedSyncManager = Mockito.mockStatic(TransactionSynchronizationManager.class)) {
+			mockedSyncManager.when(TransactionSynchronizationManager::isSynchronizationActive).thenReturn(true);
+			mockedSyncManager.when(() -> TransactionSynchronizationManager.registerSynchronization(any())).thenAnswer(invocation -> null);
 
-		when(paymentRepository.findByPaymentKey(paymentKey))
-			.thenReturn(Optional.of(payment));
+			// given
+			Member member = MemberFixture.일반_회원();
+			Order order = OrderFixture.결제된_주문_생성(member);
+			Payment payment = order.getPayment();
 
-		// when
-		service.markAsRefunded(order, paymentKey, true);
+			when(paymentRepository.findByPaymentKey(paymentKey)).thenReturn(Optional.of(payment));
 
-		// then
-		assertEquals(OrderStatus.CANCELLED, order.getStatus());
-		assertEquals(Payment.PaymentStatus.CANCELLED, payment.getPaymentStatus());
-		verify(orderRepository).save(order);
-		verify(paymentRepository).save(payment);
+			// when
+			service.markAsRefunded(order, paymentKey, true);
+
+			// then
+			assertEquals(OrderStatus.CANCELLED, order.getStatus());
+			assertEquals(Payment.PaymentStatus.CANCELLED, payment.getPaymentStatus());
+			verify(orderRepository).save(order);
+			verify(paymentRepository).save(payment);
+		}
 	}
 
 	@Test
 	void 환불_실패시_ORDER와_PAYMENT가_FAILED로_변경된다() {
-		// given
-		Member member = MemberFixture.일반_회원();
-		Order order = OrderFixture.결제된_주문_생성(member);
-		Payment payment = order.getPayment();
+		try (MockedStatic<TransactionSynchronizationManager> mockedSyncManager = Mockito.mockStatic(TransactionSynchronizationManager.class)) {
+			mockedSyncManager.when(TransactionSynchronizationManager::isSynchronizationActive).thenReturn(true);
+			mockedSyncManager.when(() -> TransactionSynchronizationManager.registerSynchronization(any())).thenAnswer(invocation -> null);
 
-		when(paymentRepository.findByPaymentKey(paymentKey))
-			.thenReturn(Optional.of(payment));
+			// given
+			Member member = MemberFixture.일반_회원();
+			Order order = OrderFixture.결제된_주문_생성(member);
+			Payment payment = order.getPayment();
 
-		// when
-		service.markAsRefunded(order, paymentKey, false);
+			when(paymentRepository.findByPaymentKey(paymentKey)).thenReturn(Optional.of(payment));
 
-		// then
-		assertEquals(OrderStatus.FAILED, order.getStatus());
-		assertEquals(Payment.PaymentStatus.FAILED, payment.getPaymentStatus());
-		verify(orderRepository).save(order);
-		verify(paymentRepository).save(payment);
+			// when
+			service.markAsRefunded(order, paymentKey, false);
+
+			// then
+			assertEquals(OrderStatus.FAILED, order.getStatus());
+			assertEquals(Payment.PaymentStatus.FAILED, payment.getPaymentStatus());
+			verify(orderRepository).save(order);
+			verify(paymentRepository).save(payment);
+		}
 	}
 
 	@Test
@@ -81,15 +92,12 @@ class CommandRefundStatusServiceTest {
 		// given
 		Member member = MemberFixture.일반_회원();
 		Order order = OrderFixture.결제된_주문_생성(member);
-
-		when(paymentRepository.findByPaymentKey(paymentKey))
-			.thenReturn(Optional.empty());
+		when(paymentRepository.findByPaymentKey(paymentKey)).thenReturn(Optional.empty());
 
 		// when & then
 		InvalidOrderException ex = assertThrows(InvalidOrderException.class, () ->
 			service.markAsRefunded(order, paymentKey, true)
 		);
-
 		assertEquals(BaseResponseStatus.PAYMENT_NOT_FOUND, ex.getStatus());
 		verify(orderRepository, never()).save(any());
 		verify(paymentRepository, never()).save(any());

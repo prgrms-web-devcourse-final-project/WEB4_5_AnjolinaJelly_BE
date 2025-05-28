@@ -14,6 +14,7 @@ import com.jelly.zzirit.global.dto.BaseResponse;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.dto.Empty;
 import com.jelly.zzirit.global.exception.custom.InvalidCustomException;
+import com.jelly.zzirit.global.exception.custom.InvalidTimeDealException;
 
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -24,6 +25,12 @@ public class GlobalExceptionHandler {
 	public BaseResponse<Empty> handleGlobalException(InvalidCustomException e, HttpServletResponse response) {
 		response.setStatus(e.getStatus().getHttpStatusCode());
 		return BaseResponse.error(e.getStatus());
+	}
+
+	@ExceptionHandler(InvalidTimeDealException.class)
+	public BaseResponse<String> handleTimeDealException(InvalidCustomException e, HttpServletResponse response) {
+		response.setStatus(e.getStatus().getHttpStatusCode());
+		return BaseResponse.error(e.getStatus(), e.getMessage());
 	}
 
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
