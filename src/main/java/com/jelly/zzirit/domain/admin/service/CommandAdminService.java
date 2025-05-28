@@ -1,5 +1,8 @@
 package com.jelly.zzirit.domain.admin.service;
 
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.jelly.zzirit.domain.admin.dto.request.ItemCreateRequest;
 import com.jelly.zzirit.domain.admin.dto.request.ItemUpdateRequest;
 import com.jelly.zzirit.domain.item.entity.Item;
@@ -10,11 +13,10 @@ import com.jelly.zzirit.domain.item.repository.TypeBrandRepository;
 import com.jelly.zzirit.domain.item.repository.stock.ItemStockRepository;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.exception.custom.InvalidItemException;
-import jakarta.transaction.Transactional;
+
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
@@ -44,27 +46,12 @@ public class CommandAdminService {
 	}
 
 	public void updateItem(@NotNull Long itemId, ItemUpdateRequest request) {
-		Item item = itemRepository.findById(itemId)
-			.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND));
-
-		ItemStock itemStock = itemStockRepository.findByItemId(itemId)
+		Item item = itemRepository.findByIdPessimisticLock(itemId);
+		ItemStock itemStock = itemStockRepository.findByItemIdPessimisticLock(itemId)
 			.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_STOCK_NOT_FOUND));
 
-		if (request.price() != null) {
-			item.changePrice(request.price());
-		}
-
-		if (request.stockQuantity() != null) {
-			itemStock.changeQuantity(request.stockQuantity());
-		}
-
-		String oldImageUrl = item.getImageUrl();
-		if (request.imageUrl() != null) {
-			if (oldImageUrl != null && !oldImageUrl.equals(request.imageUrl())) {
-				commandS3Service.delete(oldImageUrl);
-			}
-			item.setImageUrl(request.imageUrl());
-		}
+		item.update(request.price(), request.imageUrl());
+		itemStock.changeQuantity(request.stockQuantity());
 	}
 
 	public void deleteItem(@NotNull Long itemId) {

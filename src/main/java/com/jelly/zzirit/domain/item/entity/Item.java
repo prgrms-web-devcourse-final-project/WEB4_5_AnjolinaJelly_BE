@@ -48,28 +48,21 @@ public class Item extends BaseTime {
 	private TypeBrand typeBrand;
 
 	// update함수는 entity 수정 pr 머지 이후에 수정하는 게 좋을 것 같아요!
-	public Empty update(ItemCreateRequest request, TypeBrand typeBrand) {
+	public void update(ItemCreateRequest request, TypeBrand typeBrand) {
 		this.name = request.name();
 		this.price = request.price(); // todo: bigdecimal로 변경 필요
 		this.typeBrand = typeBrand;
-
-		return Empty.getInstance();
 	}
 
-	public Empty changePrice(BigDecimal newPrice) {
-		if (newPrice == null || newPrice.compareTo(BigDecimal.ZERO) < 0) {
-			throw new InvalidItemException(BaseResponseStatus.INVALID_PRICE);
-		}
+	public void update(BigDecimal newPrice, String imageUrl) {
 		this.price = newPrice;
-
-		return Empty.getInstance();
+		this.imageUrl = imageUrl;
 	}
 
 	// todo: itemStatus 업데이트 로직 추가해야 함
 	// 임시 테스트 용
-	public Empty changeItemStatus(ItemStatus status) {
+	public void changeItemStatus(ItemStatus status) {
 		this.itemStatus = status;
-		return Empty.getInstance();
 	}
 
 	public boolean validateTimeDeal() {

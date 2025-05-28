@@ -1,26 +1,27 @@
 package com.jelly.zzirit.domain.admin.service;
 
-import com.jelly.zzirit.domain.admin.dto.request.ItemCreateRequest;
-import com.jelly.zzirit.domain.admin.dto.request.ItemUpdateRequest;
-import com.jelly.zzirit.domain.item.entity.Item;
-import com.jelly.zzirit.domain.item.entity.TypeBrand;
-import com.jelly.zzirit.domain.item.entity.stock.ItemStock;
-import com.jelly.zzirit.domain.item.repository.ItemRepository;
-import com.jelly.zzirit.domain.item.repository.stock.ItemStockRepository;
-import com.jelly.zzirit.domain.item.repository.TypeBrandRepository;
-import com.jelly.zzirit.global.dto.BaseResponseStatus;
-import com.jelly.zzirit.global.exception.custom.InvalidItemException;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+import java.math.BigDecimal;
+import java.util.Optional;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.math.BigDecimal;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import com.jelly.zzirit.domain.admin.dto.request.ItemCreateRequest;
+import com.jelly.zzirit.domain.admin.dto.request.ItemUpdateRequest;
+import com.jelly.zzirit.domain.item.entity.Item;
+import com.jelly.zzirit.domain.item.entity.TypeBrand;
+import com.jelly.zzirit.domain.item.entity.stock.ItemStock;
+import com.jelly.zzirit.domain.item.repository.ItemRepository;
+import com.jelly.zzirit.domain.item.repository.TypeBrandRepository;
+import com.jelly.zzirit.domain.item.repository.stock.ItemStockRepository;
+import com.jelly.zzirit.global.dto.BaseResponseStatus;
+import com.jelly.zzirit.global.exception.custom.InvalidItemException;
 
 @ExtendWith(MockitoExtension.class)
 public class CommandAdminServiceTest {
@@ -146,7 +147,7 @@ public class CommandAdminServiceTest {
         commandAdminItemService.updateItem(itemId, request);
 
         // then
-        verify(item).changePrice(new BigDecimal("20000")); // 가격 변경 확인
+        verify(item).update(new BigDecimal("20000"), request.imageUrl()); // 가격 변경 확인
         verify(itemStock).changeQuantity(50);              // 수량 변경 확인         // 반환 값 확인
     }
 
