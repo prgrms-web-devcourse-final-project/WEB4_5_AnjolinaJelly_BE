@@ -115,7 +115,10 @@ public enum BaseResponseStatus {
 	TIME_DEAL_START_TIME_PAST(false, 70002, "타임딜 시작 시간은 현재보다 이전일 수 없습니다.", HttpStatus.BAD_REQUEST),
 
 	// 레디스 관련
-	REDIS_ACCESS_ERROR(false, 80000, "내부 시스템 오류(Redis 처리 실패)", HttpStatus.INTERNAL_SERVER_ERROR);
+	REDIS_ACCESS_ERROR(false, 80000, "내부 시스템 오류(Redis 처리 실패)", HttpStatus.INTERNAL_SERVER_ERROR),
+
+	// 락 관련
+	LOCK_ACQUISITION_FAILED(false, 90000, "다른 사용자가 작업 중입니다. 잠시 후 다시 시도해주세요.", HttpStatus.CONFLICT);
 
 	private final boolean isSuccess;
 	private final int code;

@@ -10,10 +10,14 @@ import com.jelly.zzirit.domain.item.repository.TypeBrandRepository;
 import com.jelly.zzirit.domain.item.repository.stock.ItemStockRepository;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.exception.custom.InvalidItemException;
+import com.jelly.zzirit.global.exception.custom.LockAcquisitionFailureException;
+import jakarta.persistence.LockTimeoutException;
+import jakarta.persistence.PessimisticLockException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -44,14 +48,18 @@ public class CommandAdminService {
 	}
 
 	public void updateItem(@NotNull Long itemId, ItemUpdateRequest request) {
-		Item item = itemRepository.findById(itemId)
-			.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND));
+		try {
+			Item item = itemRepository.findByIdWithPessimisticLock(itemId)
+				.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND));
 
-		ItemStock itemStock = itemStockRepository.findByItemId(itemId)
-			.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_STOCK_NOT_FOUND));
+			ItemStock itemStock = itemStockRepository.findByItemWithPessimisticLock(item)
+				.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_STOCK_NOT_FOUND));
 
-		item.updatePriceAndImageUrl(request.price(), request.imageUrl());
-		itemStock.changeQuantity(request.stockQuantity());
+			item.updatePriceAndImageUrl(request.price(), request.imageUrl());
+			itemStock.changeQuantity(request.stockQuantity());
+		} catch (PessimisticLockException | LockTimeoutException | PessimisticLockingFailureException ex) {
+			throw new LockAcquisitionFailureException(BaseResponseStatus.LOCK_ACQUISITION_FAILED);
+		}
 	}
 
 	public void deleteItem(@NotNull Long itemId) {
