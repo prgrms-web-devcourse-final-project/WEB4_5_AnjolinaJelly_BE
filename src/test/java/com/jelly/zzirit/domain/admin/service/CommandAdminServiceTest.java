@@ -146,7 +146,7 @@ public class CommandAdminServiceTest {
         commandAdminItemService.updateItem(itemId, request);
 
         // then
-        verify(item).changePrice(new BigDecimal("20000")); // 가격 변경 확인
+        verify(item).updatePriceAndImageUrl(new BigDecimal("20000"), ""); // 가격 변경 확인
         verify(itemStock).changeQuantity(50);              // 수량 변경 확인         // 반환 값 확인
     }
 

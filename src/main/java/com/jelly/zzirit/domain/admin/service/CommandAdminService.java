@@ -50,21 +50,8 @@ public class CommandAdminService {
 		ItemStock itemStock = itemStockRepository.findByItemId(itemId)
 			.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_STOCK_NOT_FOUND));
 
-		if (request.price() != null) {
-			item.changePrice(request.price());
-		}
-
-		if (request.stockQuantity() != null) {
-			itemStock.changeQuantity(request.stockQuantity());
-		}
-
-		String oldImageUrl = item.getImageUrl();
-		if (request.imageUrl() != null) {
-			if (oldImageUrl != null && !oldImageUrl.equals(request.imageUrl())) {
-				commandS3Service.delete(oldImageUrl);
-			}
-			item.setImageUrl(request.imageUrl());
-		}
+		item.updatePriceAndImageUrl(request.price(), request.imageUrl());
+		itemStock.changeQuantity(request.stockQuantity());
 	}
 
 	public void deleteItem(@NotNull Long itemId) {
