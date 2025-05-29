@@ -21,8 +21,6 @@ public interface ItemStockRepository extends JpaRepository<ItemStock, Long>, Ite
 
 	Optional<ItemStock> findByItem(Item item);
 
-	List<ItemStock> findAllByItem(Long itemId);
-
 	Optional<ItemStock> findByTimeDealItem(TimeDealItem tdi);
 
 	@Query("SELECT s FROM ItemStock s WHERE s.timeDealItem.id = :timeDealItemId")
