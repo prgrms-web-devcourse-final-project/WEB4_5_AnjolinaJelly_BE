@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.jelly.zzirit.domain.item.dto.request.ItemFilterRequest;
 import com.jelly.zzirit.domain.item.dto.response.CurrentTimeDealFetchResponse;
+import com.jelly.zzirit.domain.item.dto.response.ItemFetchQueryResponse;
 import com.jelly.zzirit.domain.item.dto.response.ItemFetchResponse;
 import com.jelly.zzirit.domain.item.dto.response.SimpleItemFetchResponse;
 import com.jelly.zzirit.domain.item.service.CommandTimeDealService;
@@ -32,7 +33,7 @@ public class ItemController {
 
 	@GetMapping("/search")
 	@Operation(summary = "상품 조회 및 검색", description = "상품을 조회하고 검색합니다.")
-	public BaseResponse<PageResponse<SimpleItemFetchResponse>> search(
+	public BaseResponse<PageResponse<ItemFetchQueryResponse>> search(
 		@RequestParam(name = "types", required = false) String types,
 		@RequestParam(name = "brands", required = false) String brands,
 		@RequestParam(name = "keyword", required = false) String keyword,

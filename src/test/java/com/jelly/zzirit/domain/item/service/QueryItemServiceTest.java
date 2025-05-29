@@ -22,10 +22,12 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
 import com.jelly.zzirit.domain.item.dto.request.ItemFilterRequest;
+import com.jelly.zzirit.domain.item.dto.response.ItemFetchQueryResponse;
 import com.jelly.zzirit.domain.item.dto.response.ItemFetchResponse;
 import com.jelly.zzirit.domain.item.dto.response.SimpleItemFetchResponse;
 import com.jelly.zzirit.domain.item.entity.Brand;
 import com.jelly.zzirit.domain.item.entity.Item;
+import com.jelly.zzirit.domain.item.entity.ItemStatus;
 import com.jelly.zzirit.domain.item.entity.Type;
 import com.jelly.zzirit.domain.item.entity.stock.ItemStock;
 import com.jelly.zzirit.domain.item.repository.ItemQueryRepository;
@@ -59,12 +61,24 @@ public class QueryItemServiceTest {
 			Type 스마트폰 = 스마트폰();
 			Brand 삼성 = 삼성();
 			Brand 애플 = 브랜드_생성("애플");
+			Item 상품 = 삼성_노트북(타입_브랜드_생성(노트북, 삼성));
 
-			List<Item> 상품들 = List.of(
-				삼성_노트북(타입_브랜드_생성(노트북, 삼성))
+			List<ItemFetchQueryResponse> 상품들 = List.of(
+				new ItemFetchQueryResponse(
+					상품.getId(),
+					상품.getName(),
+					상품.getTypeBrand().getType().getName(),
+					상품.getTypeBrand().getBrand().getName(),
+					상품.getImageUrl(),
+					상품.getPrice(),
+					null,
+					ItemStatus.NONE,
+					null,
+					null
+				)
 			);
 			PageRequest pageable = PageRequest.of(0, Integer.MAX_VALUE);
-			PageImpl<Item> mockPage = new PageImpl<>(상품들, pageable, 상품들.size());
+			PageImpl<ItemFetchQueryResponse> mockPage = new PageImpl<>(상품들, pageable, 상품들.size());
 			given(itemQueryRepository.findItems(
 				ItemFilterRequest.of(
 					"노트북",
@@ -76,7 +90,7 @@ public class QueryItemServiceTest {
 			)).willReturn(mockPage);
 
 			// when
-			PageResponse<SimpleItemFetchResponse> 응답 = queryItemService.search(
+			PageResponse<ItemFetchQueryResponse> 응답 = queryItemService.search(
 				ItemFilterRequest.of(
 					"노트북",
 					"",
@@ -98,12 +112,24 @@ public class QueryItemServiceTest {
 			Brand 삼성 = 삼성();
 			Brand 애플 = 브랜드_생성("애플");
 
-			List<Item> 상품들 = List.of(
-				삼성_노트북(타입_브랜드_생성(노트북, 삼성)),
-				상품_생성_이름("애플 휴대폰", 타입_브랜드_생성(스마트폰, 애플))
+			Item 상품 = 삼성_노트북(타입_브랜드_생성(노트북, 삼성));
+
+			List<ItemFetchQueryResponse> 상품들 = List.of(
+				new ItemFetchQueryResponse(
+					상품.getId(),
+					상품.getName(),
+					상품.getTypeBrand().getType().getName(),
+					상품.getTypeBrand().getBrand().getName(),
+					상품.getImageUrl(),
+					상품.getPrice(),
+					null,
+					ItemStatus.NONE,
+					null,
+					null
+				)
 			);
 			PageRequest pageable = PageRequest.of(0, Integer.MAX_VALUE);
-			PageImpl<Item> mockPage = new PageImpl<>(상품들, pageable, 상품들.size());
+			PageImpl<ItemFetchQueryResponse> mockPage = new PageImpl<>(상품들, pageable, 상품들.size());
 			given(itemQueryRepository.findItems(
 				ItemFilterRequest.of(
 					"노트북,스마트폰",
@@ -115,7 +141,7 @@ public class QueryItemServiceTest {
 			)).willReturn(mockPage);
 
 			// when
-			PageResponse<SimpleItemFetchResponse> 응답 = queryItemService.search(
+			PageResponse<ItemFetchQueryResponse> 응답 = queryItemService.search(
 				ItemFilterRequest.of(
 					"노트북,스마트폰",
 					"삼성,애플",

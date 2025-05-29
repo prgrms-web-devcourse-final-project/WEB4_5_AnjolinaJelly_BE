@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.jelly.zzirit.domain.item.dto.request.ItemFilterRequest;
+import com.jelly.zzirit.domain.item.dto.response.ItemFetchQueryResponse;
 import com.jelly.zzirit.domain.item.dto.response.ItemFetchResponse;
 import com.jelly.zzirit.domain.item.dto.response.SimpleItemFetchResponse;
 import com.jelly.zzirit.domain.item.entity.Item;
@@ -45,13 +46,9 @@ public class QueryItemService {
 		return ItemFetchResponse.from(item, itemStock.getQuantity());
 	}
 
-	public PageResponse<SimpleItemFetchResponse> search(ItemFilterRequest request, String sort, Pageable pageable) {
+	public PageResponse<ItemFetchQueryResponse> search(ItemFilterRequest request, String sort, Pageable pageable) {
 		return PageResponse.from(
-			itemQueryRepository.findItems(request, sort, pageable).map(item ->
-				timeDealItemRepository.findActiveTimeDealItemByItemId(item.getId())
-					.map(SimpleItemFetchResponse::from)
-					.orElseGet(() -> SimpleItemFetchResponse.from(item))
-			)
+			itemQueryRepository.findItems(request, sort, pageable)
 		);
 	}
 }
