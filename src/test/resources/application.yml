@@ -56,6 +56,8 @@ custom:
     domain: localhost
     back-url: http://localhost:8080
     front-url: http://localhost:3000
+  scheduler:
+    activated: false
 
 email:
   fake-sending: true

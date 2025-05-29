@@ -7,6 +7,7 @@ import static org.mockito.BDDMockito.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.jelly.zzirit.domain.item.queue.TimeDealTaskProducer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -32,6 +33,10 @@ public class CommandTimeDealServiceTest {
 	private TimeDealItemRepository timeDealItemRepository;
 	@Mock
 	private ItemStockRepository itemStockRepository;
+
+	@Mock
+	private TimeDealTaskProducer timeDealTaskProducer;
+
 	@InjectMocks
 	private CommandTimeDealService commandTimeDealService;
 
@@ -104,6 +109,7 @@ public class CommandTimeDealServiceTest {
 		// Mock: timeDealRepository save returns the saved time deal
 		given(timeDealRepository.save(any(TimeDeal.class)))
 			.willAnswer(invocation -> invocation.getArgument(0));
+		doNothing().when(timeDealTaskProducer).produce(any(TimeDeal.class));
 
 		TimeDealCreateRequest request = new TimeDealCreateRequest(
 			"정상 타임딜",
