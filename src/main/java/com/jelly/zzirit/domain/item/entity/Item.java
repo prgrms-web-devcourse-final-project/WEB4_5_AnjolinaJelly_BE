@@ -61,15 +61,6 @@ public class Item extends BaseTime {
 		return Empty.getInstance();
 	}
 
-	public Empty changePrice(BigDecimal newPrice) {
-		if (newPrice == null || newPrice.compareTo(BigDecimal.ZERO) < 0) {
-			throw new InvalidItemException(BaseResponseStatus.INVALID_PRICE);
-		}
-		this.price = newPrice;
-
-		return Empty.getInstance();
-	}
-
 	// todo: itemStatus 업데이트 로직 추가해야 함
 	// 임시 테스트 용
 	public Empty changeItemStatus(ItemStatus status) {

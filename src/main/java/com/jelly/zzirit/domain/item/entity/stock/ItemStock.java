@@ -47,6 +47,13 @@ public class ItemStock extends BaseEntity {
 	@Version
 	private Integer version;
 
+	public ItemStock(Item item, TimeDealItem timeDealItem, int quantity, int soldQuantity) {
+		this.item = item;
+		this.timeDealItem = timeDealItem;
+		this.quantity = quantity;
+		this.soldQuantity = soldQuantity;
+	}
+
 	public Empty update(ItemCreateRequest request, Item item) {
 		this.item = item;
 
