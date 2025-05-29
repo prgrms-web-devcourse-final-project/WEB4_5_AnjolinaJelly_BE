@@ -75,4 +75,10 @@ public class Item extends BaseTime {
 	public boolean validateTimeDeal() {
 		return this.getItemStatus().equals(ItemStatus.TIME_DEAL);
 	}
+
+	public void updatePriceAndImageUrl(BigDecimal price, String imageUrl) {
+		this.price = price;
+		this.imageUrl = imageUrl;
+	}
+
 }
