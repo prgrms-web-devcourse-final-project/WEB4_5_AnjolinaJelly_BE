@@ -62,3 +62,7 @@ management:
   endpoint:
     health:
       show-details: always
+
+custom:
+  scheduler:
+    activated: false
