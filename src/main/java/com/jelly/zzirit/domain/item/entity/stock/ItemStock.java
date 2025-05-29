@@ -8,13 +8,7 @@ import com.jelly.zzirit.global.dto.Empty;
 import com.jelly.zzirit.global.entity.BaseEntity;
 import com.jelly.zzirit.global.exception.custom.InvalidItemException;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -42,6 +36,16 @@ public class ItemStock extends BaseEntity {
 
 	@Column(name = "sold_quantity")
 	private int soldQuantity; // 결제 완료되어 확정된 수량
+
+	@Version
+	private Long version;
+
+	public ItemStock(Item item, TimeDealItem timeDealItem, int quantity, int soldQuantity) {
+		this.item = item;
+		this.timeDealItem = timeDealItem;
+		this.quantity = quantity;
+		this.soldQuantity = soldQuantity;
+	}
 
 	public Empty update(ItemCreateRequest request, Item item) {
 		this.item = item;

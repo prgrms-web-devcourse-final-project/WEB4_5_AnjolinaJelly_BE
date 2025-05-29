@@ -8,13 +8,7 @@ import com.jelly.zzirit.global.dto.Empty;
 import com.jelly.zzirit.global.entity.BaseTime;
 import com.jelly.zzirit.global.exception.custom.InvalidItemException;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -46,6 +40,9 @@ public class Item extends BaseTime {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "type_brand_id", nullable = false)
 	private TypeBrand typeBrand;
+
+	@Version
+	private Long version;
 
 	// update함수는 entity 수정 pr 머지 이후에 수정하는 게 좋을 것 같아요!
 	public Empty update(ItemCreateRequest request, TypeBrand typeBrand) {
