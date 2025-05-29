@@ -40,13 +40,13 @@ jobs:
             echo "🧹 이전 빌드 결과 정리"
             ./gradlew clean || rm -rf build/
 
-#            echo "⚙️ Nginx, Docker 컨테이너 실행"
-#            cd ~
-#            sudo systemctl stop nginx || true
-#            docker-compose -f docker-compose.nginx.yaml up -d
-#
-#            cd ~/WEB4_5_AnjolinaJelly_BE
-#            docker-compose -f docker-compose.dev.yaml up -d
+            # echo "⚙️ Nginx, Docker 컨테이너 실행"
+            # cd ~
+            # sudo systemctl stop nginx || true
+            # docker-compose -f docker-compose.nginx.yaml up -d
+
+            # cd ~/WEB4_5_AnjolinaJelly_BE
+            # docker-compose -f docker-compose.dev.yaml up -d
 
             echo "🛠️ 애플리케이션 빌드 (테스트 제외)"
             ./gradlew build -x test
