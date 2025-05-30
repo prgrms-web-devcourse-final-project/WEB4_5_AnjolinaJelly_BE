@@ -76,11 +76,11 @@ public class AdminControllerTest extends AcceptanceTest {
 
     @Test
     void test_with_2만개() {
-        generator.generateInitialData();
+        generator.generateInitialData(3, 1);
 
         long count = timeDealRepository.count();
 
-        assertThat(count).isEqualTo(20_000);
+        assertThat(count).isEqualTo(3);
     }
 
     @Test

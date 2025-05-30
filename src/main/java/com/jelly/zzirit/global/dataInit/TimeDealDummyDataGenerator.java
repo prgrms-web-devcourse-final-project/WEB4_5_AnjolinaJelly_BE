@@ -34,28 +34,28 @@ public class TimeDealDummyDataGenerator{
     private static final ZoneId KST = ZoneId.of("Asia/Seoul");
 
     @Transactional
-    public void generateInitialData() {
+    public void generateInitialData(int count, int interval) {
         long totalCount = timeDealRepository.count();
 
-        if (totalCount < 20000) {
-            int toCreate = (int) (20000 - totalCount);
+        if (totalCount < count) {
+            int toCreate = (int) (count - totalCount);
             log.info("📦 타임딜 부족: {}개 → {}개 추가 생성", totalCount, toCreate);
-            generateDeals(toCreate);
+            generateDeals(toCreate, interval);
         } 
     }
 
-    private void generateDeals(int count) {
+    private void generateDeals(int count, int interval) {
         List<TimeDeal> timeDeals = new ArrayList<>();
         List<TimeDealItem> timeDealItems = new ArrayList<>();
         List<ItemStock> itemStocks = new ArrayList<>();
 
         LocalDateTime latestEndTime = timeDealRepository.findMaxEndTime()
                 .orElse(LocalDateTime.now());
-        ZonedDateTime baseEndTime = latestEndTime.atZone(KST).plusMinutes(10);
+        ZonedDateTime baseEndTime = latestEndTime.atZone(KST).plusMinutes(interval);
 
         for (int i = 0; i < count; i++) {
-            ZonedDateTime dealStart = baseEndTime.plusMinutes(20L * i);
-            ZonedDateTime dealEnd = dealStart.plusMinutes(10);
+            ZonedDateTime dealStart = baseEndTime.plusMinutes(2L * interval * i);
+            ZonedDateTime dealEnd = dealStart.plusMinutes(interval);
 
             TimeDeal timeDeal = TimeDeal.builder()
                     .name("타임딜 " + (i + 1))
