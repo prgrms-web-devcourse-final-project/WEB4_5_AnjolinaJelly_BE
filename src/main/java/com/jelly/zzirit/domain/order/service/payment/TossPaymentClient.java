@@ -1,28 +1,21 @@
 package com.jelly.zzirit.domain.order.service.payment;
 
-import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.Map;
-import java.util.UUID;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jelly.zzirit.domain.order.dto.response.PaymentResponse;
 import com.jelly.zzirit.domain.order.entity.Order;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
+
+import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -39,14 +32,12 @@ public class TossPaymentClient {
 	public void confirmPayment(String paymentKey, String orderId, String amount) {
 		String url = BASE_URL + "/confirm";
 		HttpHeaders headers = createHeaders();
-
-		String idempotencyKey = UUID.randomUUID().toString();
-		headers.set("Idempotency-Key", idempotencyKey);
+		headers.set("Idempotency-Key", orderId);
 
 		Map<String, Object> body = Map.of(
-			"paymentKey", paymentKey,
-			"orderId", orderId,
-			"amount", amount
+				"paymentKey", paymentKey,
+				"orderId", orderId,
+				"amount", amount
 		);
 
 		try {

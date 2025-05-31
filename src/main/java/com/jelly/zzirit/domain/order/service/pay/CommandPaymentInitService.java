@@ -1,5 +1,8 @@
 package com.jelly.zzirit.domain.order.service.pay;
 
+import com.jelly.zzirit.domain.order.util.CircuitBreakerRecoveryTrigger;
+import com.jelly.zzirit.domain.order.util.CircuitBreakerStatusChecker;
+import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
 import org.springframework.stereotype.Service;
 
 import com.jelly.zzirit.domain.member.entity.Member;
@@ -23,15 +26,28 @@ public class CommandPaymentInitService {
 
 	private final CommandOrderSequence orderSequenceGenerator;
 	private final CommandTempOrderService tempOrderService;
+	private final CircuitBreakerStatusChecker breakerChecker;
+	private final CircuitBreakerRecoveryTrigger circuitBreakerRecoveryTrigger;
 	private final MemberRepository memberRepository;
 
 	public PaymentInitResponse createOrderAndReturnInit(PaymentRequest dto) {
-		Long memberId = AuthMember.getMemberId();
-		Member member = memberRepository.findById(memberId)
+
+		if (breakerChecker.isCircuitOpen("tossPaymentConfirmBreaker")) {
+			log.warn("CircuitBreaker OPEN 상태 → 결제 시도 차단");
+			throw new InvalidOrderException(BaseResponseStatus.CIRCUIT_BREAKER_OPEN);
+		}
+
+		if (breakerChecker.isCircuitHalfOpen("tossPaymentConfirmBreaker")) {
+			log.info("CircuitBreaker HALF_OPEN 상태 → 복구 시도 실행");
+			circuitBreakerRecoveryTrigger.attemptRecovery();
+		}
+
+		Member member = memberRepository.findById(AuthMember.getMemberId())
 			.orElseThrow(() -> new InvalidUserException(BaseResponseStatus.USER_NOT_FOUND));
 
 		Long todaySequence = orderSequenceGenerator.getTodaySequence();
 		String orderNumber = Order.generateOrderNumber(todaySequence);
+
 		Order order = tempOrderService.createTempOrder(dto, member, orderNumber);
 
 		return new PaymentInitResponse(
