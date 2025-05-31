@@ -93,6 +93,20 @@ rabbitmq:
     key: test.order.confirm.routing-key
     dlq-key: test.order.confirm.dlq-routing-key
 
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        slowCallDurationThreshold: 2500ms
+        slowCallRateThreshold: 70
+        failureRateThreshold: 50
+        slidingWindowSize: 10
+        permittedNumberOfCallsInHalfOpenState: 1
+        waitDurationInOpenState: 60s
+    instances:
+      tossPaymentBreaker:
+        baseConfig: default
+
 logging:
   level:
     org:
