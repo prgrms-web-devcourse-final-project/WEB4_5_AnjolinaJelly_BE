@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import com.jelly.zzirit.domain.item.queue.TimeDealTaskProducer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +21,7 @@ import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.domain.item.entity.stock.ItemStock;
 import com.jelly.zzirit.domain.item.entity.timedeal.TimeDeal;
 import com.jelly.zzirit.domain.item.entity.timedeal.TimeDealItem;
+import com.jelly.zzirit.domain.item.queue.TimeDealTaskProducer;
 import com.jelly.zzirit.domain.item.repository.ItemRepository;
 import com.jelly.zzirit.domain.item.repository.TimeDealItemRepository;
 import com.jelly.zzirit.domain.item.repository.TimeDealRepository;
@@ -54,11 +54,10 @@ public class CommandTimeDealService {
 		TimeDeal timeDeal = timeDealRepository.save(TimeDeal.from(request));
 		request.items().forEach(item -> createTimeDealItemAndStock(timeDeal, item));
 
-		// 딜레이 큐에 상태 변경 작업 추가
+		// producer 호출 (오늘 처리할 Task만 등록)
 		producer.produce(timeDeal);
 
 		List<TimeDealCreateItem> responseItems = mapToResponseItems(timeDeal);
-
 		return TimeDealCreateResponse.from(timeDeal, responseItems);
 	}
 

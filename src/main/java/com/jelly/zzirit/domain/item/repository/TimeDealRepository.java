@@ -1,16 +1,18 @@
 package com.jelly.zzirit.domain.item.repository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.jelly.zzirit.domain.item.entity.timedeal.TimeDeal;
-import org.springframework.transaction.annotation.Transactional;
+
+import io.lettuce.core.dynamic.annotation.Param;
 
 public interface TimeDealRepository extends JpaRepository<TimeDeal, Long> {
 
@@ -37,9 +39,17 @@ public interface TimeDealRepository extends JpaRepository<TimeDeal, Long> {
 	@Query("DELETE FROM TimeDeal t WHERE t.id IN :ids")
 	void deleteByIds(@Param("ids") List<Long> ids);
 
-	@Query("SELECT t FROM TimeDeal t " +
-		   "WHERE t.status IN :statuses " +
-		   "ORDER BY t.startTime")
-	List<TimeDeal> findInitTimeDeals(List<TimeDeal.TimeDealStatus> statuses);
+	@Query("SELECT t FROM TimeDeal t WHERE DATE(t.startTime) = :today OR DATE(t.endTime) = :today")
+	List<TimeDeal> findByStartOrEndDate(@Param("today") LocalDate today);
+
+	@Query("""
+		    SELECT t FROM TimeDeal t
+		    WHERE (t.startTime BETWEEN :now AND :endOfDay) 
+		       OR (t.endTime BETWEEN :now AND :endOfDay)
+		""")
+	List<TimeDeal> findByStartOrEndBetween(@Param("now") LocalDateTime now, @Param("endOfDay") LocalDateTime endOfDay);
+
+	@Query("SELECT t FROM TimeDeal t WHERE DATE(t.startTime) = :tomorrow OR DATE(t.endTime) = :tomorrow")
+	List<TimeDeal> findByStartOrEndDateTomorrow(@Param("tomorrow") LocalDate tomorrow);
 
 }
