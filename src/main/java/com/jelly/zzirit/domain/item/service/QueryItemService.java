@@ -32,16 +32,18 @@ public class QueryItemService {
 
 	public ItemFetchResponse getById(Long itemId) {
 		Item item = itemRepository.getById(itemId);
-		ItemStock itemStock = itemStockRepository.findByItemId(item.getId())
-			.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND));
 
 		if(item.validateTimeDeal()) {
-			TimeDealItem timeDealItem = timeDealItemRepository.findActiveTimeDealItemByItemId(item.getId())
+			TimeDealItem timeDealItem = timeDealItemRepository.findByItemId(item.getId())
+				.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND));
+			ItemStock itemStock = itemStockRepository.findByTimeDealItem(timeDealItem)
 				.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND));
 
 			return ItemFetchResponse.from(timeDealItem, itemStock.getQuantity());
 		}
 
+		ItemStock itemStock = itemStockRepository.findByItemId(item.getId())
+			.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND));
 		return ItemFetchResponse.from(item, itemStock.getQuantity());
 	}
 
