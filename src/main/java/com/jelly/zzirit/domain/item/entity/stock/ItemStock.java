@@ -15,6 +15,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Version;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -42,6 +43,16 @@ public class ItemStock extends BaseEntity {
 
 	@Column(name = "sold_quantity")
 	private int soldQuantity; // 결제 완료되어 확정된 수량
+
+	@Version
+	private Integer version;
+
+	public ItemStock(Item item, TimeDealItem timeDealItem, int quantity, int soldQuantity) {
+		this.item = item;
+		this.timeDealItem = timeDealItem;
+		this.quantity = quantity;
+		this.soldQuantity = soldQuantity;
+	}
 
 	public Empty update(ItemCreateRequest request, Item item) {
 		this.item = item;
