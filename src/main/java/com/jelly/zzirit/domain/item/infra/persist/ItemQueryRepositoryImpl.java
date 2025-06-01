@@ -66,7 +66,6 @@ public class ItemQueryRepositoryImpl implements ItemQueryRepository {
 			.leftJoin(timeDealItem)
 				.on(timeDealItem.item.eq(item)
 					.and(isOngoingTimeDeal()))
-			.leftJoin(timeDealItem.timeDeal, timeDeal).on(isOngoingTimeDeal())
 			.join(item.typeBrand, typeBrand)
 			.join(typeBrand.type, type)
 			.join(typeBrand.brand, brand)
@@ -83,9 +82,8 @@ public class ItemQueryRepositoryImpl implements ItemQueryRepository {
 		JPAQuery<Long> total = queryFactory.selectDistinct(item.count())
 			.from(item)
 			.leftJoin(timeDealItem)
-			.on(timeDealItem.item.eq(item)
-				.and(isOngoingTimeDeal()))
-			.leftJoin(timeDealItem.timeDeal, timeDeal).on(isOngoingTimeDeal())
+				.on(timeDealItem.item.eq(item)
+					.and(isOngoingTimeDeal()))
 			.join(item.typeBrand, typeBrand)
 			.join(typeBrand.type, type)
 			.join(typeBrand.brand, brand)
@@ -96,14 +94,14 @@ public class ItemQueryRepositoryImpl implements ItemQueryRepository {
 			);
 
 		return PageableExecutionUtils.getPage(
-				items,
-				pageable,
-				total::fetchOne
-			);
+			items,
+			pageable,
+			total::fetchOne
+		);
 	}
 
 	private BooleanExpression isOngoingTimeDeal() {
-		return timeDeal.status.eq(ONGOING);
+		return timeDealItem.timeDeal.status.eq(ONGOING);
 	}
 
 	@Override
