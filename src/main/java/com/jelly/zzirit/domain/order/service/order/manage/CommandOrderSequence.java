@@ -20,14 +20,14 @@ public class CommandOrderSequence {
 		String key = getTodayKey();
 
 		Long seq = redisTemplate.opsForValue().increment(key);
-		if (seq != null && seq == 1L) {
+		if (seq == 1L) {
 			redisTemplate.expire(key, Duration.ofDays(1));
 		}
 		return seq;
 	}
 
 	private String getTodayKey() {
-		String today = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE); // yyyyMMdd
+		String today = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE);
 		return ORDER_SEQ_KEY_PREFIX + today;
 	}
 }

@@ -18,17 +18,19 @@ public class OrderConfirmMessage {
 	private String orderNumber;
 	private String paymentKey;
 	private String amount;
+	private String method;
 
 	private List<ItemPayload> items;
 
-	public static OrderConfirmMessage from(Order order, String paymentKey, String amount) {
+	public static OrderConfirmMessage from(Order order, String paymentKey, String amount, String method) {
 		return new OrderConfirmMessage(
-			order.getOrderNumber(),
-			paymentKey,
-			amount,
-			order.getOrderItems().stream()
-				.map(item -> new ItemPayload(item.getItem().getId(), item.getQuantity()))
-				.toList()
+				order.getOrderNumber(),
+				paymentKey,
+				amount,
+				method,
+				order.getOrderItems().stream()
+						.map(item -> new ItemPayload(item.getItem().getId(), item.getQuantity()))
+						.toList()
 		);
 	}
 

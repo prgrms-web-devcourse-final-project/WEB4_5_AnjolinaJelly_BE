@@ -39,7 +39,7 @@ class CommandConfirmServiceTest {
 		String paymentMethod = "카드";
 
 		OrderConfirmMessage message = new OrderConfirmMessage(
-			"ORD123", paymentKey, amount, List.of()
+				"ORD123", paymentKey, amount, paymentMethod, List.of()
 		);
 
 		Payment payment = mock(Payment.class);
@@ -50,7 +50,7 @@ class CommandConfirmServiceTest {
 		paymentResponse.setMethod(paymentMethod);
 
 		when(tossPaymentClient.fetchPaymentInfo(paymentKey))
-			.thenReturn(paymentResponse);
+				.thenReturn(paymentResponse);
 
 		// when
 		commandConfirmService.confirm(order, message);
@@ -70,21 +70,21 @@ class CommandConfirmServiceTest {
 		String amount = "15000";
 
 		OrderConfirmMessage message = new OrderConfirmMessage(
-			"ORD123", paymentKey, amount, List.of()
+				"ORD123", paymentKey, amount, null, List.of()
 		);
 
 		Order order = mock(Order.class);
 		PaymentResponse paymentResponse = new PaymentResponse();
 
 		when(tossPaymentClient.fetchPaymentInfo(paymentKey))
-			.thenReturn(paymentResponse);
+				.thenReturn(paymentResponse);
 
 		doThrow(new InvalidOrderException(BaseResponseStatus.ORDER_NOT_FOUND))
-			.when(tossPaymentClient).validate(order, paymentResponse, amount);
+				.when(tossPaymentClient).validate(order, paymentResponse, amount);
 
 		// when & then
 		assertThrows(InvalidOrderException.class, () ->
-			commandConfirmService.confirm(order, message)
+				commandConfirmService.confirm(order, message)
 		);
 
 		verify(tossPaymentClient).fetchPaymentInfo(paymentKey);
