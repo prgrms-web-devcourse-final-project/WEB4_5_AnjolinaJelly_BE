@@ -27,5 +27,4 @@ public class PageResponse<T> {
 			page.isLast()
 		);
 	}
-
 }

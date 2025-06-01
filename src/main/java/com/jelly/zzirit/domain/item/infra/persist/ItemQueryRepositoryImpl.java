@@ -4,6 +4,9 @@ import static com.jelly.zzirit.domain.item.entity.QBrand.*;
 import static com.jelly.zzirit.domain.item.entity.QItem.*;
 import static com.jelly.zzirit.domain.item.entity.QType.*;
 import static com.jelly.zzirit.domain.item.entity.QTypeBrand.*;
+import static com.jelly.zzirit.domain.item.entity.timedeal.QTimeDeal.*;
+import static com.jelly.zzirit.domain.item.entity.timedeal.QTimeDealItem.*;
+import static com.jelly.zzirit.domain.item.entity.timedeal.TimeDeal.TimeDealStatus.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,14 +19,20 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.jelly.zzirit.domain.admin.dto.response.AdminItemFetchResponse;
 import com.jelly.zzirit.domain.item.dto.request.ItemFilterRequest;
+import com.jelly.zzirit.domain.item.dto.response.ItemFetchQueryResponse;
+import com.jelly.zzirit.domain.item.dto.response.QItemFetchQueryResponse;
 import com.jelly.zzirit.domain.item.entity.Item;
 import com.jelly.zzirit.domain.item.entity.QBrand;
 import com.jelly.zzirit.domain.item.entity.QItem;
 import com.jelly.zzirit.domain.item.entity.QType;
 import com.jelly.zzirit.domain.item.entity.QTypeBrand;
 import com.jelly.zzirit.domain.item.entity.stock.QItemStock;
+import com.jelly.zzirit.domain.item.entity.timedeal.QTimeDeal;
+import com.jelly.zzirit.domain.item.entity.timedeal.QTimeDealItem;
+import com.jelly.zzirit.domain.item.entity.timedeal.TimeDeal;
 import com.jelly.zzirit.domain.item.repository.ItemQueryRepository;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -39,11 +48,27 @@ public class ItemQueryRepositoryImpl implements ItemQueryRepository {
 	private final JPAQueryFactory queryFactory;
 
 	@Override
-	public Page<Item> findItems(ItemFilterRequest filter, String sort, Pageable pageable) {
-		List<Item> pagingItems = queryFactory.selectFrom(item)
-			.join(item.typeBrand, typeBrand).fetchJoin()
-			.join(typeBrand.type, type).fetchJoin()
-			.join(typeBrand.brand, brand).fetchJoin()
+	public Page<ItemFetchQueryResponse> findItems(ItemFilterRequest filter, String sort, Pageable pageable) {
+		List<ItemFetchQueryResponse> items = queryFactory.selectDistinct(
+			new QItemFetchQueryResponse(
+				item.id,
+				item.name,
+				type.name,
+				brand.name,
+				item.imageUrl,
+				item.price,
+				timeDealItem.price,
+				item.itemStatus,
+				timeDeal.discountRatio,
+				timeDeal.endTime
+			))
+			.from(item)
+			.leftJoin(timeDealItem)
+				.on(timeDealItem.item.eq(item)
+					.and(isOngoingTimeDeal()))
+			.join(item.typeBrand, typeBrand)
+			.join(typeBrand.type, type)
+			.join(typeBrand.brand, brand)
 			.where(
 				isKeywordContain(filter.keyword()),
 				isTypeContain(filter.types()),
@@ -54,8 +79,11 @@ public class ItemQueryRepositoryImpl implements ItemQueryRepository {
 			.orderBy(sortByPrice(sort))
 			.fetch();
 
-		JPAQuery<Long> total = queryFactory.select(item.count())
+		JPAQuery<Long> total = queryFactory.selectDistinct(item.count())
 			.from(item)
+			.leftJoin(timeDealItem)
+				.on(timeDealItem.item.eq(item)
+					.and(isOngoingTimeDeal()))
 			.join(item.typeBrand, typeBrand)
 			.join(typeBrand.type, type)
 			.join(typeBrand.brand, brand)
@@ -65,12 +93,15 @@ public class ItemQueryRepositoryImpl implements ItemQueryRepository {
 				isBrandContain(filter.brands())
 			);
 
-		return PageableExecutionUtils
-			.getPage(
-				pagingItems,
-				pageable,
-				total::fetchOne
-			);
+		return PageableExecutionUtils.getPage(
+			items,
+			pageable,
+			total::fetchOne
+		);
+	}
+
+	private BooleanExpression isOngoingTimeDeal() {
+		return timeDealItem.timeDeal.status.eq(ONGOING);
 	}
 
 	@Override
