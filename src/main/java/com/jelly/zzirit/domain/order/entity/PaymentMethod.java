@@ -19,7 +19,7 @@ public enum PaymentMethod {
 
 	public static PaymentMethod from(String tossCode) {
 		for (PaymentMethod method : values()) {
-			if (method.code.equalsIgnoreCase(tossCode)) {
+			if (method.code.equalsIgnoreCase(tossCode) || method.display.equalsIgnoreCase(tossCode)) {
 				return method;
 			}
 		}

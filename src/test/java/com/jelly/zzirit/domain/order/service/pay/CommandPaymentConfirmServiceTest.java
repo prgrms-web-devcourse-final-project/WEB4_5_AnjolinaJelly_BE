@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 import java.math.BigDecimal;
 import java.util.Optional;
 
+import com.jelly.zzirit.domain.order.dto.response.PaymentResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -53,12 +54,22 @@ class CommandPaymentConfirmServiceTest {
 		Member member = MemberFixture.일반_회원();
 		Order order = OrderFixture.결제된_주문_생성(member); // orderNumber 자동 생성
 
+		String paymentKey = "pay_abc123";
+		String amount = "15000";
+		String method = "카드";
+
 		when(orderRepository.findByOrderNumber(order.getOrderNumber()))
-			.thenReturn(Optional.of(order));
+				.thenReturn(Optional.of(order));
+
+		PaymentResponse paymentResponse = new PaymentResponse();
+		paymentResponse.setMethod(method);
+
+		when(tossPaymentClient.confirmPayment(paymentKey, order.getOrderNumber(), amount))
+				.thenReturn(paymentResponse);
 
 		// when
 		PaymentConfirmResponse response = service.confirmPayment(
-			paymentKey, order.getOrderNumber(), amount
+				paymentKey, order.getOrderNumber(), amount
 		);
 
 		// then
@@ -70,6 +81,7 @@ class CommandPaymentConfirmServiceTest {
 		assertEquals(paymentKey, response.paymentKey());
 		assertEquals(order.getTotalPrice().intValue(), response.amount());
 	}
+
 
 	@Test
 	void 주문번호가_존재하지_않으면_예외발생() {

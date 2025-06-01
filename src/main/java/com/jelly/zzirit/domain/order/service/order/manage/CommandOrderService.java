@@ -45,18 +45,18 @@ public class CommandOrderService {
 		return expiredOrders.size();
 	}
 
-	@Transactional(isolation = READ_COMMITTED, timeout = 10)
+	@Transactional
 	public void completeOrder(Order order) {
 
-		order.getOrderItems().forEach(item ->
-			commandStockService.decrease(order.getOrderNumber(), item.getItem().getId(), item.getQuantity())
-		);
+		for (OrderItem item : order.getOrderItems()) {
+			commandStockService.decrease(order.getOrderNumber(), item.getItem().getId(), item.getQuantity());
+		}
 
 		order.changeStatus(OrderStatus.PAID);
 
 		List<Item> orderedItems = order.getOrderItems().stream()
-			.map(OrderItem::getItem)
-			.collect(Collectors.toList());
+				.map(OrderItem::getItem)
+				.collect(Collectors.toList());
 
 		cartService.removeOrderedItemsFromCart(order.getMember(), orderedItems);
 	}
