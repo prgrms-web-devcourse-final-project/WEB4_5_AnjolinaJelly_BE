@@ -35,7 +35,7 @@ public class QueryItemService {
 		Item item = itemRepository.getById(itemId);
 
 		if(item.validateTimeDeal()) {
-			TimeDealItem timeDealItem = timeDealItemRepository.findByItemId(item.getId())
+			TimeDealItem timeDealItem = timeDealItemRepository.findActiveByItemId(item.getId())
 				.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND));
 			ItemStock itemStock = itemStockRepository.findByTimeDealItem(timeDealItem)
 				.orElseThrow(() -> new InvalidItemException(BaseResponseStatus.ITEM_NOT_FOUND));
