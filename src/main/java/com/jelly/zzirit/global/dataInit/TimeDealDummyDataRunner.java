@@ -7,7 +7,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Order(2)
-@Profile({"dev", "prod"})
+@Profile("prod")
 @Component
 @RequiredArgsConstructor
 public class TimeDealDummyDataRunner implements CommandLineRunner {
