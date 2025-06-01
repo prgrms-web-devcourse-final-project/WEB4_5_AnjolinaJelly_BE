@@ -21,9 +21,6 @@ public class CommandConfirmService {
 	@Transactional
 	public void confirm(Order order, OrderConfirmMessage message) {
 		PaymentResponse paymentInfo = tossPaymentClient.fetchPaymentInfo(message.getPaymentKey());
-
-		tossPaymentClient.validate(order, paymentInfo, message.getAmount());
-
 		Payment payment = order.getPayment();
 		payment.changeStatus(Payment.PaymentStatus.DONE);
 		payment.changeMethod(paymentInfo.getMethod());
