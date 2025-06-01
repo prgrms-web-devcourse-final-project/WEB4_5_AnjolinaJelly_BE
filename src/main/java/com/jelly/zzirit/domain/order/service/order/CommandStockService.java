@@ -1,5 +1,6 @@
 package com.jelly.zzirit.domain.order.service.order;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -18,6 +19,7 @@ import com.jelly.zzirit.global.redis.lock.DistributedLock;
 
 import lombok.RequiredArgsConstructor;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CommandStockService {
@@ -31,13 +33,13 @@ public class CommandStockService {
 	@Transactional
 	public void decrease(String orderNumber, Long itemId, int quantity) {
 		Item item = findItemOrThrow(itemId);
-		boolean success;
 
+		boolean success;
 		if (item.validateTimeDeal()) {
 			success = timeDealItemRepository.findByItemId(itemId)
-				.filter(tdi -> tdi.getTimeDeal().getStatus() == TimeDeal.TimeDealStatus.ONGOING)
-				.map(tdi -> itemStockRepository.decreaseTimeDealStockIfEnough(tdi.getId(), quantity))
-				.orElseGet(() -> itemStockRepository.decreaseStockIfEnough(itemId, quantity));
+					.filter(tdi -> tdi.getTimeDeal().getStatus() == TimeDeal.TimeDealStatus.ONGOING)
+					.map(tdi -> itemStockRepository.decreaseTimeDealStockIfEnough(tdi.getId(), quantity))
+					.orElseGet(() -> itemStockRepository.decreaseStockIfEnough(itemId, quantity));
 		} else {
 			success = itemStockRepository.decreaseStockIfEnough(itemId, quantity);
 		}

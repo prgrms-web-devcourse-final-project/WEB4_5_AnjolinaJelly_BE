@@ -36,7 +36,7 @@ public class TossPaymentClient {
 
 	private static final String BASE_URL = "https://api.tosspayments.com/v1/payments";
 
-	public void confirmPayment(String paymentKey, String orderId, String amount) {
+	public PaymentResponse confirmPayment(String paymentKey, String orderId, String amount) {
 		String url = BASE_URL + "/confirm";
 		HttpHeaders headers = createHeaders();
 
@@ -44,13 +44,18 @@ public class TossPaymentClient {
 		headers.set("Idempotency-Key", idempotencyKey);
 
 		Map<String, Object> body = Map.of(
-			"paymentKey", paymentKey,
-			"orderId", orderId,
-			"amount", amount
+				"paymentKey", paymentKey,
+				"orderId", orderId,
+				"amount", amount
 		);
 
 		try {
-			restTemplate.postForEntity(url, new HttpEntity<>(body, headers), String.class);
+			ResponseEntity<PaymentResponse> response = restTemplate.postForEntity(
+					url,
+					new HttpEntity<>(body, headers),
+					PaymentResponse.class
+			);
+			return response.getBody();
 		} catch (HttpClientErrorException e) {
 			throw new InvalidOrderException(BaseResponseStatus.TOSS_CONFIRM_FAILED);
 		}
