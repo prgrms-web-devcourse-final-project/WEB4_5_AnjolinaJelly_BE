@@ -1,19 +1,17 @@
 package com.jelly.zzirit.domain.order.service.message;
 
-import org.springframework.amqp.AmqpRejectAndDontRequeueException;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.stereotype.Component;
-
 import com.jelly.zzirit.domain.order.entity.Order;
+import com.jelly.zzirit.domain.order.entity.OrderStatus;
 import com.jelly.zzirit.domain.order.repository.order.OrderRepository;
-import com.jelly.zzirit.domain.order.repository.PaymentRepository;
 import com.jelly.zzirit.domain.order.service.order.manage.CommandConfirmService;
 import com.jelly.zzirit.domain.order.service.pay.CommandRefundService;
 import com.jelly.zzirit.global.dto.BaseResponseStatus;
 import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.AmqpRejectAndDontRequeueException;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
@@ -21,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 public class OrderConfirmConsumer {
 
 	private final OrderRepository orderRepository;
-	private final PaymentRepository paymentRepository;
 	private final CommandRefundService commandRefundService;
 	private final CommandConfirmService commandConfirmService;
 
@@ -30,7 +27,8 @@ public class OrderConfirmConsumer {
 		log.info("주문 확정 메시지 수신: {}", message.getOrderNumber());
 		Order order = findOrderOrThrow(message.getOrderNumber());
 
-		if (paymentRepository.existsByPaymentKey(message.getPaymentKey())) {
+		if (order.getStatus() == OrderStatus.PAID) {
+			log.info("이미 결제 완료된 주문입니다: {}", message.getOrderNumber());
 			return;
 		}
 
