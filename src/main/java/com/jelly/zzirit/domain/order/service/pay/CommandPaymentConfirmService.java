@@ -1,5 +1,6 @@
 package com.jelly.zzirit.domain.order.service.pay;
 
+import com.jelly.zzirit.domain.order.dto.response.PaymentResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,16 +30,30 @@ public class CommandPaymentConfirmService {
 
 	@Transactional
 	public PaymentConfirmResponse confirmPayment(String paymentKey, String orderNumber, String amount) {
-		Order order = orderRepository.findByOrderNumber(orderNumber)
-			.orElseThrow(() -> new InvalidOrderException(BaseResponseStatus.ORDER_NOT_FOUND));
+		System.out.println("[결제확정요청] 시작 - orderNumber=" + orderNumber + ", paymentKey=" + paymentKey + ", amount=" + amount);
 
-		tossPaymentClient.confirmPayment(paymentKey, orderNumber, amount);
+		Order order = orderRepository.findByOrderNumber(orderNumber)
+				.orElseThrow(() -> {
+					System.out.println("[결제확정요청] 주문 조회 실패 - orderNumber=" + orderNumber);
+					return new InvalidOrderException(BaseResponseStatus.ORDER_NOT_FOUND);
+				});
+
+		System.out.println("[결제확정요청] 주문 조회 성공 - memberId=" + order.getMember().getId());
+
+		PaymentResponse paymentResponse = tossPaymentClient.confirmPayment(paymentKey, orderNumber, amount);
+		System.out.println("[결제확정요청] confirm 응답: method=" + paymentResponse.getMethod()
+				+ ", status=" + paymentResponse.getStatus()
+				+ ", totalAmount=" + paymentResponse.getTotalAmount());
+
 
 		Payment payment = Payment.of(paymentKey, order);
 		paymentRepository.save(payment);
+		paymentRepository.flush();
+		System.out.println("[결제확정요청] 결제 정보 저장 완료 - paymentKey=" + paymentKey);
 
 		OrderConfirmMessage message = OrderConfirmMessage.from(order, paymentKey, amount);
 		orderConfirmProducer.send(message);
+		System.out.println("[결제확정요청] 주문 확정 메시지 발행 완료 - queue=order.confirm.queue");
 
 		return PaymentConfirmResponse.from(order, paymentKey);
 	}

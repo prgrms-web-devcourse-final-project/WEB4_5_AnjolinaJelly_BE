@@ -1,5 +1,9 @@
 package com.jelly.zzirit.domain.order.service.order.manage;
 
+import com.jelly.zzirit.domain.order.repository.order.OrderRepository;
+import com.jelly.zzirit.global.dto.BaseResponseStatus;
+import com.jelly.zzirit.global.exception.custom.InvalidOrderException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,17 +21,33 @@ public class CommandConfirmService {
 
 	private final TossPaymentClient tossPaymentClient;
 	private final CommandOrderService commandOrderService;
+	private final OrderRepository orderRepository;
 
 	@Transactional
-	public void confirm(Order order, OrderConfirmMessage message) {
-		PaymentResponse paymentInfo = tossPaymentClient.fetchPaymentInfo(message.getPaymentKey());
+	public void confirmWithTx(String orderNumber, OrderConfirmMessage message) {
+		Order order = orderRepository.findWithPaymentByOrderNumber(orderNumber)
+				.orElseThrow(() -> new InvalidOrderException(BaseResponseStatus.ORDER_NOT_FOUND));
+		confirm(order, message);
+	}
 
-		tossPaymentClient.validate(order, paymentInfo, message.getAmount());
+	private void confirm(Order order, OrderConfirmMessage message) {
+		try {
+			PaymentResponse paymentInfo = tossPaymentClient.fetchPaymentInfo(message.getPaymentKey());
+			tossPaymentClient.validate(order, paymentInfo, message.getAmount());
 
-		Payment payment = order.getPayment();
-		payment.changeStatus(Payment.PaymentStatus.DONE);
-		payment.changeMethod(paymentInfo.getMethod());
+			Payment payment = order.getPayment();
+			payment.changeStatus(Payment.PaymentStatus.DONE);
+			payment.changeMethod(paymentInfo.getMethod());
 
-		commandOrderService.completeOrder(order);
+			commandOrderService.completeOrder(order);
+
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+
+	public Order findOrderOrThrow(String orderNumber) {
+		return orderRepository.findWithPaymentByOrderNumber(orderNumber)
+				.orElseThrow(() -> new InvalidOrderException(BaseResponseStatus.ORDER_NOT_FOUND));
 	}
 }
