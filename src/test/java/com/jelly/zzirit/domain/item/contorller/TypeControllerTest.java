@@ -17,7 +17,6 @@ import io.restassured.filter.Filter;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 
-@Disabled
 public class TypeControllerTest extends AcceptanceTest {
 
 	@Autowired
