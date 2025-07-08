@@ -43,4 +43,13 @@ public interface TimeDealRepository extends JpaRepository<TimeDeal, Long> {
 		   "ORDER BY t.startTime")
 	List<TimeDeal> findInitTimeDeals(@Param("statuses") List<TimeDeal.TimeDealStatus> statuses);
 
+	@Query("SELECT t FROM TimeDeal t " +
+		   "WHERE (t.startTime >= :start AND t.startTime < :end) " +
+		   "OR (t.endTime >= :start AND t.endTime < :end) " +
+		   "ORDER BY t.startTime")
+	List<TimeDeal> findAllByStartOrEndInPeriod(
+		@Param("start") LocalDateTime start,
+		@Param("end") LocalDateTime end
+	);
+
 }
